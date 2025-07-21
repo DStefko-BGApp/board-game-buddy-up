@@ -874,8 +874,8 @@ const Library = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Games</p>
-                <p className="text-2xl font-bold">{userLibrary?.length || 0}</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Owned Games</p>
+                <p className="text-2xl font-bold">{userLibrary?.filter(g => g.is_owned).length || 0}</p>
               </div>
               <BookOpen className="h-8 w-8 text-gaming-purple" />
             </div>
@@ -886,9 +886,9 @@ const Library = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Owned</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Expansions</p>
                 <p className="text-2xl font-bold text-gaming-green">
-                  {userLibrary?.filter(g => g.is_owned).length || 0}
+                  {userLibrary?.filter(g => g.is_owned && g.games?.is_expansion).length || 0}
                 </p>
               </div>
               <Heart className="h-8 w-8 text-gaming-green" />
@@ -900,12 +900,9 @@ const Library = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Avg Rating</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Base Games</p>
                 <p className="text-2xl font-bold text-primary">
-                  {userLibrary?.length ? 
-                    (userLibrary.reduce((acc, g) => acc + (g.personal_rating || 0), 0) / userLibrary.length).toFixed(1) : 
-                    "0.0"
-                  }
+                  {userLibrary?.filter(g => g.is_owned && !g.games?.is_expansion).length || 0}
                 </p>
               </div>
               <Star className="h-8 w-8 text-primary" />
