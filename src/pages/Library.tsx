@@ -888,7 +888,7 @@ const Library = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Expansions</p>
                 <p className="text-2xl font-bold text-gaming-green">
-                  {userLibrary?.filter(g => g.is_owned && g.games?.is_expansion).length || 0}
+                  {userLibrary?.filter(g => g.is_owned && g.game?.is_expansion).length || 0}
                 </p>
               </div>
               <Heart className="h-8 w-8 text-gaming-green" />
@@ -902,7 +902,7 @@ const Library = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Base Games</p>
                 <p className="text-2xl font-bold text-primary">
-                  {userLibrary?.filter(g => g.is_owned && !g.games?.is_expansion).length || 0}
+                  {userLibrary?.filter(g => g.is_owned && !g.game?.is_expansion).length || 0}
                 </p>
               </div>
               <Star className="h-8 w-8 text-primary" />
