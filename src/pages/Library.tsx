@@ -1200,21 +1200,26 @@ const Library = () => {
         }`}>
           {sortedGroupedLibrary.map((group) => (
             <div key={group.baseGame.id} className="space-y-2">
-              {/* Base game card with expansion indicator */}
+              {/* Use renderGameCard for consistent rendering */}
               <div className="relative">
-                <Card className="overflow-hidden hover:shadow-gaming transition-all duration-300">
-                  <div className={`relative ${viewMode === 'small' ? 'aspect-square' : 'aspect-square'}`}>
-                    {group.baseGame.game.image_url ? (
-                      <img 
-                        src={viewMode === 'small' ? (group.baseGame.game.thumbnail_url || group.baseGame.game.image_url) : group.baseGame.game.image_url} 
-                        alt={group.baseGame.game.name}
-                        className="w-full h-full object-cover"
-                      />
+                {/* Expansion toggle button for grid views */}
+                {group.expansions.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
+                    className="absolute -top-2 -right-2 z-10 h-6 w-6 p-0 bg-background border border-border rounded-full shadow-sm"
+                    title={expandedGroups.has(group.baseGame.game.bgg_id) ? "Hide expansions" : "Show expansions"}
+                  >
+                    {expandedGroups.has(group.baseGame.game.bgg_id) ? (
+                      <ChevronDown className="h-3 w-3" />
                     ) : (
-                      <div className="w-full h-full bg-gradient-gaming flex items-center justify-center">
-                        <BookOpen className={`${viewMode === 'small' ? 'h-8 w-8' : 'h-16 w-16'} text-white`} />
-                      </div>
+                      <ChevronRight className="h-3 w-3" />
                     )}
+                  </Button>
+                )}
+                
+                {renderGameCard(group.baseGame, false, viewMode)}
                     
                     {/* Expansion toggle button (for grid views) */}
                     {group.expansions.length > 0 && (
