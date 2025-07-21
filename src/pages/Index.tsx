@@ -72,8 +72,8 @@ const Index = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-3">
-              <Link to="/library">
-                Explore Your Library
+              <Link to="/auth">
+                Get Started Now
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
@@ -176,7 +176,7 @@ const Index = () => {
             Start organizing your collection and planning amazing game sessions today.
           </p>
           <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-3">
-            <Link to="/library">
+            <Link to="/auth">
               Get Started Now
               <ArrowRight className="h-5 w-5" />
             </Link>

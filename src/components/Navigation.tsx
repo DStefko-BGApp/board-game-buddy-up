@@ -8,12 +8,17 @@ import {
   Trophy, 
   Users,
   Menu,
-  X
+  X,
+  LogIn,
+  LogOut,
+  User
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { to: "/", icon: Crown, label: "Home" },
@@ -37,7 +42,7 @@ const Navigation = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -54,6 +59,36 @@ const Navigation = () => {
                 <span>{item.label}</span>
               </NavLink>
             ))}
+            
+            {/* Auth buttons */}
+            <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm">
+                    <User className="h-4 w-4" />
+                    <span className="text-muted-foreground">
+                      {user.user_metadata?.display_name || user.email}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={signOut}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button asChild variant="gaming" size="sm">
+                  <NavLink to="/auth">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </NavLink>
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -71,7 +106,7 @@ const Navigation = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
@@ -89,6 +124,41 @@ const Navigation = () => {
                   <span>{item.label}</span>
                 </NavLink>
               ))}
+              
+              {/* Mobile Auth */}
+              <div className="pt-4 mt-4 border-t border-border">
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                      <User className="h-4 w-4" />
+                      <span>{user.user_metadata?.display_name || user.email}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    asChild 
+                    variant="gaming" 
+                    className="w-full"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <NavLink to="/auth">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Sign In
+                    </NavLink>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}
