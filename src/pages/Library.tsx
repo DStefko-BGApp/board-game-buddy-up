@@ -33,6 +33,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 type ViewMode = 'list' | 'small' | 'large';
+type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
+
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'name', label: 'Alphabetical' },
+  { value: 'date_added', label: 'Recently Added' },
+  { value: 'bgg_rating', label: 'BGG Rating' },
+  { value: 'personal_rating', label: 'Personal Rating' },
+  { value: 'min_players', label: 'Min Players' },
+  { value: 'max_players', label: 'Max Players' },
+  { value: 'core_mechanic', label: 'Core Mechanic' },
+  { value: 'playing_time', label: 'Playing Time' },
+];
 
 const Library = () => {
   const { user } = useAuth();
@@ -44,6 +56,7 @@ const Library = () => {
   const [editRating, setEditRating] = useState<number | undefined>();
   const [editNotes, setEditNotes] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>('large');
+  const [sortBy, setSortBy] = useState<SortOption>('name');
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -55,6 +68,55 @@ const Library = () => {
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
+
+  // Sort the grouped library based on selected option
+  const sortedGroupedLibrary = groupedLibrary ? [...groupedLibrary].sort((a, b) => {
+    const gameA = a.baseGame.game;
+    const gameB = b.baseGame.game;
+    const userGameA = a.baseGame;
+    const userGameB = b.baseGame;
+
+    switch (sortBy) {
+      case 'name':
+        return gameA.name.localeCompare(gameB.name);
+      
+      case 'date_added':
+        return new Date(userGameB.date_added).getTime() - new Date(userGameA.date_added).getTime();
+      
+      case 'bgg_rating':
+        const ratingA = gameA.rating || 0;
+        const ratingB = gameB.rating || 0;
+        return ratingB - ratingA;
+      
+      case 'personal_rating':
+        const personalA = userGameA.personal_rating || 0;
+        const personalB = userGameB.personal_rating || 0;
+        return personalB - personalA;
+      
+      case 'min_players':
+        const minA = gameA.min_players || 0;
+        const minB = gameB.min_players || 0;
+        return minA - minB;
+      
+      case 'max_players':
+        const maxA = gameA.max_players || 0;
+        const maxB = gameB.max_players || 0;
+        return maxB - maxA;
+      
+      case 'core_mechanic':
+        const mechanicA = gameA.core_mechanic || '';
+        const mechanicB = gameB.core_mechanic || '';
+        return mechanicA.localeCompare(mechanicB);
+      
+      case 'playing_time':
+        const timeA = gameA.playing_time || 0;
+        const timeB = gameB.playing_time || 0;
+        return timeA - timeB;
+      
+      default:
+        return 0;
+    }
+  }) : [];
   const addGameMutation = useAddGameToLibrary();
   const removeGameMutation = useRemoveGameFromLibrary();
   const updateGameMutation = useUpdateUserGame();
@@ -763,6 +825,20 @@ const Library = () => {
               )}
             </div>
             
+            {/* Sort Dropdown */}
+            <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Sort by..." />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
             {/* View Mode Selector */}
             <div className="flex gap-1 bg-muted p-1 rounded-lg">
               <Button
@@ -803,7 +879,7 @@ const Library = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading your library...</p>
         </div>
-      ) : userLibrary?.length === 0 ? (
+      ) : sortedGroupedLibrary.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
             <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -825,7 +901,7 @@ const Library = () => {
         </Card>
       ) : viewMode === 'list' ? (
         <div className="space-y-4">
-          {groupedLibrary?.map((group) => (
+          {sortedGroupedLibrary.map((group) => (
             <div key={group.baseGame.id} className="space-y-2">
               {/* Base game with expansion toggle */}
               <div className="relative">
@@ -982,7 +1058,7 @@ const Library = () => {
             ? 'grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8' 
             : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
         }`}>
-          {groupedLibrary?.map((group) => (
+          {sortedGroupedLibrary.map((group) => (
             <div key={group.baseGame.id} className="space-y-2">
               {/* Base game card with expansion indicator */}
               <div className="relative">
