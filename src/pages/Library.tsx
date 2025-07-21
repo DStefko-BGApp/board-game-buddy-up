@@ -437,7 +437,7 @@ const Library = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(userGame.game.name)}</h3>
+                    <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(userGame.game))}</h3>
                     {userGame.game.is_expansion && (
                       <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
                         Expansion
@@ -593,7 +593,7 @@ const Library = () => {
           <>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg line-clamp-2 flex items-center gap-2">
-                {decodeHtmlEntities(userGame.game.name)}
+                 {decodeHtmlEntities(getDisplayTitle(userGame.game))}
                 {userGame.game.is_expansion && (
                   <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs">
                     Expansion
@@ -684,8 +684,8 @@ const Library = () => {
         
         {viewMode === 'small' && (
           <div className="p-2">
-            <h3 className="font-medium text-sm line-clamp-2 mb-1" title={decodeHtmlEntities(userGame.game.name)}>
-              {decodeHtmlEntities(userGame.game.name)}
+             <h3 className="font-medium text-sm line-clamp-2 mb-1" title={decodeHtmlEntities(getDisplayTitle(userGame.game))}>
+               {decodeHtmlEntities(getDisplayTitle(userGame.game))}
             </h3>
             <div className="flex gap-1 justify-center">
               <Button
@@ -1110,7 +1110,7 @@ const Library = () => {
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg truncate">{group.baseGame.game.name}</h3>
+                            <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(group.baseGame.game))}</h3>
                             {group.expansions.length > 0 && (
                               <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
                                 +{group.expansions.length} expansions
