@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,6 +66,7 @@ const Library = () => {
   const [editCoreMechanic, setEditCoreMechanic] = useState<string>("");
   const [editAdditionalMechanic1, setEditAdditionalMechanic1] = useState<string>("");
   const [editAdditionalMechanic2, setEditAdditionalMechanic2] = useState<string>("");
+  const [allBaseGames, setAllBaseGames] = useState<any[]>([]);
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
@@ -165,6 +167,28 @@ const Library = () => {
     setEditCoreMechanic(userGame.game.core_mechanic || "");
     setEditAdditionalMechanic1(userGame.game.additional_mechanic_1 || "");
     setEditAdditionalMechanic2(userGame.game.additional_mechanic_2 || "");
+    
+    // Fetch all base games for the dropdown
+    fetchAllBaseGames();
+  };
+
+  const fetchAllBaseGames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('games')
+        .select('bgg_id, name')
+        .eq('is_expansion', false)
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching base games:', error);
+        return;
+      }
+      
+      setAllBaseGames(data || []);
+    } catch (error) {
+      console.error('Error fetching base games:', error);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -1341,18 +1365,15 @@ const Library = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select base game" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {userLibrary
-                        ?.filter(game => 
-                          game.id !== editingGame?.id && // Don't allow selecting itself
-                          !game.game.is_expansion // Only show base games
-                        )
-                        .map(game => (
-                          <SelectItem key={game.game.bgg_id.toString()} value={game.game.bgg_id.toString()}>
-                            {game.game.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
+                     <SelectContent>
+                       {allBaseGames
+                         .filter(game => game.bgg_id !== editingGame?.game.bgg_id) // Don't allow selecting itself
+                         .map(game => (
+                           <SelectItem key={game.bgg_id.toString()} value={game.bgg_id.toString()}>
+                             {game.name}
+                           </SelectItem>
+                         ))}
+                     </SelectContent>
                   </Select>
                 </div>
               )}
