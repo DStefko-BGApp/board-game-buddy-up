@@ -170,6 +170,15 @@ const Library = () => {
   const handleSaveEdit = async () => {
     if (editingGame) {
       try {
+        console.log('Saving game edit:', {
+          gameId: editingGame.game.bgg_id,
+          gameName: editingGame.game.name,
+          currentIsExpansion: editingGame.game.is_expansion,
+          newIsExpansion: editIsExpansion,
+          currentBaseGameId: editingGame.game.base_game_bgg_id,
+          newBaseGameId: editBaseGameId
+        });
+
         // Update user game details (rating, notes)
         await updateGameMutation.mutateAsync({
           userGameId: editingGame.id,
@@ -184,6 +193,17 @@ const Library = () => {
         const currentBaseGameId = editingGame.game.base_game_bgg_id?.toString();
         
         if (editIsExpansion !== currentIsExpansion || editBaseGameId !== currentBaseGameId) {
+          console.log('Updating expansion relationship:', {
+            gameId: editingGame.game.bgg_id,
+            isExpansion: editIsExpansion,
+            baseGameBggId: editBaseGameId
+          });
+          
+          // Validate: don't allow circular relationships
+          if (editIsExpansion && editBaseGameId === editingGame.game.bgg_id.toString()) {
+            throw new Error("A game cannot be an expansion of itself");
+          }
+          
           await updateExpansionMutation.mutateAsync({
             gameId: editingGame.game.bgg_id,
             isExpansion: editIsExpansion,
@@ -218,10 +238,12 @@ const Library = () => {
           });
         }
 
+        console.log('All game edits completed successfully');
         setEditingGame(null);
       } catch (error) {
         // Error handling is done by the mutations' onError callbacks
         console.error('Error saving game edits:', error);
+        // Don't close the dialog on error so user can try again
       }
     }
   };
