@@ -526,7 +526,7 @@ const Library = () => {
         </Card>
       </div>
 
-      {/* View Mode Selector and Games Display */}
+      {/* Games Display */}
       {userLibrary && userLibrary.length > 0 && (
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-2xl font-semibold">Your Collection</h2>
