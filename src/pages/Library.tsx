@@ -19,10 +19,15 @@ import {
   Trash2,
   Edit,
   Download,
-  ExternalLink
+  ExternalLink,
+  Grid3X3,
+  Grid2X2,
+  List
 } from "lucide-react";
 import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
+
+type ViewMode = 'list' | 'small' | 'large';
 
 const Library = () => {
   const { user } = useAuth();
@@ -33,6 +38,7 @@ const Library = () => {
   const [editingGame, setEditingGame] = useState<any>(null);
   const [editRating, setEditRating] = useState<number | undefined>();
   const [editNotes, setEditNotes] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>('large');
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: userLibrary, isLoading: isLoadingLibrary } = useUserLibrary();
@@ -276,6 +282,42 @@ const Library = () => {
         </Card>
       </div>
 
+      {/* View Mode Selector and Games Display */}
+      {userLibrary && userLibrary.length > 0 && (
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Your Collection</h2>
+          <div className="flex gap-1 bg-muted p-1 rounded-lg">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="h-8 w-8 p-0"
+              title="List view"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'small' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('small')}
+              className="h-8 w-8 p-0"
+              title="Small icons"
+            >
+              <Grid2X2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'large' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('large')}
+              className="h-8 w-8 p-0"
+              title="Large icons"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Games Grid */}
       {isLoadingLibrary ? (
         <div className="text-center py-12">
@@ -302,94 +344,222 @@ const Library = () => {
             </div>
           </CardContent>
         </Card>
+      ) : viewMode === 'list' ? (
+        <div className="space-y-4">
+          {userLibrary?.map((userGame) => (
+            <Card key={userGame.id} className="hover:shadow-gaming transition-all duration-300">
+              <div className="flex gap-4 p-4">
+                <div className="w-20 h-20 flex-shrink-0">
+                  {userGame.game.image_url ? (
+                    <img 
+                      src={userGame.game.thumbnail_url || userGame.game.image_url} 
+                      alt={userGame.game.name}
+                      className="w-full h-full object-cover rounded"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
+                      <BookOpen className="h-8 w-8 text-white" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-lg truncate">{userGame.game.name}</h3>
+                      {userGame.game.year_published && (
+                        <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2 ml-4">
+                      {userGame.is_owned && (
+                        <Badge variant="secondary" className="bg-gaming-green text-white">
+                          Owned
+                        </Badge>
+                      )}
+                      {userGame.is_wishlist && (
+                        <Badge variant="secondary" className="bg-gaming-orange text-white">
+                          Wishlist
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-6 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
+                    </div>
+                    {userGame.game.playing_time && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{userGame.game.playing_time}min</span>
+                      </div>
+                    )}
+                    {userGame.game.rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span>{userGame.game.rating.toFixed(1)} BGG</span>
+                      </div>
+                    )}
+                    {userGame.personal_rating && (
+                      <div className="flex items-center gap-1">
+                        <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                        <span>{userGame.personal_rating}/10 Your rating</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditGame(userGame)}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeGameMutation.mutate(userGame.id)}
+                      disabled={removeGameMutation.isPending}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className={`grid gap-4 ${
+          viewMode === 'small' 
+            ? 'grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8' 
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        }`}>
           {userLibrary?.map((userGame) => (
             <Card key={userGame.id} className="overflow-hidden hover:shadow-gaming transition-all duration-300">
-              <div className="aspect-square relative">
+              <div className={`relative ${viewMode === 'small' ? 'aspect-square' : 'aspect-square'}`}>
                 {userGame.game.image_url ? (
                   <img 
-                    src={userGame.game.image_url} 
+                    src={viewMode === 'small' ? (userGame.game.thumbnail_url || userGame.game.image_url) : userGame.game.image_url} 
                     alt={userGame.game.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-gaming flex items-center justify-center">
-                    <BookOpen className="h-16 w-16 text-white" />
+                    <BookOpen className={`${viewMode === 'small' ? 'h-8 w-8' : 'h-16 w-16'} text-white`} />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 flex gap-2">
+                <div className="absolute top-2 right-2 flex gap-1">
                   {userGame.is_owned && (
-                    <Badge variant="secondary" className="bg-gaming-green text-white">
-                      Owned
+                    <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
+                      {viewMode === 'small' ? 'O' : 'Owned'}
                     </Badge>
                   )}
                   {userGame.is_wishlist && (
-                    <Badge variant="secondary" className="bg-gaming-orange text-white">
-                      Wishlist
+                    <Badge variant="secondary" className={`bg-gaming-orange text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
+                      {viewMode === 'small' ? 'W' : 'Wishlist'}
                     </Badge>
                   )}
                 </div>
               </div>
               
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg line-clamp-2">{userGame.game.name}</CardTitle>
-                {userGame.game.year_published && (
-                  <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
-                )}
-              </CardHeader>
-              
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
-                  </div>
-                  {userGame.game.playing_time && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{userGame.game.playing_time}min</span>
+              {viewMode === 'large' && (
+                <>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg line-clamp-2">{userGame.game.name}</CardTitle>
+                    {userGame.game.year_published && (
+                      <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
+                      </div>
+                      {userGame.game.playing_time && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span>{userGame.game.playing_time}min</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-                
-                {userGame.game.rating && (
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
-                    <span className="text-xs text-muted-foreground">BGG</span>
+                    
+                    {userGame.game.rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
+                        <span className="text-xs text-muted-foreground">BGG</span>
+                      </div>
+                    )}
+                    
+                    {userGame.personal_rating && (
+                      <div className="flex items-center gap-1">
+                        <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                        <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
+                        <span className="text-xs text-muted-foreground">Your rating</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditGame(userGame)}
+                        className="flex-1"
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => removeGameMutation.mutate(userGame.id)}
+                        disabled={removeGameMutation.isPending}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </>
+              )}
+              
+              {viewMode === 'small' && (
+                <div className="p-2">
+                  <h3 className="font-medium text-sm line-clamp-2 mb-1" title={userGame.game.name}>
+                    {userGame.game.name}
+                  </h3>
+                  <div className="flex gap-1 justify-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditGame(userGame)}
+                      className="h-6 w-6 p-0"
+                      title="Edit"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeGameMutation.mutate(userGame.id)}
+                      disabled={removeGameMutation.isPending}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                      title="Remove"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
-                )}
-                
-                {userGame.personal_rating && (
-                  <div className="flex items-center gap-1">
-                    <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                    <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
-                    <span className="text-xs text-muted-foreground">Your rating</span>
-                  </div>
-                )}
-                
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditGame(userGame)}
-                    className="flex-1"
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => removeGameMutation.mutate(userGame.id)}
-                    disabled={removeGameMutation.isPending}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
                 </div>
-              </CardContent>
+              )}
             </Card>
           ))}
         </div>
