@@ -1429,10 +1429,13 @@ const Library = () => {
                 id="custom-title"
                 value={editCustomTitle}
                 onChange={(e) => setEditCustomTitle(e.target.value)}
-                placeholder={editingGame?.game.name || "Enter custom title..."}
+                placeholder={editingGame?.game.custom_title ? "Current custom title displayed" : `Original: ${editingGame?.game.name || "Enter custom title..."}`}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Override the display name for this game. Leave empty to use the original BGG title.
+                {editingGame?.game.custom_title 
+                  ? "Currently using custom title. Clear this field to revert to original BGG title."
+                  : "Override the display name for this game. Leave empty to use the original BGG title."
+                }
               </p>
             </div>
             <div>
