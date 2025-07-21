@@ -1361,7 +1361,10 @@ const Library = () => {
               {editIsExpansion && (
                 <div>
                   <Label htmlFor="base-game">Base Game</Label>
-                  <Select value={editBaseGameId} onValueChange={setEditBaseGameId}>
+                  <Select 
+                    value={editBaseGameId || ""} 
+                    onValueChange={(value) => setEditBaseGameId(value || undefined)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select base game" />
                     </SelectTrigger>
