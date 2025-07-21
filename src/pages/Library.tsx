@@ -102,7 +102,14 @@ const Library = () => {
 
   // Helper function to get display title (custom title or original name)
   const getDisplayTitle = (game: any) => {
-    return game.custom_title || game.name;
+    const result = game.custom_title || game.name;
+    console.log('getDisplayTitle called for game:', {
+      bgg_id: game.bgg_id,
+      name: game.name,
+      custom_title: game.custom_title,
+      result: result
+    });
+    return result;
   };
 
   // Filter games based on search query
@@ -331,7 +338,13 @@ const Library = () => {
 
         // Update custom title if it changed
         const currentCustomTitle = editingGame.game.custom_title || "";
+        console.log('Custom title update check:', {
+          currentCustomTitle,
+          editCustomTitle,
+          changed: editCustomTitle !== currentCustomTitle
+        });
         if (editCustomTitle !== currentCustomTitle) {
+          console.log('Updating custom title for game:', editingGame.game.bgg_id, 'to:', editCustomTitle);
           await updateCustomTitleMutation.mutateAsync({
             gameId: editingGame.game.bgg_id,
             customTitle: editCustomTitle.trim() || null
