@@ -113,6 +113,19 @@ const Library = () => {
   const updateAdditionalMechanic2Mutation = useUpdateGameAdditionalMechanic2();
   const updateCustomTitleMutation = useUpdateGameCustomTitle();
 
+  // Helper functions (defined before they're used in useMemo hooks)
+  const getDisplayTitle = (game: any) => {
+    return game.custom_title || decodeHtmlEntities(game.name);
+  };
+
+  const formatPlayerCount = (min?: number, max?: number) => {
+    if (!min && !max) return 'Unknown';
+    if (min === max) return `${min}`;
+    if (!max) return `${min}+`;
+    if (!min) return `Up to ${max}`;
+    return `${min}-${max}`;
+  };
+
   // Filter and sort library
   const filteredLibrary = useMemo(() => {
     if (!userLibrary) return [];
@@ -250,17 +263,6 @@ const Library = () => {
     }
   };
 
-  const formatPlayerCount = (min?: number, max?: number) => {
-    if (!min && !max) return 'Unknown';
-    if (min === max) return `${min}`;
-    if (!max) return `${min}+`;
-    if (!min) return `Up to ${max}`;
-    return `${min}-${max}`;
-  };
-
-  const getDisplayTitle = (game: any) => {
-    return game.custom_title || decodeHtmlEntities(game.name);
-  };
 
   const toggleGroupExpansion = (bggId: number) => {
     setExpandedGroups(prev => {
