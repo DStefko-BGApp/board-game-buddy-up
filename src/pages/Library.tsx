@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,10 +27,12 @@ import {
   Grid2X2,
   List,
   CheckSquare,
-  Square
+  Square,
+  Settings
 } from "lucide-react";
 import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2 } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 type ViewMode = 'list' | 'small' | 'large';
@@ -49,6 +51,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 const Library = () => {
   const { user } = useAuth();
+  const { getPreference, setPreference } = useUserPreferences();
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,6 +70,26 @@ const Library = () => {
   const [editAdditionalMechanic1, setEditAdditionalMechanic1] = useState<string>("");
   const [editAdditionalMechanic2, setEditAdditionalMechanic2] = useState<string>("");
   const [allBaseGames, setAllBaseGames] = useState<any[]>([]);
+
+  // Load user's default view preference on mount
+  useEffect(() => {
+    const loadDefaultView = async () => {
+      if (user) {
+        const defaultView = await getPreference('library_default_view');
+        if (defaultView && (defaultView === 'list' || defaultView === 'small' || defaultView === 'large')) {
+          setViewMode(defaultView as ViewMode);
+        }
+      }
+    };
+    loadDefaultView();
+  }, [user, getPreference]);
+
+  // Function to save current view as default
+  const handleSetViewAsDefault = async () => {
+    if (user) {
+      await setPreference('library_default_view', viewMode);
+    }
+  };
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
@@ -886,33 +909,46 @@ const Library = () => {
             </Select>
             
             {/* View Mode Selector */}
-            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+            <div className="flex gap-2 items-center">
+              <div className="flex gap-1 bg-muted p-1 rounded-lg">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="h-8 w-8 p-0"
+                  title="List view"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'small' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('small')}
+                  className="h-8 w-8 p-0"
+                  title="Small icons"
+                >
+                  <Grid2X2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'large' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('large')}
+                  className="h-8 w-8 p-0"
+                  title="Large icons"
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+              </div>
+              
               <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                variant="outline"
                 size="sm"
-                onClick={() => setViewMode('list')}
-                className="h-8 w-8 p-0"
-                title="List view"
+                onClick={handleSetViewAsDefault}
+                className="flex items-center gap-1 text-xs"
+                title="Save current view as default"
               >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'small' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('small')}
-                className="h-8 w-8 p-0"
-                title="Small icons"
-              >
-                <Grid2X2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'large' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('large')}
-                className="h-8 w-8 p-0"
-                title="Large icons"
-              >
-                <Grid3X3 className="h-4 w-4" />
+                <Settings className="h-3 w-3" />
+                Set as Default
               </Button>
             </div>
           </div>
