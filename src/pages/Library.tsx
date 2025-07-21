@@ -456,11 +456,6 @@ const Library = () => {
                       Owned
                     </Badge>
                   )}
-                  {userGame.is_wishlist && (
-                    <Badge variant="secondary" className="bg-gaming-orange text-white">
-                      Wishlist
-                    </Badge>
-                  )}
                 </div>
               </div>
               
@@ -575,11 +570,6 @@ const Library = () => {
             {userGame.is_owned && (
               <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
                 {viewMode === 'small' ? 'O' : 'Owned'}
-              </Badge>
-            )}
-            {userGame.is_wishlist && (
-              <Badge variant="secondary" className={`bg-gaming-orange text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                {viewMode === 'small' ? 'W' : 'Wishlist'}
               </Badge>
             )}
             {userGame.game.is_expansion && (
@@ -725,7 +715,7 @@ const Library = () => {
             My Game Library
           </h1>
           <p className="text-muted-foreground">
-            Manage your board game collection and discover new games
+            Manage your board game collection
           </p>
         </div>
         
@@ -907,17 +897,6 @@ const Library = () => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Wishlist</p>
-                <p className="text-2xl font-bold text-gaming-orange">
-                  {userLibrary?.filter(g => g.is_wishlist).length || 0}
-                </p>
-              </div>
-              <Star className="h-8 w-8 text-gaming-orange" />
-            </div>
-          </CardContent>
         </Card>
         
         <Card>
@@ -1129,11 +1108,6 @@ const Library = () => {
                               Owned
                             </Badge>
                           )}
-                          {group.baseGame.is_wishlist && (
-                            <Badge variant="secondary" className="bg-gaming-orange text-white">
-                              Wishlist
-                            </Badge>
-                          )}
                         </div>
                       </div>
                       
@@ -1266,11 +1240,6 @@ const Library = () => {
                       {group.baseGame.is_owned && (
                         <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
                           {viewMode === 'small' ? 'O' : 'Owned'}
-                        </Badge>
-                      )}
-                      {group.baseGame.is_wishlist && (
-                        <Badge variant="secondary" className={`bg-gaming-orange text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                          {viewMode === 'small' ? 'W' : 'Wishlist'}
                         </Badge>
                       )}
                       {group.expansions.length > 0 && (
