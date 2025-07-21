@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
-  Gamepad2, 
+  Puzzle, 
   BookOpen, 
   Dice6, 
   Calendar, 
@@ -16,7 +16,7 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { to: "/", icon: Gamepad2, label: "Home" },
+    { to: "/", icon: Puzzle, label: "Home" },
     { to: "/library", icon: BookOpen, label: "My Games" },
     { to: "/randomizer", icon: Dice6, label: "Dice & Tools" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
@@ -30,7 +30,7 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <Gamepad2 className="h-8 w-8 text-primary" />
+            <Puzzle className="h-8 w-8 text-primary" />
             <span className="text-xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
               GameNight
             </span>
