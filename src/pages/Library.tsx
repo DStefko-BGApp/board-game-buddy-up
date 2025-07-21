@@ -1441,12 +1441,12 @@ const Library = () => {
             </div>
             <div>
               <Label htmlFor="core-mechanic">Core Mechanic</Label>
-              <Select value={editCoreMechanic} onValueChange={setEditCoreMechanic}>
+              <Select value={editCoreMechanic} onValueChange={(value) => setEditCoreMechanic(value === "__CLEAR__" ? "" : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select core mechanic..." />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
                   {BOARD_GAME_MECHANICS.map((mechanic) => (
                     <SelectItem key={mechanic} value={mechanic}>
                       {mechanic}
@@ -1461,12 +1461,12 @@ const Library = () => {
             
             <div>
               <Label htmlFor="additional-mechanic-1">Additional Mechanic 1 (Optional)</Label>
-              <Select value={editAdditionalMechanic1} onValueChange={setEditAdditionalMechanic1}>
+              <Select value={editAdditionalMechanic1} onValueChange={(value) => setEditAdditionalMechanic1(value === "__CLEAR__" ? "" : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select additional mechanic..." />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
                   {BOARD_GAME_MECHANICS.map((mechanic) => (
                     <SelectItem key={mechanic} value={mechanic}>
                       {mechanic}
@@ -1481,12 +1481,12 @@ const Library = () => {
             
             <div>
               <Label htmlFor="additional-mechanic-2">Additional Mechanic 2 (Optional)</Label>
-              <Select value={editAdditionalMechanic2} onValueChange={setEditAdditionalMechanic2}>
+              <Select value={editAdditionalMechanic2} onValueChange={(value) => setEditAdditionalMechanic2(value === "__CLEAR__" ? "" : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select additional mechanic..." />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
                   {BOARD_GAME_MECHANICS.map((mechanic) => (
                     <SelectItem key={mechanic} value={mechanic}>
                       {mechanic}
