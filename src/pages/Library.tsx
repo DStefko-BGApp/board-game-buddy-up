@@ -23,12 +23,8 @@ import {
   Edit,
   Download,
   ExternalLink,
-  Grid3X3,
-  Grid2X2,
-  List,
   CheckSquare,
   Square,
-  Settings,
   X,
   Puzzle,
   Home
@@ -40,7 +36,6 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { BOARD_GAME_MECHANICS } from "@/constants/boardGameMechanics";
 
-type ViewMode = 'list' | 'small' | 'large';
 type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
 
 const sortOptions: { value: SortOption; label: string }[] = [
@@ -68,7 +63,6 @@ const Library = () => {
   const [editNotes, setEditNotes] = useState("");
   const [editCustomTitle, setEditCustomTitle] = useState("");
   const [librarySearchQuery, setLibrarySearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>('large');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
@@ -79,26 +73,6 @@ const Library = () => {
   const [editAdditionalMechanic1, setEditAdditionalMechanic1] = useState<string>("");
   const [editAdditionalMechanic2, setEditAdditionalMechanic2] = useState<string>("");
   const [allBaseGames, setAllBaseGames] = useState<any[]>([]);
-
-  // Load user's default view preference on mount
-  useEffect(() => {
-    const loadDefaultView = async () => {
-      if (user) {
-        const defaultView = await getPreference('library_default_view');
-        if (defaultView && (defaultView === 'list' || defaultView === 'small' || defaultView === 'large')) {
-          setViewMode(defaultView as ViewMode);
-        }
-      }
-    };
-    loadDefaultView();
-  }, [user, getPreference]);
-
-  // Function to save current view as default
-  const handleSetViewAsDefault = async () => {
-    if (user) {
-      await setPreference('library_default_view', viewMode);
-    }
-  };
 
   const { searchResults, search, isLoading: isSearching } = useBGGSearch();
   const { data: userLibrary, isLoading: isLoadingLibrary, error: libraryError } = useUserLibrary();
@@ -339,168 +313,23 @@ const Library = () => {
     fetchBaseGames();
   }, [user]);
 
-  // Helper function to render a game card
-  const renderGameCard = (userGame: any, isExpansion = false, viewMode: ViewMode = 'large') => {
+  // Helper function to render a game card (list view only)
+  const renderGameCard = (userGame: any, isExpansion = false) => {
     const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 ${
       isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''
     } ${isSelectionMode && selectedGames.has(userGame.id) ? 'ring-2 ring-primary' : ''}`;
 
-    if (viewMode === 'list') {
-      return (
-        <Card key={userGame.id} className={cardClasses}>
-          <div className="flex gap-4 p-4">
-            {/* Selection Checkbox */}
-            {isSelectionMode && (
-              <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleGameSelection(userGame.id)}
-                  className="h-6 w-6 p-0"
-                >
-                  {selectedGames.has(userGame.id) ? (
-                    <CheckSquare className="h-4 w-4 text-primary" />
-                  ) : (
-                    <Square className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            )}
-
-            <div className="w-20 h-20 flex-shrink-0">
-              {userGame.game.image_url ? (
-                <img 
-                  src={userGame.game.thumbnail_url || userGame.game.image_url} 
-                  alt={decodeHtmlEntities(userGame.game.name)}
-                  className="w-full h-full object-cover rounded"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-                  <BookOpen className="h-8 w-8 text-white" />
-                </div>
-              )}
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(userGame.game))}</h3>
-                  {userGame.game.year_published && (
-                    <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
-                  )}
-                </div>
-                
-                <div className="flex gap-2 ml-4">
-                  {userGame.is_owned && (
-                    <Badge variant="secondary" className="bg-gaming-green text-white">
-                      Owned
-                    </Badge>
-                  )}
-                  {userGame.game.is_expansion && (
-                    <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
-                      Expansion
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-6 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
-                </div>
-                {userGame.game.playing_time && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{userGame.game.playing_time}min</span>
-                  </div>
-                )}
-                {userGame.game.rating && (
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span>{userGame.game.rating.toFixed(1)} BGG</span>
-                  </div>
-                )}
-                {userGame.personal_rating && (
-                  <div className="flex items-center gap-1">
-                    <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                    <span>{userGame.personal_rating}/10 Your rating</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Core mechanic */}
-              {userGame.game.core_mechanic && (
-                <div className="mt-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {userGame.game.core_mechanic}
-                  </Badge>
-                </div>
-              )}
-              
-              {/* Additional mechanics */}
-              <div className="mt-2 flex flex-wrap gap-1">
-                {userGame.game.additional_mechanic_1 && (
-                  <Badge variant="outline" className="text-xs">
-                    {userGame.game.additional_mechanic_1}
-                  </Badge>
-                )}
-                {userGame.game.additional_mechanic_2 && (
-                  <Badge variant="outline" className="text-xs">
-                    {userGame.game.additional_mechanic_2}
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="flex gap-2 mt-3">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEditGame(userGame)}
-                >
-                  <Edit className="h-3 w-3 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => removeGameMutation.mutate(userGame.id)}
-                  disabled={removeGameMutation.isPending}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      );
-    }
-
-    // Grid views (small/large)
     return (
-        <Card key={userGame.id} className={cardClasses}>
-        <div className={`relative ${viewMode === 'small' ? 'aspect-square' : 'aspect-square'}`}>
-          {userGame.game.image_url ? (
-            <img 
-              src={viewMode === 'small' ? (userGame.game.thumbnail_url || userGame.game.image_url) : userGame.game.image_url} 
-              alt={decodeHtmlEntities(userGame.game.name)}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-gaming flex items-center justify-center">
-              <BookOpen className={`${viewMode === 'small' ? 'h-8 w-8' : 'h-16 w-16'} text-white`} />
-            </div>
-          )}
-          
-          {/* Selection checkbox for grid views */}
+      <Card key={userGame.id} className={cardClasses}>
+        <div className="flex gap-4 p-4">
+          {/* Selection Checkbox */}
           {isSelectionMode && (
-            <div className="absolute top-2 left-2 z-10">
+            <div className="flex items-center">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => handleGameSelection(userGame.id)}
-                className="h-6 w-6 p-0 bg-background border border-border rounded"
+                className="h-6 w-6 p-0"
               >
                 {selectedGames.has(userGame.id) ? (
                   <CheckSquare className="h-4 w-4 text-primary" />
@@ -510,137 +339,113 @@ const Library = () => {
               </Button>
             </div>
           )}
+
+          <div className="w-20 h-20 flex-shrink-0">
+            {userGame.game.image_url ? (
+              <img 
+                src={userGame.game.thumbnail_url || userGame.game.image_url} 
+                alt={decodeHtmlEntities(userGame.game.name)}
+                className="w-full h-full object-cover rounded"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
+                <BookOpen className="h-8 w-8 text-white" />
+              </div>
+            )}
+          </div>
           
-          <div className="absolute top-2 right-2 flex gap-1">
-            {userGame.is_owned && (
-              <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                {viewMode === 'small' ? 'O' : 'Owned'}
-              </Badge>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(userGame.game))}</h3>
+                {userGame.game.year_published && (
+                  <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
+                )}
+              </div>
+              
+              <div className="flex gap-2 ml-4">
+                {userGame.is_owned && (
+                  <Badge variant="secondary" className="bg-gaming-green text-white">
+                    Owned
+                  </Badge>
+                )}
+                {userGame.game.is_expansion && (
+                  <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
+                    Expansion
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
+              </div>
+              {userGame.game.playing_time && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{userGame.game.playing_time}min</span>
+                </div>
+              )}
+              {userGame.game.rating && (
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                  <span>{userGame.game.rating.toFixed(1)} BGG</span>
+                </div>
+              )}
+              {userGame.personal_rating && (
+                <div className="flex items-center gap-1">
+                  <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                  <span>{userGame.personal_rating}/10 Your rating</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Core mechanic */}
+            {userGame.game.core_mechanic && (
+              <div className="mt-2">
+                <Badge variant="secondary" className="text-xs">
+                  {userGame.game.core_mechanic}
+                </Badge>
+              </div>
             )}
-            {userGame.game.is_expansion && (
-              <Badge variant="outline" className={`bg-gaming-purple text-white border-gaming-purple ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                {viewMode === 'small' ? 'E' : 'Exp'}
-              </Badge>
-            )}
+            
+            {/* Additional mechanics */}
+            <div className="mt-2 flex flex-wrap gap-1">
+              {userGame.game.additional_mechanic_1 && (
+                <Badge variant="outline" className="text-xs">
+                  {userGame.game.additional_mechanic_1}
+                </Badge>
+              )}
+              {userGame.game.additional_mechanic_2 && (
+                <Badge variant="outline" className="text-xs">
+                  {userGame.game.additional_mechanic_2}
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex gap-2 mt-3">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleEditGame(userGame)}
+              >
+                <Edit className="h-3 w-3 mr-1" />
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => removeGameMutation.mutate(userGame.id)}
+                disabled={removeGameMutation.isPending}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         </div>
-        
-        {viewMode === 'large' && (
-          <>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base line-clamp-2" title={decodeHtmlEntities(getDisplayTitle(userGame.game))}>
-                {decodeHtmlEntities(getDisplayTitle(userGame.game))}
-              </CardTitle>
-              {userGame.game.year_published && (
-                <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
-              )}
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
-                  </div>
-                  {userGame.game.playing_time && (
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{userGame.game.playing_time}min</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm">
-                  {userGame.game.rating && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span>{userGame.game.rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                  {userGame.personal_rating && (
-                    <div className="flex items-center gap-1">
-                      <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                      <span>{userGame.personal_rating}/10</span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Core mechanic */}
-                {userGame.game.core_mechanic && (
-                  <div>
-                    <Badge variant="secondary" className="text-xs">
-                      {userGame.game.core_mechanic}
-                    </Badge>
-                  </div>
-                )}
-                
-                {/* Additional mechanics */}
-                <div className="flex flex-wrap gap-1">
-                  {userGame.game.additional_mechanic_1 && (
-                    <Badge variant="outline" className="text-xs">
-                      {userGame.game.additional_mechanic_1}
-                    </Badge>
-                  )}
-                  {userGame.game.additional_mechanic_2 && (
-                    <Badge variant="outline" className="text-xs">
-                      {userGame.game.additional_mechanic_2}
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditGame(userGame)}
-                    className="flex-1"
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => removeGameMutation.mutate(userGame.id)}
-                    disabled={removeGameMutation.isPending}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </>
-        )}
-        
-        {viewMode === 'small' && (
-          <div className="p-2">
-             <h3 className="font-medium text-sm line-clamp-2 mb-1" title={decodeHtmlEntities(getDisplayTitle(userGame.game))}>
-               {decodeHtmlEntities(getDisplayTitle(userGame.game))}
-             </h3>
-             <div className="flex gap-1 justify-center">
-               <Button
-                 size="sm"
-                 variant="outline"
-                 onClick={() => handleEditGame(userGame)}
-                 className="h-6 w-6 p-0"
-                 title="Edit"
-               >
-                 <Edit className="h-3 w-3" />
-               </Button>
-               <Button
-                 size="sm"
-                 variant="outline"
-                 onClick={() => removeGameMutation.mutate(userGame.id)}
-                 disabled={removeGameMutation.isPending}
-                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                 title="Remove"
-               >
-                 <Trash2 className="h-3 w-3" />
-               </Button>
-             </div>
-          </div>
-        )}
       </Card>
     );
   };
@@ -779,48 +584,6 @@ const Library = () => {
                 ))}
               </SelectContent>
             </Select>
-            
-            {/* View Mode Selector */}
-            <div className="flex gap-2 items-center">
-              <div className="flex gap-1 bg-muted p-1 rounded-lg">
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="h-8 w-8 p-0"
-                  title="List view"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'small' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('small')}
-                  className="h-8 w-8 p-0"
-                  title="Small icons"
-                >
-                  <Grid2X2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'large' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('large')}
-                  className="h-8 w-8 p-0"
-                  title="Large icons"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSetViewAsDefault}
-                title="Set as default view"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       )}
@@ -851,7 +614,7 @@ const Library = () => {
             </div>
           </CardContent>
         </Card>
-      ) : viewMode === 'list' ? (
+      ) : (
         <div className="space-y-4">
           {sortedGroupedLibrary.map((group) => (
             <div key={group.baseGame.id} className="space-y-2">
@@ -872,7 +635,7 @@ const Library = () => {
                   </Button>
                 )}
                 
-                {renderGameCard(group.baseGame, false, viewMode)}
+                {renderGameCard(group.baseGame, false)}
               </div>
 
               {/* Expansions (when expanded) */}
@@ -880,50 +643,7 @@ const Library = () => {
                 <div className="ml-8 space-y-2">
                   {group.expansions.map((expansion) => (
                     <div key={expansion.id}>
-                      {renderGameCard(expansion, true, viewMode)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className={`grid gap-4 ${
-          viewMode === 'small' 
-            ? 'grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8' 
-            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-        }`}>
-          {sortedGroupedLibrary.map((group) => (
-            <div key={group.baseGame.id} className="space-y-2">
-              {/* Base game card */}
-              <div className="relative">
-                {/* Expansion toggle button for grid views */}
-                {group.expansions.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
-                    className="absolute -top-2 -right-2 z-10 h-6 w-6 p-0 bg-background border border-border rounded-full shadow-sm"
-                    title={expandedGroups.has(group.baseGame.game.bgg_id) ? "Hide expansions" : "Show expansions"}
-                  >
-                    {expandedGroups.has(group.baseGame.game.bgg_id) ? (
-                      <ChevronDown className="h-3 w-3" />
-                    ) : (
-                      <ChevronRight className="h-3 w-3" />
-                    )}
-                  </Button>
-                )}
-                
-                {renderGameCard(group.baseGame, false, viewMode)}
-              </div>
-
-              {/* Expansions (when expanded in grid views) */}
-              {expandedGroups.has(group.baseGame.game.bgg_id) && group.expansions.length > 0 && (
-                <div className="ml-4 grid gap-2 grid-cols-1">
-                  {group.expansions.map((expansion) => (
-                    <div key={expansion.id} className="transform scale-90 origin-top-left">
-                      {renderGameCard(expansion, true, viewMode)}
+                      {renderGameCard(expansion, true)}
                     </div>
                   ))}
                 </div>
