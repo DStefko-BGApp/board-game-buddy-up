@@ -51,6 +51,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 const Library = () => {
+  console.log('Library component rendered');
   const { user } = useAuth();
   const { getPreference, setPreference } = useUserPreferences();
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
