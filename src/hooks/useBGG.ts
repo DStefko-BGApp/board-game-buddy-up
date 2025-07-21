@@ -124,3 +124,31 @@ export const useUpdateUserGame = () => {
     },
   });
 };
+
+export const useSyncBGGCollection = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (bggUsername: string) => {
+      if (!user) throw new Error('User not authenticated');
+      return BGGService.syncBGGCollection(bggUsername, user.id);
+    },
+    onSuccess: (result) => {
+      toast({
+        title: "Collection synced!",
+        description: result.message,
+      });
+      // Invalidate and refetch user library
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to sync collection",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};

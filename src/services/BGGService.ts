@@ -140,6 +140,27 @@ class BGGService {
       throw new Error(`Failed to update game: ${error.message}`);
     }
   }
+
+  static async syncBGGCollection(bggUsername: string, userId: string): Promise<any> {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const response = await fetch(`${this.baseUrl}/sync-collection`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({ bggUsername, userId }),
+    });
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to sync BGG collection');
+    }
+
+    return result.data;
+  }
 }
 
 export default BGGService;

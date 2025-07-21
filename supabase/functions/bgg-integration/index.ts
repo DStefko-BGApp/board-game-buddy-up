@@ -60,56 +60,14 @@ Deno.serve(async (req) => {
             JSON.stringify({ success: true, data: searchResults }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
-        } else if (bggId) {
-          // Get detailed game information from BGG
+        } else if (bggId && userId) {
+          // Get detailed game information from BGG and add to user library
           console.log(`Fetching BGG game details for ID: ${bggId}`)
           const gameDetails = await getGameDetails(bggId)
           
           if (gameDetails) {
-            // Store/update game in our database
-            const { data: existingGame } = await supabase
-              .from('games')
-              .select('*')
-              .eq('bgg_id', bggId)
-              .single()
-
-            let game
-            if (existingGame) {
-              // Update existing game
-              const { data, error } = await supabase
-                .from('games')
-                .update(gameDetails)
-                .eq('bgg_id', bggId)
-                .select()
-                .single()
-              
-              if (error) throw error
-              game = data
-            } else {
-              // Insert new game
-              const { data, error } = await supabase
-                .from('games')
-                .insert(gameDetails)
-                .select()
-                .single()
-              
-              if (error) throw error
-              game = data
-            }
-
-            // If userId is provided, add to user's library
-            if (userId) {
-              const { error: userGameError } = await supabase
-                .from('user_games')
-                .insert({
-                  user_id: userId,
-                  game_id: game.id
-                })
-              
-              if (userGameError && !userGameError.message.includes('duplicate')) {
-                throw userGameError
-              }
-            }
+            const game = await upsertGame(supabase, gameDetails)
+            await addToUserLibrary(supabase, userId, game.id)
 
             return new Response(
               JSON.stringify({ success: true, data: game }),
@@ -121,6 +79,17 @@ Deno.serve(async (req) => {
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
             )
           }
+        } else if (req.url.includes('sync-collection')) {
+          // Sync user's BGG collection
+          const { bggUsername, userId } = await req.json()
+          console.log(`Syncing BGG collection for user: ${bggUsername}`)
+          
+          const syncResult = await syncBGGCollection(supabase, bggUsername, userId)
+          
+          return new Response(
+            JSON.stringify({ success: true, data: syncResult }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
         }
         break
 
@@ -253,4 +222,160 @@ function extractLinks(xmlText: string, type: string): string[] {
   }
   
   return results
+}
+
+async function syncBGGCollection(supabase: any, bggUsername: string, userId: string) {
+  try {
+    console.log(`Fetching BGG collection for user: ${bggUsername}`)
+    const collectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1&stats=1`
+    
+    const response = await fetch(collectionUrl)
+    const xmlText = await response.text()
+    
+    if (xmlText.includes('Your request for this collection has been accepted')) {
+      throw new Error('BGG collection is queued for processing. Please try again in a few moments.')
+    }
+    
+    if (xmlText.includes('Invalid username specified')) {
+      throw new Error('Invalid BGG username specified')
+    }
+    
+    // Parse collection XML
+    const games = []
+    const itemRegex = /<item[^>]*objectid="(\d+)"[^>]*>/g
+    let match
+    
+    while ((match = itemRegex.exec(xmlText)) !== null) {
+      const itemXml = xmlText.substring(match.index, xmlText.indexOf('</item>', match.index) + 7)
+      const bggId = parseInt(match[1])
+      
+      // Extract basic info from collection
+      const nameMatch = itemXml.match(/<name[^>]*>([^<]*)<\/name>/)
+      const yearMatch = itemXml.match(/<yearpublished>(\d+)<\/yearpublished>/)
+      
+      if (nameMatch) {
+        games.push({
+          bgg_id: bggId,
+          name: nameMatch[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"'),
+          year_published: yearMatch ? parseInt(yearMatch[1]) : null
+        })
+      }
+    }
+    
+    console.log(`Found ${games.length} games in BGG collection`)
+    
+    let imported = 0
+    let skipped = 0
+    let errors = 0
+    
+    // Process games in batches to avoid overwhelming the API
+    for (let i = 0; i < games.length; i += 5) {
+      const batch = games.slice(i, i + 5)
+      
+      await Promise.all(batch.map(async (gameInfo) => {
+        try {
+          // Check if game already exists in user's library
+          const { data: existingUserGame } = await supabase
+            .from('user_games')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('game_id', (
+              await supabase
+                .from('games')
+                .select('id')
+                .eq('bgg_id', gameInfo.bgg_id)
+                .single()
+            )?.data?.id || 'nonexistent')
+            .single()
+          
+          if (existingUserGame) {
+            skipped++
+            console.log(`Game ${gameInfo.name} already in library, skipping`)
+            return
+          }
+          
+          // Get detailed game info from BGG
+          const gameDetails = await getGameDetails(gameInfo.bgg_id)
+          if (!gameDetails) {
+            console.log(`Could not fetch details for ${gameInfo.name}`)
+            errors++
+            return
+          }
+          
+          // Add game to database and user library
+          const game = await upsertGame(supabase, gameDetails)
+          await addToUserLibrary(supabase, userId, game.id)
+          
+          imported++
+          console.log(`Imported game: ${gameDetails.name}`)
+          
+        } catch (error) {
+          console.error(`Error importing game ${gameInfo.name}:`, error)
+          errors++
+        }
+      }))
+      
+      // Small delay between batches to be nice to BGG's API
+      if (i + 5 < games.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
+    
+    return {
+      total: games.length,
+      imported,
+      skipped,
+      errors,
+      message: `Collection sync complete: ${imported} imported, ${skipped} skipped, ${errors} errors`
+    }
+    
+  } catch (error) {
+    console.error('Error syncing BGG collection:', error)
+    throw error
+  }
+}
+
+async function upsertGame(supabase: any, gameDetails: BGGGameData) {
+  // Check if game already exists
+  const { data: existingGame } = await supabase
+    .from('games')
+    .select('*')
+    .eq('bgg_id', gameDetails.bgg_id)
+    .single()
+
+  if (existingGame) {
+    // Update existing game
+    const { data, error } = await supabase
+      .from('games')
+      .update(gameDetails)
+      .eq('bgg_id', gameDetails.bgg_id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  } else {
+    // Insert new game
+    const { data, error } = await supabase
+      .from('games')
+      .insert(gameDetails)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  }
+}
+
+async function addToUserLibrary(supabase: any, userId: string, gameId: string) {
+  const { error } = await supabase
+    .from('user_games')
+    .insert({
+      user_id: userId,
+      game_id: gameId
+    })
+  
+  if (error && !error.message.includes('duplicate')) {
+    throw error
+  }
 }

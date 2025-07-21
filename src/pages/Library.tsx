@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { 
   BookOpen, 
   Search, 
@@ -16,15 +17,19 @@ import {
   Star,
   Heart,
   Trash2,
-  Edit
+  Edit,
+  Download,
+  ExternalLink
 } from "lucide-react";
-import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame } from "@/hooks/useBGG";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Library = () => {
   const { user } = useAuth();
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [bggUsername, setBggUsername] = useState("");
   const [editingGame, setEditingGame] = useState<any>(null);
   const [editRating, setEditRating] = useState<number | undefined>();
   const [editNotes, setEditNotes] = useState("");
@@ -34,6 +39,7 @@ const Library = () => {
   const addGameMutation = useAddGameToLibrary();
   const removeGameMutation = useRemoveGameFromLibrary();
   const updateGameMutation = useUpdateUserGame();
+  const syncCollectionMutation = useSyncBGGCollection();
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -45,6 +51,14 @@ const Library = () => {
     await addGameMutation.mutateAsync(bggId);
     setSearchDialogOpen(false);
     setSearchQuery("");
+  };
+
+  const handleSyncCollection = async () => {
+    if (bggUsername.trim()) {
+      await syncCollectionMutation.mutateAsync(bggUsername.trim());
+      setSyncDialogOpen(false);
+      setBggUsername("");
+    }
   };
 
   const handleEditGame = (userGame: any) => {
@@ -86,63 +100,120 @@ const Library = () => {
           </p>
         </div>
         
-        <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="gaming" size="lg" className="flex items-center gap-2">
-              <Plus className="h-5 w-5" />
-              Add Game
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add Game from BoardGameGeek</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Search for a board game..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
-                <Button onClick={handleSearch} disabled={isSearching}>
-                  <Search className="h-4 w-4" />
-                </Button>
+        <div className="flex gap-2">
+          <Dialog open={syncDialogOpen} onOpenChange={setSyncDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="lg" className="flex items-center gap-2">
+                <Download className="h-5 w-5" />
+                Sync BGG Collection
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ExternalLink className="h-5 w-5" />
+                  Sync BGG Collection
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Import your entire collection from BoardGameGeek. Enter your BGG username below.
+                </p>
+                
+                <div>
+                  <Label htmlFor="bgg-username">BGG Username</Label>
+                  <Input
+                    id="bgg-username"
+                    placeholder="Your BoardGameGeek username"
+                    value={bggUsername}
+                    onChange={(e) => setBggUsername(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSyncCollection()}
+                  />
+                </div>
+                
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">What happens during sync:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Fetches all games marked as "owned" in your BGG collection</li>
+                    <li>• Imports game details (ratings, descriptions, etc.)</li>
+                    <li>• Skips games already in your library</li>
+                    <li>• This may take a few minutes for large collections</li>
+                  </ul>
+                </div>
+                
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" onClick={() => setSyncDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSyncCollection}
+                    disabled={syncCollectionMutation.isPending || !bggUsername.trim()}
+                  >
+                    {syncCollectionMutation.isPending ? "Syncing..." : "Start Sync"}
+                  </Button>
+                </div>
               </div>
-              
-              {isSearching && (
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                  <p className="text-sm text-muted-foreground mt-2">Searching BoardGameGeek...</p>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="gaming" size="lg" className="flex items-center gap-2">
+                <Plus className="h-5 w-5" />
+                Add Game
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Game from BoardGameGeek</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Search for a board game..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                  <Button onClick={handleSearch} disabled={isSearching}>
+                    <Search className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              
-              {searchResults.length > 0 && (
-                <div className="max-h-60 overflow-y-auto space-y-2">
-                  {searchResults.map((game) => (
-                    <Card key={game.bgg_id} className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold">{game.name}</h4>
-                          {game.year_published && (
-                            <p className="text-sm text-muted-foreground">({game.year_published})</p>
-                          )}
+                
+                {isSearching && (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="text-sm text-muted-foreground mt-2">Searching BoardGameGeek...</p>
+                  </div>
+                )}
+                
+                {searchResults.length > 0 && (
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {searchResults.map((game) => (
+                      <Card key={game.bgg_id} className="p-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold">{game.name}</h4>
+                            {game.year_published && (
+                              <p className="text-sm text-muted-foreground">({game.year_published})</p>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => handleAddGame(game.bgg_id)}
+                            disabled={addGameMutation.isPending}
+                          >
+                            {addGameMutation.isPending ? "Adding..." : "Add"}
+                          </Button>
                         </div>
-                        <Button
-                          size="sm"
-                          onClick={() => handleAddGame(game.bgg_id)}
-                          disabled={addGameMutation.isPending}
-                        >
-                          {addGameMutation.isPending ? "Adding..." : "Add"}
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats */}
@@ -216,13 +287,19 @@ const Library = () => {
           <CardContent>
             <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">Your library is empty</h3>
-            <p className="text-muted-foreground mb-4">
-              Start building your collection by adding games from BoardGameGeek
+            <p className="text-muted-foreground mb-6">
+              Start building your collection by importing from BoardGameGeek or adding games manually
             </p>
-            <Button variant="gaming" onClick={() => setSearchDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Game
-            </Button>
+            <div className="flex gap-4 justify-center">
+              <Button variant="gaming" onClick={() => setSyncDialogOpen(true)}>
+                <Download className="h-4 w-4 mr-2" />
+                Sync BGG Collection
+              </Button>
+              <Button variant="outline" onClick={() => setSearchDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Manual Game
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
