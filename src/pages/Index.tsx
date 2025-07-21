@@ -64,8 +64,8 @@ const Index = () => {
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative">
-              <Crown className="h-12 w-12" />
-              <Dice6 className="absolute -top-1 -left-1 h-6 w-6 opacity-90" />
+              <Dice6 className="h-12 w-12" />
+              <Crown className="absolute -top-1 -left-1 h-6 w-6 opacity-90" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold">GameNight</h1>
           </div>
