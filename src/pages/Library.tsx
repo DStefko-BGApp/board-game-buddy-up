@@ -100,278 +100,203 @@ const Library = () => {
     }
   };
 
-  const { searchResults, isLoading: isSearching, search } = useBGGSearch();
-  const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
-
-  // Helper function to get display title (custom title or original name)
-  const getDisplayTitle = (game: any) => {
-    return game.custom_title || game.name;
-  };
-
-  // Filter games based on search query
-  const filteredGroupedLibrary = useMemo(() => {
-    if (!groupedLibrary || !librarySearchQuery.trim()) return groupedLibrary;
-    
-    const searchTerm = librarySearchQuery.toLowerCase().trim();
-    
-    return groupedLibrary.filter(group => {
-      // Search in base game
-      const baseGameMatches = (
-        getDisplayTitle(group.baseGame.game).toLowerCase().includes(searchTerm) ||
-        group.baseGame.game.core_mechanic?.toLowerCase().includes(searchTerm) ||
-        group.baseGame.game.additional_mechanic_1?.toLowerCase().includes(searchTerm) ||
-        group.baseGame.game.additional_mechanic_2?.toLowerCase().includes(searchTerm) ||
-        group.baseGame.game.designers?.some(d => d.toLowerCase().includes(searchTerm)) ||
-        group.baseGame.game.categories?.some(c => c.toLowerCase().includes(searchTerm)) ||
-        group.baseGame.notes?.toLowerCase().includes(searchTerm)
-      );
-      
-      // Search in expansions
-      const expansionMatches = group.expansions.some(expansion => 
-        getDisplayTitle(expansion.game).toLowerCase().includes(searchTerm) ||
-        expansion.game.core_mechanic?.toLowerCase().includes(searchTerm) ||
-        expansion.game.additional_mechanic_1?.toLowerCase().includes(searchTerm) ||
-        expansion.game.additional_mechanic_2?.toLowerCase().includes(searchTerm) ||
-        expansion.notes?.toLowerCase().includes(searchTerm)
-      );
-      
-      return baseGameMatches || expansionMatches;
-    });
-  }, [groupedLibrary, librarySearchQuery]);
-
-  // Sort the filtered library based on selected option
-  const sortedGroupedLibrary = filteredGroupedLibrary ? [...filteredGroupedLibrary].sort((a, b) => {
-    const gameA = a.baseGame.game;
-    const gameB = b.baseGame.game;
-    const userGameA = a.baseGame;
-    const userGameB = b.baseGame;
-
-    switch (sortBy) {
-      case 'name':
-        return getDisplayTitle(gameA).localeCompare(getDisplayTitle(gameB));
-      
-      case 'date_added':
-        return new Date(userGameB.date_added).getTime() - new Date(userGameA.date_added).getTime();
-      
-      case 'bgg_rating':
-        const ratingA = gameA.rating || 0;
-        const ratingB = gameB.rating || 0;
-        return ratingB - ratingA;
-      
-      case 'personal_rating':
-        const personalA = userGameA.personal_rating || 0;
-        const personalB = userGameB.personal_rating || 0;
-        return personalB - personalA;
-      
-      case 'min_players':
-        const minA = gameA.min_players || 0;
-        const minB = gameB.min_players || 0;
-        return minA - minB;
-      
-      case 'max_players':
-        const maxA = gameA.max_players || 0;
-        const maxB = gameB.max_players || 0;
-        return maxB - maxA;
-      
-      case 'core_mechanic':
-        const mechanicA = gameA.core_mechanic || '';
-        const mechanicB = gameB.core_mechanic || '';
-        return mechanicA.localeCompare(mechanicB);
-      
-      case 'playing_time':
-        const timeA = gameA.playing_time || 0;
-        const timeB = gameB.playing_time || 0;
-        return timeA - timeB;
-      
-      default:
-        return 0;
-    }
-  }) : [];
+  const { searchResults, search, isLoading: isSearching } = useBGGSearch();
+  const { data: userLibrary, isLoading: isLoadingLibrary, error: libraryError } = useUserLibrary();
+  const { data: groupedLibrary, isLoading: isLoadingGrouped } = useGroupedLibrary();
   const addGameMutation = useAddGameToLibrary();
   const removeGameMutation = useRemoveGameFromLibrary();
   const updateGameMutation = useUpdateUserGame();
+  const syncCollectionMutation = useSyncBGGCollection();
   const updateExpansionMutation = useUpdateGameExpansionRelationship();
   const updateCoreMechanicMutation = useUpdateGameCoreMechanic();
   const updateAdditionalMechanic1Mutation = useUpdateGameAdditionalMechanic1();
   const updateAdditionalMechanic2Mutation = useUpdateGameAdditionalMechanic2();
   const updateCustomTitleMutation = useUpdateGameCustomTitle();
-  const syncCollectionMutation = useSyncBGGCollection();
 
-  const toggleGroupExpansion = (baseGameBggId: number) => {
-    const newExpanded = new Set(expandedGroups);
-    if (newExpanded.has(baseGameBggId)) {
-      newExpanded.delete(baseGameBggId);
-    } else {
-      newExpanded.add(baseGameBggId);
-    }
-    setExpandedGroups(newExpanded);
-  };
+  // Filter and sort library
+  const filteredLibrary = useMemo(() => {
+    if (!userLibrary) return [];
+    
+    return userLibrary.filter(game => {
+      const title = getDisplayTitle(game.game).toLowerCase();
+      const searchTerm = librarySearchQuery.toLowerCase();
+      return title.includes(searchTerm);
+    });
+  }, [userLibrary, librarySearchQuery]);
 
-  const handleSearch = () => {
+  const sortedGroupedLibrary = useMemo(() => {
+    if (!groupedLibrary) return [];
+    
+    return [...groupedLibrary]
+      .filter(group => {
+        const title = getDisplayTitle(group.baseGame.game).toLowerCase();
+        const searchTerm = librarySearchQuery.toLowerCase();
+        return title.includes(searchTerm);
+      })
+      .sort((a, b) => {
+        const gameA = a.baseGame;
+        const gameB = b.baseGame;
+        
+        switch (sortBy) {
+          case 'name':
+            return getDisplayTitle(gameA.game).localeCompare(getDisplayTitle(gameB.game));
+          case 'date_added':
+            return new Date(gameB.date_added).getTime() - new Date(gameA.date_added).getTime();
+          case 'bgg_rating':
+            return (gameB.game.rating || 0) - (gameA.game.rating || 0);
+          case 'personal_rating':
+            return (gameB.personal_rating || 0) - (gameA.personal_rating || 0);
+          case 'min_players':
+            return (gameA.game.min_players || 0) - (gameB.game.min_players || 0);
+          case 'max_players':
+            return (gameA.game.max_players || 0) - (gameB.game.max_players || 0);
+          case 'core_mechanic':
+            return (gameA.game.core_mechanic || '').localeCompare(gameB.game.core_mechanic || '');
+          case 'playing_time':
+            return (gameA.game.playing_time || 0) - (gameB.game.playing_time || 0);
+          default:
+            return 0;
+        }
+      });
+  }, [groupedLibrary, librarySearchQuery, sortBy]);
+
+  const handleSearch = async () => {
     if (searchQuery.trim()) {
-      search(searchQuery.trim());
+      await search(searchQuery);
     }
   };
 
-  const handleAddGame = async (bggId: number) => {
-    await addGameMutation.mutateAsync(bggId);
-    setSearchDialogOpen(false);
-    setSearchQuery("");
+  const handleAddGame = async (game: any) => {
+    if (!user) return;
+    
+    try {
+      await addGameMutation.mutateAsync({
+        userId: user.id,
+        bggId: game.bgg_id,
+        isOwned: true,
+        isWishlist: false
+      });
+      setSearchDialogOpen(false);
+      setSearchQuery("");
+    } catch (error) {
+      console.error('Error adding game:', error);
+    }
   };
 
   const handleSyncCollection = async () => {
-    if (bggUsername.trim()) {
-      await syncCollectionMutation.mutateAsync(bggUsername.trim());
+    if (!bggUsername.trim()) return;
+    
+    try {
+      await syncCollectionMutation.mutateAsync(bggUsername);
       setSyncDialogOpen(false);
       setBggUsername("");
+    } catch (error) {
+      console.error('Error syncing collection:', error);
     }
   };
 
   const handleEditGame = (userGame: any) => {
     setEditingGame(userGame);
-    setEditRating(userGame.personal_rating);
+    setEditRating(userGame.personal_rating || undefined);
     setEditNotes(userGame.notes || "");
-    setEditCustomTitle(userGame.game.custom_title || "");
     setEditIsExpansion(userGame.game.is_expansion || false);
-    setEditBaseGameId(userGame.game.base_game_bgg_id?.toString());
+    setEditBaseGameId(userGame.game.base_game_bgg_id?.toString() || undefined);
     setEditCoreMechanic(userGame.game.core_mechanic || "");
     setEditAdditionalMechanic1(userGame.game.additional_mechanic_1 || "");
     setEditAdditionalMechanic2(userGame.game.additional_mechanic_2 || "");
-    
-    // Fetch all base games for the dropdown
-    fetchAllBaseGames();
-  };
-
-  const fetchAllBaseGames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('games')
-        .select('bgg_id, name')
-        .eq('is_expansion', false)
-        .order('name');
-      
-      if (error) {
-        console.error('Error fetching base games:', error);
-        return;
-      }
-      
-      setAllBaseGames(data || []);
-    } catch (error) {
-      console.error('Error fetching base games:', error);
-    }
+    setEditCustomTitle(userGame.game.custom_title || "");
   };
 
   const handleSaveEdit = async () => {
-    if (editingGame) {
-      try {
-        console.log('Saving game edit:', {
-          gameId: editingGame.game.bgg_id,
-          gameName: editingGame.game.name,
-          currentIsExpansion: editingGame.game.is_expansion,
-          newIsExpansion: editIsExpansion,
-          currentBaseGameId: editingGame.game.base_game_bgg_id,
-          newBaseGameId: editBaseGameId
-        });
+    if (!editingGame) return;
 
-        // Update user game details (rating, notes)
-        await updateGameMutation.mutateAsync({
-          userGameId: editingGame.id,
-          updates: {
-            personal_rating: editRating,
-            notes: editNotes,
-          },
-        });
-
-        // Update expansion relationship if it changed
-        const currentIsExpansion = editingGame.game.is_expansion || false;
-        const currentBaseGameId = editingGame.game.base_game_bgg_id?.toString();
-        
-        if (editIsExpansion !== currentIsExpansion || editBaseGameId !== currentBaseGameId) {
-          console.log('Updating expansion relationship:', {
-            gameId: editingGame.game.bgg_id,
-            isExpansion: editIsExpansion,
-            baseGameBggId: editBaseGameId
-          });
-          
-          // Validate: don't allow circular relationships
-          if (editIsExpansion && editBaseGameId === editingGame.game.bgg_id.toString()) {
-            throw new Error("A game cannot be an expansion of itself");
-          }
-          
-          await updateExpansionMutation.mutateAsync({
-            gameId: editingGame.game.bgg_id,
-            isExpansion: editIsExpansion,
-            baseGameBggId: editBaseGameId
-          });
+    try {
+      // Update user game data
+      await updateGameMutation.mutateAsync({
+        userGameId: editingGame.id,
+        updates: {
+          personal_rating: editRating,
+          notes: editNotes,
         }
+      });
 
-        // Update core mechanic if it changed
-        const currentCoreMechanic = editingGame.game.core_mechanic || "";
-        if (editCoreMechanic !== currentCoreMechanic) {
-          await updateCoreMechanicMutation.mutateAsync({
-            gameId: editingGame.game.bgg_id,
-            coreMechanic: editCoreMechanic.trim() || null
-          });
-        }
+      // Update expansion relationship
+      await updateExpansionMutation.mutateAsync({
+        gameId: editingGame.game.bgg_id,
+        isExpansion: editIsExpansion,
+        baseGameBggId: editBaseGameId
+      });
 
-        // Update additional mechanic 1 if it changed
-        const currentAdditionalMechanic1 = editingGame.game.additional_mechanic_1 || "";
-        if (editAdditionalMechanic1 !== currentAdditionalMechanic1) {
-          await updateAdditionalMechanic1Mutation.mutateAsync({
-            gameId: editingGame.game.bgg_id,
-            additionalMechanic1: editAdditionalMechanic1.trim() || null
-          });
-        }
+      // Update mechanics
+      await updateCoreMechanicMutation.mutateAsync({
+        gameId: editingGame.game.bgg_id,
+        coreMechanic: editCoreMechanic || null
+      });
 
-        // Update additional mechanic 2 if it changed
-        const currentAdditionalMechanic2 = editingGame.game.additional_mechanic_2 || "";
-        if (editAdditionalMechanic2 !== currentAdditionalMechanic2) {
-          await updateAdditionalMechanic2Mutation.mutateAsync({
-            gameId: editingGame.game.bgg_id,
-            additionalMechanic2: editAdditionalMechanic2.trim() || null
-          });
-        }
+      await updateAdditionalMechanic1Mutation.mutateAsync({
+        gameId: editingGame.game.bgg_id,
+        additionalMechanic1: editAdditionalMechanic1 || null
+      });
 
-        // Update custom title if it changed
-        const currentCustomTitle = editingGame.game.custom_title || "";
-        if (editCustomTitle !== currentCustomTitle) {
-          await updateCustomTitleMutation.mutateAsync({
-            gameId: editingGame.game.bgg_id,
-            customTitle: editCustomTitle.trim() || null
-          });
-        }
+      await updateAdditionalMechanic2Mutation.mutateAsync({
+        gameId: editingGame.game.bgg_id,
+        additionalMechanic2: editAdditionalMechanic2 || null
+      });
 
-        console.log('All game edits completed successfully');
-        setEditingGame(null);
-      } catch (error) {
-        // Error handling is done by the mutations' onError callbacks
-        console.error('Error saving game edits:', error);
-        // Don't close the dialog on error so user can try again
-      }
+      // Update custom title
+      await updateCustomTitleMutation.mutateAsync({
+        gameId: editingGame.game.bgg_id,
+        customTitle: editCustomTitle || null
+      });
+
+      setEditingGame(null);
+    } catch (error) {
+      console.error('Error updating game:', error);
     }
   };
 
   const formatPlayerCount = (min?: number, max?: number) => {
-    if (!min && !max) return "Unknown";
+    if (!min && !max) return 'Unknown';
     if (min === max) return `${min}`;
-    return `${min || '?'}-${max || '?'}`;
+    if (!max) return `${min}+`;
+    if (!min) return `Up to ${max}`;
+    return `${min}-${max}`;
   };
 
+  const getDisplayTitle = (game: any) => {
+    return game.custom_title || decodeHtmlEntities(game.name);
+  };
 
-  // Bulk delete functions
-  const toggleGameSelection = (gameId: string) => {
-    const newSelected = new Set(selectedGames);
-    if (newSelected.has(gameId)) {
-      newSelected.delete(gameId);
-    } else {
-      newSelected.add(gameId);
-    }
-    setSelectedGames(newSelected);
+  const toggleGroupExpansion = (bggId: number) => {
+    setExpandedGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(bggId)) {
+        newSet.delete(bggId);
+      } else {
+        newSet.add(bggId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleGameSelection = (gameId: string) => {
+    setSelectedGames(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(gameId)) {
+        newSet.delete(gameId);
+      } else {
+        newSet.add(gameId);
+      }
+      return newSet;
+    });
   };
 
   const selectAllGames = () => {
-    if (!userLibrary) return;
-    setSelectedGames(new Set(userLibrary.map(game => game.id)));
+    const allGameIds = sortedGroupedLibrary.flatMap(group => [
+      group.baseGame.id,
+      ...group.expansions.map(exp => exp.id)
+    ]);
+    setSelectedGames(new Set(allGameIds));
   };
 
   const deselectAllGames = () => {
@@ -379,21 +304,43 @@ const Library = () => {
   };
 
   const handleBulkDelete = async () => {
-    const gamesToDelete = Array.from(selectedGames);
+    if (selectedGames.size === 0) return;
     
-    // Delete games in parallel
-    await Promise.all(
-      gamesToDelete.map(gameId => removeGameMutation.mutateAsync(gameId))
-    );
-    
-    setSelectedGames(new Set());
-    setIsSelectionMode(false);
+    try {
+      await Promise.all(
+        Array.from(selectedGames).map(gameId => 
+          removeGameMutation.mutateAsync(gameId)
+        )
+      );
+      setSelectedGames(new Set());
+      setIsSelectionMode(false);
+    } catch (error) {
+      console.error('Error removing games:', error);
+    }
   };
 
-  const toggleSelectionMode = () => {
-    setIsSelectionMode(!isSelectionMode);
-    setSelectedGames(new Set());
-  };
+  useEffect(() => {
+    const fetchBaseGames = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('user_games')
+          .select(`
+            *,
+            game:games!inner(*)
+          `)
+          .eq('user_id', user.id)
+          .eq('games.is_expansion', false);
+        
+        setAllBaseGames(data || []);
+      } catch (error) {
+        console.error('Error fetching base games:', error);
+      }
+    };
+
+    fetchBaseGames();
+  }, [user]);
 
   // Helper function to render a game card
   const renderGameCard = (userGame: any, isExpansion = false, viewMode: ViewMode = 'large') => {
@@ -411,17 +358,18 @@ const Library = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => toggleGameSelection(userGame.id)}
-                  className="h-8 w-8 p-0"
+                  onClick={() => handleGameSelection(userGame.id)}
+                  className="h-6 w-6 p-0"
                 >
                   {selectedGames.has(userGame.id) ? (
-                    <CheckSquare className="h-5 w-5 text-primary" />
+                    <CheckSquare className="h-4 w-4 text-primary" />
                   ) : (
-                    <Square className="h-5 w-5" />
+                    <Square className="h-4 w-4" />
                   )}
                 </Button>
               </div>
             )}
+
             <div className="w-20 h-20 flex-shrink-0">
               {userGame.game.image_url ? (
                 <img 
@@ -439,14 +387,7 @@ const Library = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(userGame.game))}</h3>
-                    {userGame.game.is_expansion && (
-                      <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
-                        Expansion
-                      </Badge>
-                    )}
-                  </div>
+                  <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(userGame.game))}</h3>
                   {userGame.game.year_published && (
                     <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
                   )}
@@ -456,6 +397,11 @@ const Library = () => {
                   {userGame.is_owned && (
                     <Badge variant="secondary" className="bg-gaming-green text-white">
                       Owned
+                    </Badge>
+                  )}
+                  {userGame.game.is_expansion && (
+                    <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
+                      Expansion
                     </Badge>
                   )}
                 </div>
@@ -550,14 +496,14 @@ const Library = () => {
             </div>
           )}
           
-          {/* Selection Checkbox */}
+          {/* Selection checkbox for grid views */}
           {isSelectionMode && (
-            <div className="absolute top-2 left-2">
+            <div className="absolute top-2 left-2 z-10">
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="sm"
-                onClick={() => toggleGameSelection(userGame.id)}
-                className="h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                onClick={() => handleGameSelection(userGame.id)}
+                className="h-6 w-6 p-0 bg-background border border-border rounded"
               >
                 {selectedGames.has(userGame.id) ? (
                   <CheckSquare className="h-4 w-4 text-primary" />
@@ -585,91 +531,86 @@ const Library = () => {
         {viewMode === 'large' && (
           <>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg line-clamp-2 flex items-center gap-2">
-                 {decodeHtmlEntities(getDisplayTitle(userGame.game))}
-                {userGame.game.is_expansion && (
-                  <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs">
-                    Expansion
-                  </Badge>
-                )}
+              <CardTitle className="text-base line-clamp-2" title={decodeHtmlEntities(getDisplayTitle(userGame.game))}>
+                {decodeHtmlEntities(getDisplayTitle(userGame.game))}
               </CardTitle>
               {userGame.game.year_published && (
                 <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
               )}
             </CardHeader>
-            
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
-                </div>
-                {userGame.game.playing_time && (
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{userGame.game.playing_time}min</span>
+                    <Users className="h-4 w-4" />
+                    <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
+                  </div>
+                  {userGame.game.playing_time && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{userGame.game.playing_time}min</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-4 text-sm">
+                  {userGame.game.rating && (
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span>{userGame.game.rating.toFixed(1)}</span>
+                    </div>
+                  )}
+                  {userGame.personal_rating && (
+                    <div className="flex items-center gap-1">
+                      <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                      <span>{userGame.personal_rating}/10</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Core mechanic */}
+                {userGame.game.core_mechanic && (
+                  <div>
+                    <Badge variant="secondary" className="text-xs">
+                      {userGame.game.core_mechanic}
+                    </Badge>
                   </div>
                 )}
-              </div>
-               
-               {userGame.game.rating && (
-                 <div className="flex items-center gap-1">
-                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                   <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
-                   <span className="text-xs text-muted-foreground">BGG</span>
-                 </div>
-               )}
-               
-               {userGame.personal_rating && (
-                 <div className="flex items-center gap-1">
-                   <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                   <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
-                   <span className="text-xs text-muted-foreground">Your rating</span>
-                 </div>
-               )}
-               
-               {/* Core mechanic */}
-               {userGame.game.core_mechanic && (
-                 <div>
-                   <Badge variant="secondary" className="text-xs">
-                     {userGame.game.core_mechanic}
-                   </Badge>
-                 </div>
-               )}
-               
-               {/* Additional mechanics */}
-               <div className="flex flex-wrap gap-1">
-                 {userGame.game.additional_mechanic_1 && (
-                   <Badge variant="outline" className="text-xs">
-                     {userGame.game.additional_mechanic_1}
-                   </Badge>
-                 )}
-                 {userGame.game.additional_mechanic_2 && (
-                   <Badge variant="outline" className="text-xs">
-                     {userGame.game.additional_mechanic_2}
-                   </Badge>
-                 )}
-               </div>
-               
-               <div className="flex gap-2 pt-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEditGame(userGame)}
-                  className="flex-1"
-                >
-                  <Edit className="h-3 w-3 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => removeGameMutation.mutate(userGame.id)}
-                  disabled={removeGameMutation.isPending}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                
+                {/* Additional mechanics */}
+                <div className="flex flex-wrap gap-1">
+                  {userGame.game.additional_mechanic_1 && (
+                    <Badge variant="outline" className="text-xs">
+                      {userGame.game.additional_mechanic_1}
+                    </Badge>
+                  )}
+                  {userGame.game.additional_mechanic_2 && (
+                    <Badge variant="outline" className="text-xs">
+                      {userGame.game.additional_mechanic_2}
+                    </Badge>
+                  )}
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditGame(userGame)}
+                    className="flex-1"
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => removeGameMutation.mutate(userGame.id)}
+                    disabled={removeGameMutation.isPending}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </>
@@ -679,195 +620,65 @@ const Library = () => {
           <div className="p-2">
              <h3 className="font-medium text-sm line-clamp-2 mb-1" title={decodeHtmlEntities(getDisplayTitle(userGame.game))}>
                {decodeHtmlEntities(getDisplayTitle(userGame.game))}
-            </h3>
-            <div className="flex gap-1 justify-center">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleEditGame(userGame)}
-                className="h-6 w-6 p-0"
-                title="Edit"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => removeGameMutation.mutate(userGame.id)}
-                disabled={removeGameMutation.isPending}
-                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                title="Remove"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
+             </h3>
+             <div className="flex gap-1 justify-center">
+               <Button
+                 size="sm"
+                 variant="outline"
+                 onClick={() => handleEditGame(userGame)}
+                 className="h-6 w-6 p-0"
+                 title="Edit"
+               >
+                 <Edit className="h-3 w-3" />
+               </Button>
+               <Button
+                 size="sm"
+                 variant="outline"
+                 onClick={() => removeGameMutation.mutate(userGame.id)}
+                 disabled={removeGameMutation.isPending}
+                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                 title="Remove"
+               >
+                 <Trash2 className="h-3 w-3" />
+               </Button>
+             </div>
           </div>
         )}
       </Card>
     );
   };
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-            <BookOpen className="h-10 w-10 text-primary" />
-            My Game Library
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your board game collection
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Dialog open={syncDialogOpen} onOpenChange={setSyncDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="lg" className="flex items-center gap-2">
-                <Download className="h-5 w-5" />
-                Sync BGG Collection
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <ExternalLink className="h-5 w-5" />
-                  Sync BGG Collection
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Import your entire collection from BoardGameGeek. Enter your BGG username below.
-                </p>
-                
-                <div>
-                  <Label htmlFor="bgg-username">BGG Username</Label>
-                  <Input
-                    id="bgg-username"
-                    placeholder="Your BoardGameGeek username"
-                    value={bggUsername}
-                    onChange={(e) => setBggUsername(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSyncCollection()}
-                  />
-                </div>
-                
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">What happens during sync:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Fetches all games marked as "owned" in your BGG collection</li>
-                    <li>• Imports game details (ratings, descriptions, etc.)</li>
-                    <li>• Skips games already in your library</li>
-                    <li>• This may take a few minutes for large collections</li>
-                  </ul>
-                </div>
-                
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setSyncDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSyncCollection}
-                    disabled={syncCollectionMutation.isPending || !bggUsername.trim()}
-                  >
-                    {syncCollectionMutation.isPending ? "Syncing..." : "Start Sync"}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="gaming" size="lg" className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Add Game
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Game from BoardGameGeek</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Search for a board game..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  />
-                  <Button onClick={handleSearch} disabled={isSearching}>
-                    <Search className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                {isSearching && (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="text-sm text-muted-foreground mt-2">Searching BoardGameGeek...</p>
-                  </div>
-                )}
-                
-                {searchResults.length > 0 && (
-                  <div className="max-h-60 overflow-y-auto space-y-2">
-                    {searchResults.map((game) => (
-                      <Card key={game.bgg_id} className="p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold">{game.name}</h4>
-                            {game.year_published && (
-                              <p className="text-sm text-muted-foreground">({game.year_published})</p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => handleAddGame(game.bgg_id)}
-                            disabled={addGameMutation.isPending}
-                          >
-                            {addGameMutation.isPending ? "Adding..." : "Add"}
-                          </Button>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+  if (!user) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Please sign in to view your library</h1>
         </div>
       </div>
+    );
+  }
 
-      {/* Search and Filters */}
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search your library (title, mechanics, designers, notes)..."
-                value={librarySearchQuery}
-                onChange={(e) => setLibrarySearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          {librarySearchQuery && (
-            <Button
-              variant="outline"
-              onClick={() => setLibrarySearchQuery("")}
-              className="flex items-center gap-2"
-            >
-              <X className="h-4 w-4" />
-              Clear
-            </Button>
-          )}
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Game Library</h1>
+        <p className="text-muted-foreground">
+          Manage your board game collection, track ratings, and organize your games
+        </p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search your library..."
+            value={librarySearchQuery}
+            onChange={(e) => setLibrarySearchQuery(e.target.value)}
+            className="pl-10"
+          />
         </div>
-        
-        {librarySearchQuery && sortedGroupedLibrary && (
-          <div className="text-sm text-muted-foreground">
-            Found {sortedGroupedLibrary.length} game{sortedGroupedLibrary.length !== 1 ? 's' : ''} matching "{librarySearchQuery}"
-          </div>
-        )}
       </div>
 
       {/* Stats */}
@@ -918,49 +729,50 @@ const Library = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-2xl font-semibold">Your Collection</h2>
           
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            {/* Bulk Actions */}
-            <div className="flex gap-2">
-              <Button
-                variant={isSelectionMode ? "default" : "outline"}
-                size="sm"
-                onClick={toggleSelectionMode}
-                className="flex items-center gap-2"
-              >
-                {isSelectionMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
-                {isSelectionMode ? "Exit Selection" : "Select Games"}
-              </Button>
-              
-              {isSelectionMode && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={selectedGames.size === userLibrary.length ? deselectAllGames : selectAllGames}
-                  >
-                    {selectedGames.size === userLibrary.length ? "Deselect All" : "Select All"}
-                  </Button>
-                  
-                  {selectedGames.size > 0 && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleBulkDelete}
-                      disabled={removeGameMutation.isPending}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete {selectedGames.size} game{selectedGames.size !== 1 ? 's' : ''}
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
+          <div className="flex flex-wrap gap-4 items-center">
+            {/* Selection Mode Toggle */}
+            <Button
+              variant={isSelectionMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setIsSelectionMode(!isSelectionMode);
+                if (isSelectionMode) {
+                  setSelectedGames(new Set());
+                }
+              }}
+            >
+              {isSelectionMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+              {isSelectionMode ? "Exit Selection" : "Select Games"}
+            </Button>
             
-            {/* Sort Dropdown */}
+            {isSelectionMode && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={selectedGames.size === userLibrary.length ? deselectAllGames : selectAllGames}
+                >
+                  {selectedGames.size === userLibrary.length ? "Deselect All" : "Select All"}
+                </Button>
+                
+                {selectedGames.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    disabled={removeGameMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Remove Selected ({selectedGames.size})
+                  </Button>
+                )}
+              </>
+            )}
+
+            {/* Sort Selector */}
             <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Sort by..." />
+              <SelectTrigger className="w-40">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {sortOptions.map((option) => (
@@ -1004,14 +816,12 @@ const Library = () => {
               </div>
               
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleSetViewAsDefault}
-                className="flex items-center gap-1 text-xs"
-                title="Save current view as default"
+                title="Set as default view"
               >
-                <Settings className="h-3 w-3" />
-                Set as Default
+                <Settings className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -1065,118 +875,7 @@ const Library = () => {
                   </Button>
                 )}
                 
-                {/* Base game card */}
-                <Card className="hover:shadow-gaming transition-all duration-300">
-                  <div className="flex gap-4 p-4">
-                    <div className="w-20 h-20 flex-shrink-0">
-                      {group.baseGame.game.image_url ? (
-                        <img 
-                          src={group.baseGame.game.thumbnail_url || group.baseGame.game.image_url} 
-                          alt={group.baseGame.game.name}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-                          <BookOpen className="h-8 w-8 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(getDisplayTitle(group.baseGame.game))}</h3>
-                            {group.expansions.length > 0 && (
-                              <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
-                                +{group.expansions.length} expansions
-                              </Badge>
-                            )}
-                          </div>
-                          {group.baseGame.game.year_published && (
-                            <p className="text-sm text-muted-foreground">({group.baseGame.game.year_published})</p>
-                          )}
-                        </div>
-                        
-                        <div className="flex gap-2 ml-4">
-                          {group.baseGame.is_owned && (
-                            <Badge variant="secondary" className="bg-gaming-green text-white">
-                              Owned
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-6 mt-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
-                          <span>{formatPlayerCount(group.baseGame.game.min_players, group.baseGame.game.max_players)}</span>
-                        </div>
-                        {group.baseGame.game.playing_time && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{group.baseGame.game.playing_time}min</span>
-                          </div>
-                        )}
-                        {group.baseGame.game.rating && (
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <span>{group.baseGame.game.rating.toFixed(1)} BGG</span>
-                          </div>
-                        )}
-                        {group.baseGame.personal_rating && (
-                          <div className="flex items-center gap-1">
-                            <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                            <span>{group.baseGame.personal_rating}/10 Your rating</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Core mechanic */}
-                      {group.baseGame.game.core_mechanic && (
-                        <div className="mt-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {group.baseGame.game.core_mechanic}
-                          </Badge>
-                        </div>
-                      )}
-                      
-                      {/* Additional mechanics */}
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {group.baseGame.game.additional_mechanic_1 && (
-                          <Badge variant="outline" className="text-xs">
-                            {group.baseGame.game.additional_mechanic_1}
-                          </Badge>
-                        )}
-                        {group.baseGame.game.additional_mechanic_2 && (
-                          <Badge variant="outline" className="text-xs">
-                            {group.baseGame.game.additional_mechanic_2}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="flex gap-2 mt-3">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditGame(group.baseGame)}
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => removeGameMutation.mutate(group.baseGame.id)}
-                          disabled={removeGameMutation.isPending}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                {renderGameCard(group.baseGame, false, viewMode)}
               </div>
 
               {/* Expansions (when expanded) */}
@@ -1200,7 +899,7 @@ const Library = () => {
         }`}>
           {sortedGroupedLibrary.map((group) => (
             <div key={group.baseGame.id} className="space-y-2">
-              {/* Use renderGameCard for consistent rendering */}
+              {/* Base game card */}
               <div className="relative">
                 {/* Expansion toggle button for grid views */}
                 {group.expansions.length > 0 && (
@@ -1220,136 +919,6 @@ const Library = () => {
                 )}
                 
                 {renderGameCard(group.baseGame, false, viewMode)}
-                    
-                    {/* Expansion toggle button (for grid views) */}
-                    {group.expansions.length > 0 && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
-                        className="absolute top-2 left-2 h-6 w-6 p-0 bg-gaming-purple text-white hover:bg-gaming-purple/80"
-                      >
-                        {expandedGroups.has(group.baseGame.game.bgg_id) ? (
-                          <ChevronDown className="h-3 w-3" />
-                        ) : (
-                          <ChevronRight className="h-3 w-3" />
-                        )}
-                      </Button>
-                    )}
-                    
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      {group.baseGame.is_owned && (
-                        <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                          {viewMode === 'small' ? 'O' : 'Owned'}
-                        </Badge>
-                      )}
-                      {group.expansions.length > 0 && (
-                        <Badge variant="outline" className={`bg-gaming-purple text-white border-gaming-purple ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
-                          {viewMode === 'small' ? `+${group.expansions.length}` : `+${group.expansions.length} exp`}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {viewMode === 'large' && (
-                    <>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg line-clamp-2 flex items-center gap-2">
-                          {getDisplayTitle(group.baseGame.game)}
-                          {group.expansions.length > 0 && (
-                            <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs">
-                              +{group.expansions.length}
-                            </Badge>
-                          )}
-                        </CardTitle>
-                        {group.baseGame.game.year_published && (
-                          <p className="text-sm text-muted-foreground">({group.baseGame.game.year_published})</p>
-                        )}
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span>{formatPlayerCount(group.baseGame.game.min_players, group.baseGame.game.max_players)}</span>
-                          </div>
-                          {group.baseGame.game.playing_time && (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4 text-muted-foreground" />
-                              <span>{group.baseGame.game.playing_time}min</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {group.baseGame.game.rating && (
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium">{group.baseGame.game.rating.toFixed(1)}</span>
-                            <span className="text-xs text-muted-foreground">BGG</span>
-                          </div>
-                        )}
-                        
-                        {group.baseGame.personal_rating && (
-                          <div className="flex items-center gap-1">
-                            <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                            <span className="text-sm font-medium">{group.baseGame.personal_rating}/10</span>
-                            <span className="text-xs text-muted-foreground">Your rating</span>
-                          </div>
-                        )}
-                        
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditGame(group.baseGame)}
-                            className="flex-1"
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => removeGameMutation.mutate(group.baseGame.id)}
-                            disabled={removeGameMutation.isPending}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </>
-                  )}
-                  
-                  {viewMode === 'small' && (
-                    <div className="p-2">
-                      <h3 className="font-medium text-sm line-clamp-2 mb-1" title={getDisplayTitle(group.baseGame.game)}>
-                        {getDisplayTitle(group.baseGame.game)}
-                      </h3>
-                      <div className="flex gap-1 justify-center">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditGame(group.baseGame)}
-                          className="h-6 w-6 p-0"
-                          title="Edit"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => removeGameMutation.mutate(group.baseGame.id)}
-                          disabled={removeGameMutation.isPending}
-                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                          title="Remove"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </Card>
               </div>
 
               {/* Expansions (when expanded in grid views) */}
@@ -1373,7 +942,20 @@ const Library = () => {
           <DialogHeader>
             <DialogTitle>Edit {editingGame ? getDisplayTitle(editingGame.game) : ''}</DialogTitle>
           </DialogHeader>
+          
           <div className="space-y-4">
+            {/* Custom Title */}
+            <div>
+              <Label htmlFor="customTitle">Custom Title (optional)</Label>
+              <Input
+                id="customTitle"
+                value={editCustomTitle}
+                onChange={(e) => setEditCustomTitle(e.target.value)}
+                placeholder="Enter custom title or leave blank to use original"
+              />
+            </div>
+
+            {/* Personal Rating */}
             <div>
               <Label htmlFor="rating">Your Rating (1-10)</Label>
               <Input
@@ -1381,145 +963,217 @@ const Library = () => {
                 type="number"
                 min="1"
                 max="10"
-                value={editRating || ""}
+                value={editRating || ''}
                 onChange={(e) => setEditRating(e.target.value ? parseInt(e.target.value) : undefined)}
               />
             </div>
+
+            {/* Notes */}
             <div>
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
-                placeholder="Add your thoughts about this game..."
+                placeholder="Add your notes about this game..."
+                rows={3}
               />
             </div>
-            <div>
-              <Label htmlFor="custom-title">Custom Title (Optional)</Label>
-              <Input
-                id="custom-title"
-                value={editCustomTitle}
-                onChange={(e) => setEditCustomTitle(e.target.value)}
-                placeholder={editingGame?.game.custom_title ? "Current custom title displayed" : `Original: ${editingGame?.game.name || "Enter custom title..."}`}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {editingGame?.game.custom_title 
-                  ? "Currently using custom title. Clear this field to revert to original BGG title."
-                  : "Override the display name for this game. Leave empty to use the original BGG title."
-                }
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="core-mechanic">Core Mechanic</Label>
-              <Select value={editCoreMechanic} onValueChange={(value) => setEditCoreMechanic(value === "__CLEAR__" ? "" : value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select core mechanic..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
-                  {BOARD_GAME_MECHANICS.map((mechanic) => (
-                    <SelectItem key={mechanic} value={mechanic}>
-                      {mechanic}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                The primary game mechanic (auto-filled from BGG, but can be customized)
-              </p>
-            </div>
-            
-            <div>
-              <Label htmlFor="additional-mechanic-1">Additional Mechanic 1 (Optional)</Label>
-              <Select value={editAdditionalMechanic1} onValueChange={(value) => setEditAdditionalMechanic1(value === "__CLEAR__" ? "" : value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select additional mechanic..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
-                  {BOARD_GAME_MECHANICS.map((mechanic) => (
-                    <SelectItem key={mechanic} value={mechanic}>
-                      {mechanic}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                Add a second important mechanic for this game
-              </p>
-            </div>
-            
-            <div>
-              <Label htmlFor="additional-mechanic-2">Additional Mechanic 2 (Optional)</Label>
-              <Select value={editAdditionalMechanic2} onValueChange={(value) => setEditAdditionalMechanic2(value === "__CLEAR__" ? "" : value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select additional mechanic..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  <SelectItem value="__CLEAR__">-- Clear Selection --</SelectItem>
-                  {BOARD_GAME_MECHANICS.map((mechanic) => (
-                    <SelectItem key={mechanic} value={mechanic}>
-                      {mechanic}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                Add a third important mechanic for this game
-              </p>
-            </div>
-            
-            <Separator />
-            
-            <div className="space-y-4">
-              <h4 className="font-medium">Expansion Relationship</h4>
-              
+
+            {/* Expansion Settings */}
+            <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="is-expansion"
+                  id="isExpansion"
                   checked={editIsExpansion}
-                  onCheckedChange={(checked) => {
-                    setEditIsExpansion(!!checked);
-                    if (!checked) {
-                      setEditBaseGameId(undefined);
-                    }
-                  }}
+                  onCheckedChange={(checked) => setEditIsExpansion(checked as boolean)}
                 />
-                <Label htmlFor="is-expansion">This is an expansion</Label>
+                <Label htmlFor="isExpansion">This is an expansion</Label>
               </div>
-              
+
               {editIsExpansion && (
                 <div>
-                  <Label htmlFor="base-game">Base Game</Label>
-                  <Select 
-                    value={editBaseGameId || ""} 
-                    onValueChange={(value) => setEditBaseGameId(value || undefined)}
-                  >
+                  <Label htmlFor="baseGame">Base Game</Label>
+                  <Select value={editBaseGameId || ''} onValueChange={setEditBaseGameId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select base game" />
                     </SelectTrigger>
-                     <SelectContent>
-                       {allBaseGames
-                         .filter(game => game.bgg_id !== editingGame?.game.bgg_id) // Don't allow selecting itself
-                         .map(game => (
-                           <SelectItem key={game.bgg_id.toString()} value={game.bgg_id.toString()}>
-                             {game.name}
-                           </SelectItem>
-                         ))}
-                     </SelectContent>
+                    <SelectContent>
+                      {allBaseGames.map((baseGame) => (
+                        <SelectItem key={baseGame.game.bgg_id} value={baseGame.game.bgg_id.toString()}>
+                          {getDisplayTitle(baseGame.game)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
               )}
             </div>
-            <div className="flex gap-2 justify-end">
+
+            {/* Mechanics */}
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="coreMechanic">Core Mechanic</Label>
+                <Select value={editCoreMechanic} onValueChange={setEditCoreMechanic}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select core mechanic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {BOARD_GAME_MECHANICS.map((mechanic) => (
+                      <SelectItem key={mechanic} value={mechanic}>
+                        {mechanic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="additionalMechanic1">Additional Mechanic 1</Label>
+                <Select value={editAdditionalMechanic1} onValueChange={setEditAdditionalMechanic1}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select additional mechanic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {BOARD_GAME_MECHANICS.map((mechanic) => (
+                      <SelectItem key={mechanic} value={mechanic}>
+                        {mechanic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="additionalMechanic2">Additional Mechanic 2</Label>
+                <Select value={editAdditionalMechanic2} onValueChange={setEditAdditionalMechanic2}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select additional mechanic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {BOARD_GAME_MECHANICS.map((mechanic) => (
+                      <SelectItem key={mechanic} value={mechanic}>
+                        {mechanic}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleSaveEdit} disabled={updateGameMutation.isPending}>
+                {updateGameMutation.isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
               <Button variant="outline" onClick={() => setEditingGame(null)}>
                 Cancel
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Search Dialog */}
+      <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Game to Library</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search for a board game..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
+              />
+              <Button onClick={handleSearch} disabled={isSearching}>
+                {isSearching ? 'Searching...' : 'Search'}
+              </Button>
+            </div>
+
+            {searchResults && searchResults.length > 0 && (
+              <div className="max-h-96 overflow-y-auto space-y-2">
+                {searchResults.map((game: any) => (
+                  <Card key={game.bgg_id} className="p-4">
+                    <div className="flex gap-4">
+                      <div className="w-16 h-16 flex-shrink-0">
+                        {game.thumbnail_url ? (
+                          <img 
+                            src={game.thumbnail_url} 
+                            alt={game.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
+                            <BookOpen className="h-6 w-6 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{decodeHtmlEntities(game.name)}</h3>
+                        {game.year_published && (
+                          <p className="text-sm text-muted-foreground">({game.year_published})</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                          <span>{formatPlayerCount(game.min_players, game.max_players)} players</span>
+                          {game.playing_time && <span>{game.playing_time}min</span>}
+                          {game.rating && <span>★ {game.rating.toFixed(1)}</span>}
+                        </div>
+                      </div>
+                      
+                      <Button
+                        onClick={() => handleAddGame(game)}
+                        disabled={addGameMutation.isPending}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sync Dialog */}
+      <Dialog open={syncDialogOpen} onOpenChange={setSyncDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sync BGG Collection</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="bggUsername">BoardGameGeek Username</Label>
+              <Input
+                id="bggUsername"
+                placeholder="Enter your BGG username"
+                value={bggUsername}
+                onChange={(e) => setBggUsername(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-2">
               <Button 
-                onClick={handleSaveEdit}
-                disabled={updateGameMutation.isPending}
+                onClick={handleSyncCollection} 
+                disabled={syncCollectionMutation.isPending || !bggUsername.trim()}
+                className="flex-1"
               >
-                {updateGameMutation.isPending ? "Saving..." : "Save"}
+                {syncCollectionMutation.isPending ? 'Syncing...' : 'Sync Collection'}
+              </Button>
+              <Button variant="outline" onClick={() => setSyncDialogOpen(false)}>
+                Cancel
               </Button>
             </div>
           </div>
