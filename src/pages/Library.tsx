@@ -29,7 +29,9 @@ import {
   CheckSquare,
   Square,
   Settings,
-  X
+  X,
+  Puzzle,
+  Home
 } from "lucide-react";
 import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2, useUpdateGameCustomTitle } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
@@ -891,7 +893,7 @@ const Library = () => {
                   {userLibrary?.filter(g => g.is_owned && g.game?.is_expansion).length || 0}
                 </p>
               </div>
-              <Heart className="h-8 w-8 text-gaming-green" />
+              <Puzzle className="h-8 w-8 text-gaming-green" />
             </div>
           </CardContent>
         </Card>
@@ -905,7 +907,7 @@ const Library = () => {
                   {userLibrary?.filter(g => g.is_owned && !g.game?.is_expansion).length || 0}
                 </p>
               </div>
-              <Star className="h-8 w-8 text-primary" />
+              <Home className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
