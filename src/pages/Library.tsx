@@ -170,12 +170,7 @@ const Library = () => {
     if (!user) return;
     
     try {
-      await addGameMutation.mutateAsync({
-        userId: user.id,
-        bggId: game.bgg_id,
-        isOwned: true,
-        isWishlist: false
-      });
+      await addGameMutation.mutateAsync(game.bgg_id);
       setSearchDialogOpen(false);
       setSearchQuery("");
     } catch (error) {
