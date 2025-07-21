@@ -185,11 +185,14 @@ const Library = () => {
 
   // Helper function to render a game card
   const renderGameCard = (userGame: any, isExpansion = false, viewMode: ViewMode = 'large') => {
+    console.log('renderGameCard called for:', userGame.game.name, 'viewMode:', viewMode, 'core_mechanic:', userGame.game.core_mechanic);
+    
     const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 ${
       isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''
     } ${isSelectionMode && selectedGames.has(userGame.id) ? 'ring-2 ring-primary' : ''}`;
 
     if (viewMode === 'list') {
+      console.log('Rendering list view for:', userGame.game.name);
       return (
         <Card key={userGame.id} className={cardClasses}>
           <div className="flex gap-4 p-4">
@@ -869,6 +872,18 @@ const Library = () => {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Core mechanic DEBUG - List View Base Games */}
+                      <div className="mt-2 p-2 bg-red-100 text-red-800 text-xs">
+                        DEBUG LIST BASE: {group.baseGame.game.name} - core_mechanic: "{group.baseGame.game.core_mechanic || 'NULL'}"
+                      </div>
+                      {group.baseGame.game.core_mechanic && (
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="text-xs">
+                            CORE: {group.baseGame.game.core_mechanic}
+                          </Badge>
+                        </div>
+                      )}
                       
                       <div className="flex gap-2 mt-3">
                         <Button
