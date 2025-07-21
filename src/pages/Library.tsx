@@ -279,15 +279,14 @@ const Library = () => {
                 )}
               </div>
               
-              {/* Core mechanic */}
-              {(() => {
-                console.log(`Rendering ${userGame.game.name} - core_mechanic:`, userGame.game.core_mechanic);
-                return null;
-              })()}
+              {/* Core mechanic DEBUG */}
+              <div className="mt-2 p-2 bg-red-100 text-red-800 text-xs">
+                DEBUG: {userGame.game.name} - core_mechanic: "{userGame.game.core_mechanic || 'NULL'}"
+              </div>
               {userGame.game.core_mechanic && (
                 <div className="mt-2">
                   <Badge variant="secondary" className="text-xs">
-                    {userGame.game.core_mechanic}
+                    CORE: {userGame.game.core_mechanic}
                   </Badge>
                 </div>
               )}
@@ -416,15 +415,14 @@ const Library = () => {
                  </div>
                )}
                
-               {/* Core mechanic */}
-               {(() => {
-                 console.log(`Large view - ${userGame.game.name} - core_mechanic:`, userGame.game.core_mechanic);
-                 return null;
-               })()}
+               {/* Core mechanic DEBUG */}
+               <div className="p-2 bg-red-100 text-red-800 text-xs">
+                 DEBUG LARGE: {userGame.game.name} - core_mechanic: "{userGame.game.core_mechanic || 'NULL'}"
+               </div>
                {userGame.game.core_mechanic && (
                  <div>
                    <Badge variant="secondary" className="text-xs">
-                     {userGame.game.core_mechanic}
+                     CORE: {userGame.game.core_mechanic}
                    </Badge>
                  </div>
                )}
