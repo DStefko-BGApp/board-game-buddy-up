@@ -186,6 +186,33 @@ export const useUpdateUserGame = () => {
   });
 };
 
+export const useUpdateGameExpansionRelationship = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, isExpansion, baseGameBggId }: { 
+      gameId: number; 
+      isExpansion: boolean; 
+      baseGameBggId?: string;
+    }) => BGGService.updateGameExpansionRelationship(gameId, isExpansion, baseGameBggId),
+    onSuccess: () => {
+      toast({
+        title: "Expansion relationship updated",
+        description: "The game's expansion relationship has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update expansion relationship",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useSyncBGGCollection = () => {
   const { user } = useAuth();
   const { toast } = useToast();

@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { 
   BookOpen, 
@@ -26,7 +28,7 @@ import {
   CheckSquare,
   Square
 } from "lucide-react";
-import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary } from "@/hooks/useBGG";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
@@ -45,12 +47,15 @@ const Library = () => {
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [editIsExpansion, setEditIsExpansion] = useState(false);
+  const [editBaseGameId, setEditBaseGameId] = useState<string | undefined>();
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
   const addGameMutation = useAddGameToLibrary();
   const removeGameMutation = useRemoveGameFromLibrary();
   const updateGameMutation = useUpdateUserGame();
+  const updateExpansionMutation = useUpdateGameExpansionRelationship();
   const syncCollectionMutation = useSyncBGGCollection();
 
   const toggleGroupExpansion = (baseGameBggId: number) => {
@@ -87,18 +92,39 @@ const Library = () => {
     setEditingGame(userGame);
     setEditRating(userGame.personal_rating);
     setEditNotes(userGame.notes || "");
+    setEditIsExpansion(userGame.game.is_expansion || false);
+    setEditBaseGameId(userGame.game.base_game_bgg_id?.toString());
   };
 
   const handleSaveEdit = async () => {
     if (editingGame) {
-      await updateGameMutation.mutateAsync({
-        userGameId: editingGame.id,
-        updates: {
-          personal_rating: editRating,
-          notes: editNotes,
-        },
-      });
-      setEditingGame(null);
+      try {
+        // Update user game details (rating, notes)
+        await updateGameMutation.mutateAsync({
+          userGameId: editingGame.id,
+          updates: {
+            personal_rating: editRating,
+            notes: editNotes,
+          },
+        });
+
+        // Update expansion relationship if it changed
+        const currentIsExpansion = editingGame.game.is_expansion || false;
+        const currentBaseGameId = editingGame.game.base_game_bgg_id?.toString();
+        
+        if (editIsExpansion !== currentIsExpansion || editBaseGameId !== currentBaseGameId) {
+          await updateExpansionMutation.mutateAsync({
+            gameId: editingGame.game.bgg_id,
+            isExpansion: editIsExpansion,
+            baseGameBggId: editBaseGameId
+          });
+        }
+
+        setEditingGame(null);
+      } catch (error) {
+        // Error handling is done by the mutations' onError callbacks
+        console.error('Error saving game edits:', error);
+      }
     }
   };
 
@@ -1046,6 +1072,49 @@ const Library = () => {
                 onChange={(e) => setEditNotes(e.target.value)}
                 placeholder="Add your thoughts about this game..."
               />
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-4">
+              <h4 className="font-medium">Expansion Relationship</h4>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="is-expansion"
+                  checked={editIsExpansion}
+                  onCheckedChange={(checked) => {
+                    setEditIsExpansion(!!checked);
+                    if (!checked) {
+                      setEditBaseGameId(undefined);
+                    }
+                  }}
+                />
+                <Label htmlFor="is-expansion">This is an expansion</Label>
+              </div>
+              
+              {editIsExpansion && (
+                <div>
+                  <Label htmlFor="base-game">Base Game</Label>
+                  <Select value={editBaseGameId} onValueChange={setEditBaseGameId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select base game" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {userLibrary
+                        ?.filter(game => 
+                          game.id !== editingGame?.id && // Don't allow selecting itself
+                          !game.game.is_expansion // Only show base games
+                        )
+                        .map(game => (
+                          <SelectItem key={game.game.bgg_id.toString()} value={game.game.bgg_id.toString()}>
+                            {game.game.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setEditingGame(null)}>

@@ -144,6 +144,29 @@ class BGGService {
     }
   }
 
+  static async updateGameExpansionRelationship(gameId: number, isExpansion: boolean, baseGameBggId?: string): Promise<void> {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    const response = await fetch(`${this.baseUrl}/update-game-expansion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({ 
+        gameId, 
+        isExpansion, 
+        baseGameBggId: baseGameBggId || null 
+      }),
+    });
+
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to update game expansion relationship');
+    }
+  }
+
   static async syncBGGCollection(bggUsername: string, userId: string): Promise<any> {
     const { data: { session } } = await supabase.auth.getSession();
     
