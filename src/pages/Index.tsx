@@ -63,7 +63,10 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Crown className="h-12 w-12" />
+            <div className="flex items-center gap-2">
+              <Crown className="h-11 w-11" />
+              <Dice6 className="h-9 w-9 opacity-90" />
+            </div>
             <h1 className="text-5xl md:text-6xl font-bold">GameNight</h1>
           </div>
           <p className="text-xl md:text-2xl mb-8 text-white/90">
