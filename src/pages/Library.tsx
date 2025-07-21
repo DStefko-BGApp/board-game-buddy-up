@@ -280,6 +280,10 @@ const Library = () => {
               </div>
               
               {/* Core mechanic */}
+              {(() => {
+                console.log(`Rendering ${userGame.game.name} - core_mechanic:`, userGame.game.core_mechanic);
+                return null;
+              })()}
               {userGame.game.core_mechanic && (
                 <div className="mt-2">
                   <Badge variant="secondary" className="text-xs">
@@ -413,6 +417,10 @@ const Library = () => {
                )}
                
                {/* Core mechanic */}
+               {(() => {
+                 console.log(`Large view - ${userGame.game.name} - core_mechanic:`, userGame.game.core_mechanic);
+                 return null;
+               })()}
                {userGame.game.core_mechanic && (
                  <div>
                    <Badge variant="secondary" className="text-xs">
