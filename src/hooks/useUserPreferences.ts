@@ -40,6 +40,8 @@ export const useUserPreferences = () => {
           user_id: user.id,
           preference_key: key,
           preference_value: value,
+        }, {
+          onConflict: 'user_id, preference_key'
         });
 
       if (error) {
