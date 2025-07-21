@@ -31,9 +31,20 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Get the authorization header from the request
+    const authHeader = req.headers.get('Authorization')
+    
+    // Create Supabase client with user's auth token for RLS compliance
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: authHeader ? {
+            Authorization: authHeader,
+          } : {},
+        },
+      }
     )
 
     const { searchTerm, bggId, userId, gameData } = await req.json()

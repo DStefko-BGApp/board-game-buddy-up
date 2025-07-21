@@ -64,10 +64,13 @@ class BGGService {
   }
 
   static async addGameToLibrary(bggId: number, userId: string): Promise<Game> {
+    const { data: { session } } = await supabase.auth.getSession();
+    
     const response = await fetch(this.baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
       },
       body: JSON.stringify({ bggId, userId }),
     });
