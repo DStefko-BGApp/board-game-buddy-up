@@ -3,201 +3,362 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Clock, Star } from "lucide-react";
-
-// Mock data for games
-const mockGames = [
-  {
-    id: 1,
-    title: "Wingspan",
-    players: "1-5",
-    playtime: "40-70 min",
-    rating: 4.5,
-    category: "Strategy",
-    owned: true,
-  },
-  {
-    id: 2,
-    title: "Azul",
-    players: "2-4",
-    playtime: "30-45 min",
-    rating: 4.8,
-    category: "Abstract",
-    owned: true,
-  },
-  {
-    id: 3,
-    title: "Ticket to Ride",
-    players: "2-5",
-    playtime: "30-60 min",
-    rating: 4.3,
-    category: "Family",
-    owned: false,
-  },
-  {
-    id: 4,
-    title: "Gloomhaven",
-    players: "1-4",
-    playtime: "60-120 min",
-    rating: 4.9,
-    category: "Adventure",
-    owned: true,
-  },
-];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { 
+  BookOpen, 
+  Search, 
+  Plus, 
+  Users, 
+  Clock, 
+  Calendar,
+  Star,
+  Heart,
+  Trash2,
+  Edit
+} from "lucide-react";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame } from "@/hooks/useBGG";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Library = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [games] = useState(mockGames);
+  const { user } = useAuth();
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [editingGame, setEditingGame] = useState<any>(null);
+  const [editRating, setEditRating] = useState<number | undefined>();
+  const [editNotes, setEditNotes] = useState("");
 
-  const filteredGames = games.filter(game =>
-    game.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { searchResults, isLoading: isSearching, search } = useBGGSearch();
+  const { data: userLibrary, isLoading: isLoadingLibrary } = useUserLibrary();
+  const addGameMutation = useAddGameToLibrary();
+  const removeGameMutation = useRemoveGameFromLibrary();
+  const updateGameMutation = useUpdateUserGame();
 
-  const ownedGames = filteredGames.filter(game => game.owned);
-  const wishlistGames = filteredGames.filter(game => !game.owned);
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      search(searchQuery.trim());
+    }
+  };
+
+  const handleAddGame = async (bggId: number) => {
+    await addGameMutation.mutateAsync(bggId);
+    setSearchDialogOpen(false);
+    setSearchQuery("");
+  };
+
+  const handleEditGame = (userGame: any) => {
+    setEditingGame(userGame);
+    setEditRating(userGame.personal_rating);
+    setEditNotes(userGame.notes || "");
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingGame) {
+      await updateGameMutation.mutateAsync({
+        userGameId: editingGame.id,
+        updates: {
+          personal_rating: editRating,
+          notes: editNotes,
+        },
+      });
+      setEditingGame(null);
+    }
+  };
+
+  const formatPlayerCount = (min?: number, max?: number) => {
+    if (!min && !max) return "Unknown";
+    if (min === max) return `${min}`;
+    return `${min || '?'}-${max || '?'}`;
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">My Game Library</h1>
+          <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+            <BookOpen className="h-10 w-10 text-primary" />
+            My Game Library
+          </h1>
           <p className="text-muted-foreground">
-            Manage your collection and discover new games
+            Manage your board game collection and discover new games
           </p>
         </div>
-        <Button variant="gaming" className="mt-4 md:mt-0">
-          <Plus className="h-4 w-4" />
-          Add Game
-        </Button>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-8">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search your games..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+        
+        <Dialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="gaming" size="lg" className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Add Game
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Game from BoardGameGeek</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Search for a board game..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <Button onClick={handleSearch} disabled={isSearching}>
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {isSearching && (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-sm text-muted-foreground mt-2">Searching BoardGameGeek...</p>
+                </div>
+              )}
+              
+              {searchResults.length > 0 && (
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {searchResults.map((game) => (
+                    <Card key={game.bgg_id} className="p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-semibold">{game.name}</h4>
+                          {game.year_published && (
+                            <p className="text-sm text-muted-foreground">({game.year_published})</p>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handleAddGame(game.bgg_id)}
+                          disabled={addGameMutation.isPending}
+                        >
+                          {addGameMutation.isPending ? "Adding..." : "Add"}
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{ownedGames.length}</p>
-                <p className="text-muted-foreground text-sm">Games Owned</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Games</p>
+                <p className="text-2xl font-bold">{userLibrary?.length || 0}</p>
               </div>
-              <div className="h-12 w-12 bg-gradient-gaming rounded-full flex items-center justify-center">
-                <Users className="h-6 w-6 text-white" />
-              </div>
+              <BookOpen className="h-8 w-8 text-gaming-purple" />
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">{wishlistGames.length}</p>
-                <p className="text-muted-foreground text-sm">Wishlist</p>
+                <p className="text-sm font-medium text-muted-foreground">Owned</p>
+                <p className="text-2xl font-bold text-gaming-green">
+                  {userLibrary?.filter(g => g.is_owned).length || 0}
+                </p>
               </div>
-              <div className="h-12 w-12 bg-gradient-score rounded-full flex items-center justify-center">
-                <Star className="h-6 w-6 text-white" />
-              </div>
+              <Heart className="h-8 w-8 text-gaming-green" />
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold">4.6</p>
-                <p className="text-muted-foreground text-sm">Avg Rating</p>
+                <p className="text-sm font-medium text-muted-foreground">Wishlist</p>
+                <p className="text-2xl font-bold text-gaming-orange">
+                  {userLibrary?.filter(g => g.is_wishlist).length || 0}
+                </p>
               </div>
-              <div className="h-12 w-12 bg-gaming-orange rounded-full flex items-center justify-center">
-                <Clock className="h-6 w-6 text-white" />
+              <Star className="h-8 w-8 text-gaming-orange" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Avg Rating</p>
+                <p className="text-2xl font-bold text-primary">
+                  {userLibrary?.length ? 
+                    (userLibrary.reduce((acc, g) => acc + (g.personal_rating || 0), 0) / userLibrary.length).toFixed(1) : 
+                    "0.0"
+                  }
+                </p>
               </div>
+              <Star className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Owned Games */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">My Collection</h2>
+      {/* Games Grid */}
+      {isLoadingLibrary ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your library...</p>
+        </div>
+      ) : userLibrary?.length === 0 ? (
+        <Card className="text-center py-12">
+          <CardContent>
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Your library is empty</h3>
+            <p className="text-muted-foreground mb-4">
+              Start building your collection by adding games from BoardGameGeek
+            </p>
+            <Button variant="gaming" onClick={() => setSearchDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Game
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {ownedGames.map((game) => (
-            <Card key={game.id} className="hover:shadow-gaming transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-start justify-between">
-                  <span className="text-lg">{game.title}</span>
-                  <Badge variant="secondary">{game.category}</Badge>
-                </CardTitle>
+          {userLibrary?.map((userGame) => (
+            <Card key={userGame.id} className="overflow-hidden hover:shadow-gaming transition-all duration-300">
+              <div className="aspect-square relative">
+                {userGame.game.image_url ? (
+                  <img 
+                    src={userGame.game.image_url} 
+                    alt={userGame.game.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-gaming flex items-center justify-center">
+                    <BookOpen className="h-16 w-16 text-white" />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 flex gap-2">
+                  {userGame.is_owned && (
+                    <Badge variant="secondary" className="bg-gaming-green text-white">
+                      Owned
+                    </Badge>
+                  )}
+                  {userGame.is_wishlist && (
+                    <Badge variant="secondary" className="bg-gaming-orange text-white">
+                      Wishlist
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg line-clamp-2">{userGame.game.name}</CardTitle>
+                {userGame.game.year_published && (
+                  <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
+                )}
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Users className="h-4 w-4 mr-2" />
-                    {game.players} players
+              
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {game.playtime}
+                  {userGame.game.playing_time && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span>{userGame.game.playing_time}min</span>
+                    </div>
+                  )}
+                </div>
+                
+                {userGame.game.rating && (
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">BGG</span>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <Star className="h-4 w-4 mr-2 text-yellow-500 fill-current" />
-                    {game.rating}/5
+                )}
+                
+                {userGame.personal_rating && (
+                  <div className="flex items-center gap-1">
+                    <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                    <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
+                    <span className="text-xs text-muted-foreground">Your rating</span>
                   </div>
+                )}
+                
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditGame(userGame)}
+                    className="flex-1"
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => removeGameMutation.mutate(userGame.id)}
+                    disabled={removeGameMutation.isPending}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-      </div>
-
-      {/* Wishlist */}
-      {wishlistGames.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4">Wishlist</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {wishlistGames.map((game) => (
-              <Card key={game.id} className="hover:shadow-gaming transition-shadow opacity-80">
-                <CardHeader>
-                  <CardTitle className="flex items-start justify-between">
-                    <span className="text-lg">{game.title}</span>
-                    <Badge variant="outline">{game.category}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Users className="h-4 w-4 mr-2" />
-                      {game.players} players
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 mr-2" />
-                      {game.playtime}
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Star className="h-4 w-4 mr-2 text-yellow-500 fill-current" />
-                      {game.rating}/5
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="w-full mt-4">
-                    Add to Collection
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingGame} onOpenChange={() => setEditingGame(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit {editingGame?.game.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="rating">Your Rating (1-10)</Label>
+              <Input
+                id="rating"
+                type="number"
+                min="1"
+                max="10"
+                value={editRating || ""}
+                onChange={(e) => setEditRating(e.target.value ? parseInt(e.target.value) : undefined)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                placeholder="Add your thoughts about this game..."
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setEditingGame(null)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSaveEdit}
+                disabled={updateGameMutation.isPending}
+              >
+                {updateGameMutation.isPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

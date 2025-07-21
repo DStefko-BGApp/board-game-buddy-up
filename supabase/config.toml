@@ -1,1 +1,4 @@
 project_id = "bcuknlhpfqlidbjfegra"
+
+[functions.bgg-integration]
+verify_jwt = false

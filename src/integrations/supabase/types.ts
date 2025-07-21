@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      games: {
+        Row: {
+          bgg_id: number
+          categories: string[] | null
+          complexity: number | null
+          created_at: string
+          description: string | null
+          designers: string[] | null
+          id: string
+          image_url: string | null
+          max_players: number | null
+          mechanics: string[] | null
+          min_age: number | null
+          min_players: number | null
+          name: string
+          playing_time: number | null
+          publishers: string[] | null
+          rating: number | null
+          thumbnail_url: string | null
+          updated_at: string
+          year_published: number | null
+        }
+        Insert: {
+          bgg_id: number
+          categories?: string[] | null
+          complexity?: number | null
+          created_at?: string
+          description?: string | null
+          designers?: string[] | null
+          id?: string
+          image_url?: string | null
+          max_players?: number | null
+          mechanics?: string[] | null
+          min_age?: number | null
+          min_players?: number | null
+          name: string
+          playing_time?: number | null
+          publishers?: string[] | null
+          rating?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          year_published?: number | null
+        }
+        Update: {
+          bgg_id?: number
+          categories?: string[] | null
+          complexity?: number | null
+          created_at?: string
+          description?: string | null
+          designers?: string[] | null
+          id?: string
+          image_url?: string | null
+          max_players?: number | null
+          mechanics?: string[] | null
+          min_age?: number | null
+          min_players?: number | null
+          name?: string
+          playing_time?: number | null
+          publishers?: string[] | null
+          rating?: number | null
+          thumbnail_url?: string | null
+          updated_at?: string
+          year_published?: number | null
+        }
+        Relationships: []
+      }
+      user_games: {
+        Row: {
+          created_at: string
+          date_added: string
+          game_id: string
+          id: string
+          is_owned: boolean | null
+          is_wishlist: boolean | null
+          notes: string | null
+          personal_rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_added?: string
+          game_id: string
+          id?: string
+          is_owned?: boolean | null
+          is_wishlist?: boolean | null
+          notes?: string | null
+          personal_rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_added?: string
+          game_id?: string
+          id?: string
+          is_owned?: boolean | null
+          is_wishlist?: boolean | null
+          notes?: string | null
+          personal_rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_games_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
