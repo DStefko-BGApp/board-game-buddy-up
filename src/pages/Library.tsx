@@ -36,6 +36,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { BOARD_GAME_MECHANICS } from "@/constants/boardGameMechanics";
 
 type ViewMode = 'list' | 'small' | 'large';
 type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
@@ -1440,12 +1441,19 @@ const Library = () => {
             </div>
             <div>
               <Label htmlFor="core-mechanic">Core Mechanic</Label>
-              <Input
-                id="core-mechanic"
-                value={editCoreMechanic}
-                onChange={(e) => setEditCoreMechanic(e.target.value)}
-                placeholder="e.g., Area Control, Worker Placement, Deck Building..."
-              />
+              <Select value={editCoreMechanic} onValueChange={setEditCoreMechanic}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select core mechanic..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  {BOARD_GAME_MECHANICS.map((mechanic) => (
+                    <SelectItem key={mechanic} value={mechanic}>
+                      {mechanic}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground mt-1">
                 The primary game mechanic (auto-filled from BGG, but can be customized)
               </p>
@@ -1453,12 +1461,19 @@ const Library = () => {
             
             <div>
               <Label htmlFor="additional-mechanic-1">Additional Mechanic 1 (Optional)</Label>
-              <Input
-                id="additional-mechanic-1"
-                value={editAdditionalMechanic1}
-                onChange={(e) => setEditAdditionalMechanic1(e.target.value)}
-                placeholder="e.g., Hand Management, Set Collection..."
-              />
+              <Select value={editAdditionalMechanic1} onValueChange={setEditAdditionalMechanic1}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select additional mechanic..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  {BOARD_GAME_MECHANICS.map((mechanic) => (
+                    <SelectItem key={mechanic} value={mechanic}>
+                      {mechanic}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground mt-1">
                 Add a second important mechanic for this game
               </p>
@@ -1466,12 +1481,19 @@ const Library = () => {
             
             <div>
               <Label htmlFor="additional-mechanic-2">Additional Mechanic 2 (Optional)</Label>
-              <Input
-                id="additional-mechanic-2"
-                value={editAdditionalMechanic2}
-                onChange={(e) => setEditAdditionalMechanic2(e.target.value)}
-                placeholder="e.g., Card Drafting, Variable Player Powers..."
-              />
+              <Select value={editAdditionalMechanic2} onValueChange={setEditAdditionalMechanic2}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select additional mechanic..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">-- Clear Selection --</SelectItem>
+                  {BOARD_GAME_MECHANICS.map((mechanic) => (
+                    <SelectItem key={mechanic} value={mechanic}>
+                      {mechanic}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground mt-1">
                 Add a third important mechanic for this game
               </p>
