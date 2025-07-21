@@ -22,7 +22,9 @@ import {
   ExternalLink,
   Grid3X3,
   Grid2X2,
-  List
+  List,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +43,8 @@ const Library = () => {
   const [editNotes, setEditNotes] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>('large');
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+  const [selectedGames, setSelectedGames] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
@@ -104,16 +108,70 @@ const Library = () => {
     return `${min || '?'}-${max || '?'}`;
   };
 
+  // Bulk delete functions
+  const toggleGameSelection = (gameId: string) => {
+    const newSelected = new Set(selectedGames);
+    if (newSelected.has(gameId)) {
+      newSelected.delete(gameId);
+    } else {
+      newSelected.add(gameId);
+    }
+    setSelectedGames(newSelected);
+  };
+
+  const selectAllGames = () => {
+    if (!userLibrary) return;
+    setSelectedGames(new Set(userLibrary.map(game => game.id)));
+  };
+
+  const deselectAllGames = () => {
+    setSelectedGames(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    const gamesToDelete = Array.from(selectedGames);
+    
+    // Delete games in parallel
+    await Promise.all(
+      gamesToDelete.map(gameId => removeGameMutation.mutateAsync(gameId))
+    );
+    
+    setSelectedGames(new Set());
+    setIsSelectionMode(false);
+  };
+
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedGames(new Set());
+  };
+
   // Helper function to render a game card
   const renderGameCard = (userGame: any, isExpansion = false, viewMode: ViewMode = 'large') => {
     const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 ${
       isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''
-    }`;
+    } ${isSelectionMode && selectedGames.has(userGame.id) ? 'ring-2 ring-primary' : ''}`;
 
     if (viewMode === 'list') {
       return (
         <Card key={userGame.id} className={cardClasses}>
           <div className="flex gap-4 p-4">
+            {/* Selection Checkbox */}
+            {isSelectionMode && (
+              <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleGameSelection(userGame.id)}
+                  className="h-8 w-8 p-0"
+                >
+                  {selectedGames.has(userGame.id) ? (
+                    <CheckSquare className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Square className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
+            )}
             <div className="w-20 h-20 flex-shrink-0">
               {userGame.game.image_url ? (
                 <img 
@@ -210,7 +268,7 @@ const Library = () => {
 
     // Grid views (small/large)
     return (
-      <Card key={userGame.id} className={cardClasses}>
+        <Card key={userGame.id} className={cardClasses}>
         <div className={`relative ${viewMode === 'small' ? 'aspect-square' : 'aspect-square'}`}>
           {userGame.game.image_url ? (
             <img 
@@ -223,6 +281,25 @@ const Library = () => {
               <BookOpen className={`${viewMode === 'small' ? 'h-8 w-8' : 'h-16 w-16'} text-white`} />
             </div>
           )}
+          
+          {/* Selection Checkbox */}
+          {isSelectionMode && (
+            <div className="absolute top-2 left-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => toggleGameSelection(userGame.id)}
+                className="h-6 w-6 p-0 bg-white/80 hover:bg-white"
+              >
+                {selectedGames.has(userGame.id) ? (
+                  <CheckSquare className="h-4 w-4 text-primary" />
+                ) : (
+                  <Square className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          )}
+          
           <div className="absolute top-2 right-2 flex gap-1">
             {userGame.is_owned && (
               <Badge variant="secondary" className={`bg-gaming-green text-white ${viewMode === 'small' ? 'text-xs px-1' : ''}`}>
@@ -536,36 +613,78 @@ const Library = () => {
 
       {/* View Mode Selector and Games Display */}
       {userLibrary && userLibrary.length > 0 && (
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-2xl font-semibold">Your Collection</h2>
-          <div className="flex gap-1 bg-muted p-1 rounded-lg">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="h-8 w-8 p-0"
-              title="List view"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'small' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('small')}
-              className="h-8 w-8 p-0"
-              title="Small icons"
-            >
-              <Grid2X2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'large' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('large')}
-              className="h-8 w-8 p-0"
-              title="Large icons"
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            {/* Bulk Actions */}
+            <div className="flex gap-2">
+              <Button
+                variant={isSelectionMode ? "default" : "outline"}
+                size="sm"
+                onClick={toggleSelectionMode}
+                className="flex items-center gap-2"
+              >
+                {isSelectionMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                {isSelectionMode ? "Exit Selection" : "Select Games"}
+              </Button>
+              
+              {isSelectionMode && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={selectedGames.size === userLibrary.length ? deselectAllGames : selectAllGames}
+                  >
+                    {selectedGames.size === userLibrary.length ? "Deselect All" : "Select All"}
+                  </Button>
+                  
+                  {selectedGames.size > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleBulkDelete}
+                      disabled={removeGameMutation.isPending}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete {selectedGames.size} game{selectedGames.size !== 1 ? 's' : ''}
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+            
+            {/* View Mode Selector */}
+            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="h-8 w-8 p-0"
+                title="List view"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'small' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('small')}
+                className="h-8 w-8 p-0"
+                title="Small icons"
+              >
+                <Grid2X2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'large' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('large')}
+                className="h-8 w-8 p-0"
+                title="Large icons"
+              >
+                <Grid3X3 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       )}
