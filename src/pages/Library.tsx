@@ -52,6 +52,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 const Library = () => {
   console.log('Library component rendered');
+  console.log('Testing decodeHtmlEntities:', decodeHtmlEntities("Darwin&#039;s Journey"));
   const { user } = useAuth();
   const { getPreference, setPreference } = useUserPreferences();
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
