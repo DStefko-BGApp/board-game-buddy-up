@@ -21,6 +21,8 @@ export interface Game {
   categories?: string[];
   mechanics?: string[];
   core_mechanic?: string;
+  additional_mechanic_1?: string;
+  additional_mechanic_2?: string;
   designers?: string[];
   publishers?: string[];
   rating?: number;
@@ -176,6 +178,28 @@ class BGGService {
 
     if (error) {
       throw new Error(`Failed to update game core mechanic: ${error.message}`);
+    }
+  }
+
+  static async updateGameAdditionalMechanic1(gameId: number, additionalMechanic1: string | null): Promise<void> {
+    const { error } = await supabase
+      .from('games')
+      .update({ additional_mechanic_1: additionalMechanic1 })
+      .eq('bgg_id', gameId);
+
+    if (error) {
+      throw new Error(`Failed to update game additional mechanic 1: ${error.message}`);
+    }
+  }
+
+  static async updateGameAdditionalMechanic2(gameId: number, additionalMechanic2: string | null): Promise<void> {
+    const { error } = await supabase
+      .from('games')
+      .update({ additional_mechanic_2: additionalMechanic2 })
+      .eq('bgg_id', gameId);
+
+    if (error) {
+      throw new Error(`Failed to update game additional mechanic 2: ${error.message}`);
     }
   }
 

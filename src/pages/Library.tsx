@@ -28,7 +28,7 @@ import {
   CheckSquare,
   Square
 } from "lucide-react";
-import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic } from "@/hooks/useBGG";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2 } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
@@ -50,6 +50,8 @@ const Library = () => {
   const [editIsExpansion, setEditIsExpansion] = useState(false);
   const [editBaseGameId, setEditBaseGameId] = useState<string | undefined>();
   const [editCoreMechanic, setEditCoreMechanic] = useState<string>("");
+  const [editAdditionalMechanic1, setEditAdditionalMechanic1] = useState<string>("");
+  const [editAdditionalMechanic2, setEditAdditionalMechanic2] = useState<string>("");
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
@@ -58,6 +60,8 @@ const Library = () => {
   const updateGameMutation = useUpdateUserGame();
   const updateExpansionMutation = useUpdateGameExpansionRelationship();
   const updateCoreMechanicMutation = useUpdateGameCoreMechanic();
+  const updateAdditionalMechanic1Mutation = useUpdateGameAdditionalMechanic1();
+  const updateAdditionalMechanic2Mutation = useUpdateGameAdditionalMechanic2();
   const syncCollectionMutation = useSyncBGGCollection();
 
   const toggleGroupExpansion = (baseGameBggId: number) => {
@@ -97,6 +101,8 @@ const Library = () => {
     setEditIsExpansion(userGame.game.is_expansion || false);
     setEditBaseGameId(userGame.game.base_game_bgg_id?.toString());
     setEditCoreMechanic(userGame.game.core_mechanic || "");
+    setEditAdditionalMechanic1(userGame.game.additional_mechanic_1 || "");
+    setEditAdditionalMechanic2(userGame.game.additional_mechanic_2 || "");
   };
 
   const handleSaveEdit = async () => {
@@ -129,6 +135,24 @@ const Library = () => {
           await updateCoreMechanicMutation.mutateAsync({
             gameId: editingGame.game.bgg_id,
             coreMechanic: editCoreMechanic.trim() || null
+          });
+        }
+
+        // Update additional mechanic 1 if it changed
+        const currentAdditionalMechanic1 = editingGame.game.additional_mechanic_1 || "";
+        if (editAdditionalMechanic1 !== currentAdditionalMechanic1) {
+          await updateAdditionalMechanic1Mutation.mutateAsync({
+            gameId: editingGame.game.bgg_id,
+            additionalMechanic1: editAdditionalMechanic1.trim() || null
+          });
+        }
+
+        // Update additional mechanic 2 if it changed
+        const currentAdditionalMechanic2 = editingGame.game.additional_mechanic_2 || "";
+        if (editAdditionalMechanic2 !== currentAdditionalMechanic2) {
+          await updateAdditionalMechanic2Mutation.mutateAsync({
+            gameId: editingGame.game.bgg_id,
+            additionalMechanic2: editAdditionalMechanic2.trim() || null
           });
         }
 
@@ -288,6 +312,20 @@ const Library = () => {
                 </div>
               )}
               
+              {/* Additional mechanics */}
+              <div className="mt-2 flex flex-wrap gap-1">
+                {userGame.game.additional_mechanic_1 && (
+                  <Badge variant="outline" className="text-xs">
+                    {userGame.game.additional_mechanic_1}
+                  </Badge>
+                )}
+                {userGame.game.additional_mechanic_2 && (
+                  <Badge variant="outline" className="text-xs">
+                    {userGame.game.additional_mechanic_2}
+                  </Badge>
+                )}
+              </div>
+              
               <div className="flex gap-2 mt-3">
                 <Button
                   size="sm"
@@ -420,6 +458,20 @@ const Library = () => {
                    </Badge>
                  </div>
                )}
+               
+               {/* Additional mechanics */}
+               <div className="flex flex-wrap gap-1">
+                 {userGame.game.additional_mechanic_1 && (
+                   <Badge variant="outline" className="text-xs">
+                     {userGame.game.additional_mechanic_1}
+                   </Badge>
+                 )}
+                 {userGame.game.additional_mechanic_2 && (
+                   <Badge variant="outline" className="text-xs">
+                     {userGame.game.additional_mechanic_2}
+                   </Badge>
+                 )}
+               </div>
                
                <div className="flex gap-2 pt-2">
                 <Button
@@ -873,6 +925,20 @@ const Library = () => {
                         </div>
                       )}
                       
+                      {/* Additional mechanics */}
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {group.baseGame.game.additional_mechanic_1 && (
+                          <Badge variant="outline" className="text-xs">
+                            {group.baseGame.game.additional_mechanic_1}
+                          </Badge>
+                        )}
+                        {group.baseGame.game.additional_mechanic_2 && (
+                          <Badge variant="outline" className="text-xs">
+                            {group.baseGame.game.additional_mechanic_2}
+                          </Badge>
+                        )}
+                      </div>
+                      
                       <div className="flex gap-2 mt-3">
                         <Button
                           size="sm"
@@ -1122,6 +1188,32 @@ const Library = () => {
               />
               <p className="text-xs text-muted-foreground mt-1">
                 The primary game mechanic (auto-filled from BGG, but can be customized)
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="additional-mechanic-1">Additional Mechanic 1 (Optional)</Label>
+              <Input
+                id="additional-mechanic-1"
+                value={editAdditionalMechanic1}
+                onChange={(e) => setEditAdditionalMechanic1(e.target.value)}
+                placeholder="e.g., Hand Management, Set Collection..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Add a second important mechanic for this game
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="additional-mechanic-2">Additional Mechanic 2 (Optional)</Label>
+              <Input
+                id="additional-mechanic-2"
+                value={editAdditionalMechanic2}
+                onChange={(e) => setEditAdditionalMechanic2(e.target.value)}
+                placeholder="e.g., Card Drafting, Variable Player Powers..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Add a third important mechanic for this game
               </p>
             </div>
             

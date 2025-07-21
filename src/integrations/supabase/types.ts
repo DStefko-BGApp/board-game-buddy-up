@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       games: {
         Row: {
+          additional_mechanic_1: string | null
+          additional_mechanic_2: string | null
           base_game_bgg_id: number | null
           bgg_id: number
           categories: string[] | null
@@ -41,6 +43,8 @@ export type Database = {
           year_published: number | null
         }
         Insert: {
+          additional_mechanic_1?: string | null
+          additional_mechanic_2?: string | null
           base_game_bgg_id?: number | null
           bgg_id: number
           categories?: string[] | null
@@ -66,6 +70,8 @@ export type Database = {
           year_published?: number | null
         }
         Update: {
+          additional_mechanic_1?: string | null
+          additional_mechanic_2?: string | null
           base_game_bgg_id?: number | null
           bgg_id?: number
           categories?: string[] | null

@@ -239,6 +239,58 @@ export const useUpdateGameCoreMechanic = () => {
   });
 };
 
+export const useUpdateGameAdditionalMechanic1 = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, additionalMechanic1 }: { 
+      gameId: number; 
+      additionalMechanic1: string | null;
+    }) => BGGService.updateGameAdditionalMechanic1(gameId, additionalMechanic1),
+    onSuccess: () => {
+      toast({
+        title: "Additional mechanic updated",
+        description: "The game's additional mechanic has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update additional mechanic",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useUpdateGameAdditionalMechanic2 = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, additionalMechanic2 }: { 
+      gameId: number; 
+      additionalMechanic2: string | null;
+    }) => BGGService.updateGameAdditionalMechanic2(gameId, additionalMechanic2),
+    onSuccess: () => {
+      toast({
+        title: "Additional mechanic updated",
+        description: "The game's additional mechanic has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update additional mechanic",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useSyncBGGCollection = () => {
   const { user } = useAuth();
   const { toast } = useToast();
