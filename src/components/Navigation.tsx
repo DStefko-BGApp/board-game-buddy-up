@@ -30,9 +30,9 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <Crown className="h-7 w-7 text-primary" />
-              <Dice6 className="h-6 w-6 text-primary/80" />
+            <div className="relative">
+              <Crown className="h-8 w-8 text-primary" />
+              <Dice6 className="absolute -top-1 -left-1 h-4 w-4 text-primary/80" />
             </div>
             <span className="text-xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
               GameNight
