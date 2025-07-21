@@ -18,6 +18,7 @@ interface BGGGameData {
   thumbnail_url?: string;
   categories?: string[];
   mechanics?: string[];
+  core_mechanic?: string;
   designers?: string[];
   publishers?: string[];
   rating?: number;
@@ -210,6 +211,7 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
       thumbnail_url: thumbnailMatch ? thumbnailMatch[1] : undefined,
       categories: categories.length > 0 ? categories : undefined,
       mechanics: mechanics.length > 0 ? mechanics : undefined,
+      core_mechanic: mechanics.length > 0 ? mechanics[0] : undefined,
       designers: designers.length > 0 ? designers : undefined,
       publishers: publishers.length > 0 ? publishers : undefined,
       rating: ratingMatch && ratingMatch[1] !== '0' ? parseFloat(ratingMatch[1]) : undefined,

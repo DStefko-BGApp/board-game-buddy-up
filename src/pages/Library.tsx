@@ -28,7 +28,7 @@ import {
   CheckSquare,
   Square
 } from "lucide-react";
-import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship } from "@/hooks/useBGG";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
@@ -49,6 +49,7 @@ const Library = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [editIsExpansion, setEditIsExpansion] = useState(false);
   const [editBaseGameId, setEditBaseGameId] = useState<string | undefined>();
+  const [editCoreMechanic, setEditCoreMechanic] = useState<string>("");
 
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
@@ -56,6 +57,7 @@ const Library = () => {
   const removeGameMutation = useRemoveGameFromLibrary();
   const updateGameMutation = useUpdateUserGame();
   const updateExpansionMutation = useUpdateGameExpansionRelationship();
+  const updateCoreMechanicMutation = useUpdateGameCoreMechanic();
   const syncCollectionMutation = useSyncBGGCollection();
 
   const toggleGroupExpansion = (baseGameBggId: number) => {
@@ -94,6 +96,7 @@ const Library = () => {
     setEditNotes(userGame.notes || "");
     setEditIsExpansion(userGame.game.is_expansion || false);
     setEditBaseGameId(userGame.game.base_game_bgg_id?.toString());
+    setEditCoreMechanic(userGame.game.core_mechanic || "");
   };
 
   const handleSaveEdit = async () => {
@@ -117,6 +120,15 @@ const Library = () => {
             gameId: editingGame.game.bgg_id,
             isExpansion: editIsExpansion,
             baseGameBggId: editBaseGameId
+          });
+        }
+
+        // Update core mechanic if it changed
+        const currentCoreMechanic = editingGame.game.core_mechanic || "";
+        if (editCoreMechanic !== currentCoreMechanic) {
+          await updateCoreMechanicMutation.mutateAsync({
+            gameId: editingGame.game.bgg_id,
+            coreMechanic: editCoreMechanic.trim() || null
           });
         }
 
@@ -267,6 +279,15 @@ const Library = () => {
                 )}
               </div>
               
+              {/* Core mechanic */}
+              {userGame.game.core_mechanic && (
+                <div className="mt-2">
+                  <Badge variant="secondary" className="text-xs">
+                    {userGame.game.core_mechanic}
+                  </Badge>
+                </div>
+              )}
+              
               <div className="flex gap-2 mt-3">
                 <Button
                   size="sm"
@@ -374,24 +395,33 @@ const Library = () => {
                   </div>
                 )}
               </div>
-              
-              {userGame.game.rating && (
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                  <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
-                  <span className="text-xs text-muted-foreground">BGG</span>
-                </div>
-              )}
-              
-              {userGame.personal_rating && (
-                <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                  <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
-                  <span className="text-xs text-muted-foreground">Your rating</span>
-                </div>
-              )}
-              
-              <div className="flex gap-2 pt-2">
+               
+               {userGame.game.rating && (
+                 <div className="flex items-center gap-1">
+                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                   <span className="text-sm font-medium">{userGame.game.rating.toFixed(1)}</span>
+                   <span className="text-xs text-muted-foreground">BGG</span>
+                 </div>
+               )}
+               
+               {userGame.personal_rating && (
+                 <div className="flex items-center gap-1">
+                   <Heart className="h-4 w-4 text-gaming-red fill-current" />
+                   <span className="text-sm font-medium">{userGame.personal_rating}/10</span>
+                   <span className="text-xs text-muted-foreground">Your rating</span>
+                 </div>
+               )}
+               
+               {/* Core mechanic */}
+               {userGame.game.core_mechanic && (
+                 <div>
+                   <Badge variant="secondary" className="text-xs">
+                     {userGame.game.core_mechanic}
+                   </Badge>
+                 </div>
+               )}
+               
+               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
                   variant="outline"
@@ -1072,6 +1102,18 @@ const Library = () => {
                 onChange={(e) => setEditNotes(e.target.value)}
                 placeholder="Add your thoughts about this game..."
               />
+            </div>
+            <div>
+              <Label htmlFor="core-mechanic">Core Mechanic</Label>
+              <Input
+                id="core-mechanic"
+                value={editCoreMechanic}
+                onChange={(e) => setEditCoreMechanic(e.target.value)}
+                placeholder="e.g., Area Control, Worker Placement, Deck Building..."
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                The primary game mechanic (auto-filled from BGG, but can be customized)
+              </p>
             </div>
             
             <Separator />

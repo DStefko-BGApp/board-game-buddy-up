@@ -20,6 +20,7 @@ export type Database = {
           bgg_id: number
           categories: string[] | null
           complexity: number | null
+          core_mechanic: string | null
           created_at: string
           description: string | null
           designers: string[] | null
@@ -44,6 +45,7 @@ export type Database = {
           bgg_id: number
           categories?: string[] | null
           complexity?: number | null
+          core_mechanic?: string | null
           created_at?: string
           description?: string | null
           designers?: string[] | null
@@ -68,6 +70,7 @@ export type Database = {
           bgg_id?: number
           categories?: string[] | null
           complexity?: number | null
+          core_mechanic?: string | null
           created_at?: string
           description?: string | null
           designers?: string[] | null

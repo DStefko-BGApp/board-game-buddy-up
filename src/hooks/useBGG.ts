@@ -213,6 +213,32 @@ export const useUpdateGameExpansionRelationship = () => {
   });
 };
 
+export const useUpdateGameCoreMechanic = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, coreMechanic }: { 
+      gameId: number; 
+      coreMechanic: string | null;
+    }) => BGGService.updateGameCoreMechanic(gameId, coreMechanic),
+    onSuccess: () => {
+      toast({
+        title: "Core mechanic updated",
+        description: "The game's core mechanic has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update core mechanic",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useSyncBGGCollection = () => {
   const { user } = useAuth();
   const { toast } = useToast();

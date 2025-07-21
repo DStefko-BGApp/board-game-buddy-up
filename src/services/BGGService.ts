@@ -20,6 +20,7 @@ export interface Game {
   thumbnail_url?: string;
   categories?: string[];
   mechanics?: string[];
+  core_mechanic?: string;
   designers?: string[];
   publishers?: string[];
   rating?: number;
@@ -164,6 +165,17 @@ class BGGService {
     
     if (!result.success) {
       throw new Error(result.error || 'Failed to update game expansion relationship');
+    }
+  }
+
+  static async updateGameCoreMechanic(gameId: number, coreMechanic: string | null): Promise<void> {
+    const { error } = await supabase
+      .from('games')
+      .update({ core_mechanic: coreMechanic })
+      .eq('bgg_id', gameId);
+
+    if (error) {
+      throw new Error(`Failed to update game core mechanic: ${error.message}`);
     }
   }
 
