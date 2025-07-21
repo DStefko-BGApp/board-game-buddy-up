@@ -34,6 +34,7 @@ import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLib
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 type ViewMode = 'list' | 'small' | 'large';
 type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
@@ -369,7 +370,7 @@ const Library = () => {
               {userGame.game.image_url ? (
                 <img 
                   src={userGame.game.thumbnail_url || userGame.game.image_url} 
-                  alt={userGame.game.name}
+                  alt={decodeHtmlEntities(userGame.game.name)}
                   className="w-full h-full object-cover rounded"
                 />
               ) : (
@@ -383,7 +384,7 @@ const Library = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-lg truncate">{userGame.game.name}</h3>
+                    <h3 className="font-semibold text-lg truncate">{decodeHtmlEntities(userGame.game.name)}</h3>
                     {userGame.game.is_expansion && (
                       <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
                         Expansion
@@ -489,7 +490,7 @@ const Library = () => {
           {userGame.game.image_url ? (
             <img 
               src={viewMode === 'small' ? (userGame.game.thumbnail_url || userGame.game.image_url) : userGame.game.image_url} 
-              alt={userGame.game.name}
+              alt={decodeHtmlEntities(userGame.game.name)}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -539,7 +540,7 @@ const Library = () => {
           <>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg line-clamp-2 flex items-center gap-2">
-                {userGame.game.name}
+                {decodeHtmlEntities(userGame.game.name)}
                 {userGame.game.is_expansion && (
                   <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs">
                     Expansion
@@ -630,8 +631,8 @@ const Library = () => {
         
         {viewMode === 'small' && (
           <div className="p-2">
-            <h3 className="font-medium text-sm line-clamp-2 mb-1" title={userGame.game.name}>
-              {userGame.game.name}
+            <h3 className="font-medium text-sm line-clamp-2 mb-1" title={decodeHtmlEntities(userGame.game.name)}>
+              {decodeHtmlEntities(userGame.game.name)}
             </h3>
             <div className="flex gap-1 justify-center">
               <Button
