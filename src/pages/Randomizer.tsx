@@ -3,21 +3,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Shuffle, Users } from "lucide-react";
 
 const Randomizer = () => {
   const [diceResult, setDiceResult] = useState<number[]>([]);
   const [numDice, setNumDice] = useState(1);
+  const [dieType, setDieType] = useState("6");
   const [coinResult, setCoinResult] = useState<string>("");
   const [customList, setCustomList] = useState("");
   const [randomChoice, setRandomChoice] = useState("");
   const [playerOrder, setPlayerOrder] = useState<string[]>([]);
   const [playerNames, setPlayerNames] = useState("");
 
+  const dieTypes = [
+    { value: "4", label: "D4", sides: 4 },
+    { value: "6", label: "D6", sides: 6 },
+    { value: "8", label: "D8", sides: 8 },
+    { value: "10", label: "D10", sides: 10 },
+    { value: "12", label: "D12", sides: 12 },
+    { value: "20", label: "D20", sides: 20 }
+  ];
+
   const rollDice = () => {
+    const selectedDie = dieTypes.find(d => d.value === dieType);
+    const sides = selectedDie ? selectedDie.sides : 6;
+    
     const results = [];
     for (let i = 0; i < numDice; i++) {
-      results.push(Math.floor(Math.random() * 6) + 1);
+      results.push(Math.floor(Math.random() * sides) + 1);
     }
     setDiceResult(results);
   };
@@ -40,10 +54,20 @@ const Randomizer = () => {
     setPlayerOrder(shuffled);
   };
 
-  const getDiceIcon = (value: number) => {
-    const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
-    const DiceIcon = diceIcons[value - 1];
-    return <DiceIcon className="h-12 w-12" />;
+  const getDiceDisplay = (value: number) => {
+    // For D6, use dice icons, for others use number display
+    if (dieType === "6" && value <= 6) {
+      const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
+      const DiceIcon = diceIcons[value - 1];
+      return <DiceIcon className="h-12 w-12" />;
+    } else {
+      // For other die types, show the number in a dice-like container
+      return (
+        <div className="h-12 w-12 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold text-lg border-2 border-primary-foreground/20">
+          {value}
+        </div>
+      );
+    }
   };
 
   return (
@@ -65,6 +89,24 @@ const Randomizer = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <label htmlFor="dieType" className="text-sm font-medium">
+                Die type:
+              </label>
+              <Select value={dieType} onValueChange={setDieType}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {dieTypes.map((die) => (
+                    <SelectItem key={die.value} value={die.value}>
+                      {die.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center gap-4">
               <label htmlFor="numDice" className="text-sm font-medium">
                 Number of dice:
@@ -89,7 +131,7 @@ const Randomizer = () => {
                 <div className="flex flex-wrap justify-center gap-4 mb-4">
                   {diceResult.map((result, index) => (
                     <div key={index} className="text-gaming-purple">
-                      {getDiceIcon(result)}
+                      {getDiceDisplay(result)}
                     </div>
                   ))}
                 </div>
