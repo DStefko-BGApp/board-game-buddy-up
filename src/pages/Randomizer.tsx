@@ -55,19 +55,42 @@ const Randomizer = () => {
   };
 
   const getDiceDisplay = (value: number) => {
-    // For D6, use dice icons, for others use number display
+    const selectedDie = dieTypes.find(d => d.value === dieType);
+    const dieLabel = selectedDie ? selectedDie.label : "D6";
+    
+    // For D6, use dice icons
     if (dieType === "6" && value <= 6) {
       const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
       const DiceIcon = diceIcons[value - 1];
-      return <DiceIcon className="h-12 w-12" />;
-    } else {
-      // For other die types, show the number in a dice-like container
-      return (
-        <div className="h-12 w-12 bg-primary text-primary-foreground rounded-lg flex items-center justify-center font-bold text-lg border-2 border-primary-foreground/20">
+      return <DiceIcon className="h-16 w-16 text-primary" />;
+    }
+    
+    // For other die types, create distinct visual representations
+    const getDieShape = () => {
+      switch (dieType) {
+        case "4":
+          return "clip-path-triangle bg-gradient-to-br from-red-500 to-red-700 text-white";
+        case "8":
+          return "clip-path-octagon bg-gradient-to-br from-blue-500 to-blue-700 text-white";
+        case "10":
+          return "clip-path-pentagon bg-gradient-to-br from-green-500 to-green-700 text-white";
+        case "12":
+          return "clip-path-dodecagon bg-gradient-to-br from-purple-500 to-purple-700 text-white";
+        case "20":
+          return "clip-path-icagon bg-gradient-to-br from-orange-500 to-orange-700 text-white";
+        default:
+          return "bg-primary text-primary-foreground";
+      }
+    };
+    
+    return (
+      <div className="flex flex-col items-center gap-1">
+        <div className={`h-16 w-16 rounded-lg flex items-center justify-center font-bold text-lg border-2 border-white/20 shadow-lg ${getDieShape()}`}>
           {value}
         </div>
-      );
-    }
+        <span className="text-xs text-muted-foreground font-medium">{dieLabel}</span>
+      </div>
+    );
   };
 
   return (
