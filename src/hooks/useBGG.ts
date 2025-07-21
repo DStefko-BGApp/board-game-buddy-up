@@ -291,6 +291,32 @@ export const useUpdateGameAdditionalMechanic2 = () => {
   });
 };
 
+export const useUpdateGameCustomTitle = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, customTitle }: { 
+      gameId: number; 
+      customTitle: string | null;
+    }) => BGGService.updateGameCustomTitle(gameId, customTitle),
+    onSuccess: () => {
+      toast({
+        title: "Game title updated",
+        description: "The game's custom title has been updated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update title",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useSyncBGGCollection = () => {
   const { user } = useAuth();
   const { toast } = useToast();

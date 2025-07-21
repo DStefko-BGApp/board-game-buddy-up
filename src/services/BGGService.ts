@@ -10,6 +10,7 @@ export interface Game {
   id: string;
   bgg_id: number;
   name: string;
+  custom_title?: string;
   year_published?: number;
   min_players?: number;
   max_players?: number;
@@ -144,6 +145,17 @@ class BGGService {
 
     if (error) {
       throw new Error(`Failed to update game: ${error.message}`);
+    }
+  }
+
+  static async updateGameCustomTitle(gameId: number, customTitle: string | null): Promise<void> {
+    const { error } = await supabase
+      .from('games')
+      .update({ custom_title: customTitle })
+      .eq('bgg_id', gameId);
+
+    if (error) {
+      throw new Error(`Failed to update game custom title: ${error.message}`);
     }
   }
 

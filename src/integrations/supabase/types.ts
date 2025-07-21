@@ -24,6 +24,7 @@ export type Database = {
           complexity: number | null
           core_mechanic: string | null
           created_at: string
+          custom_title: string | null
           description: string | null
           designers: string[] | null
           expands_games: number[] | null
@@ -51,6 +52,7 @@ export type Database = {
           complexity?: number | null
           core_mechanic?: string | null
           created_at?: string
+          custom_title?: string | null
           description?: string | null
           designers?: string[] | null
           expands_games?: number[] | null
@@ -78,6 +80,7 @@ export type Database = {
           complexity?: number | null
           core_mechanic?: string | null
           created_at?: string
+          custom_title?: string | null
           description?: string | null
           designers?: string[] | null
           expands_games?: number[] | null

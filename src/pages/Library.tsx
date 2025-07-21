@@ -30,7 +30,7 @@ import {
   Square,
   Settings
 } from "lucide-react";
-import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2 } from "@/hooks/useBGG";
+import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2, useUpdateGameCustomTitle } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -62,6 +62,7 @@ const Library = () => {
   const [editingGame, setEditingGame] = useState<any>(null);
   const [editRating, setEditRating] = useState<number | undefined>();
   const [editNotes, setEditNotes] = useState("");
+  const [editCustomTitle, setEditCustomTitle] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>('large');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
@@ -152,6 +153,7 @@ const Library = () => {
   const updateCoreMechanicMutation = useUpdateGameCoreMechanic();
   const updateAdditionalMechanic1Mutation = useUpdateGameAdditionalMechanic1();
   const updateAdditionalMechanic2Mutation = useUpdateGameAdditionalMechanic2();
+  const updateCustomTitleMutation = useUpdateGameCustomTitle();
   const syncCollectionMutation = useSyncBGGCollection();
 
   const toggleGroupExpansion = (baseGameBggId: number) => {
@@ -188,6 +190,7 @@ const Library = () => {
     setEditingGame(userGame);
     setEditRating(userGame.personal_rating);
     setEditNotes(userGame.notes || "");
+    setEditCustomTitle(userGame.game.custom_title || "");
     setEditIsExpansion(userGame.game.is_expansion || false);
     setEditBaseGameId(userGame.game.base_game_bgg_id?.toString());
     setEditCoreMechanic(userGame.game.core_mechanic || "");
@@ -288,6 +291,15 @@ const Library = () => {
           });
         }
 
+        // Update custom title if it changed
+        const currentCustomTitle = editingGame.game.custom_title || "";
+        if (editCustomTitle !== currentCustomTitle) {
+          await updateCustomTitleMutation.mutateAsync({
+            gameId: editingGame.game.bgg_id,
+            customTitle: editCustomTitle.trim() || null
+          });
+        }
+
         console.log('All game edits completed successfully');
         setEditingGame(null);
       } catch (error) {
@@ -302,6 +314,10 @@ const Library = () => {
     if (!min && !max) return "Unknown";
     if (min === max) return `${min}`;
     return `${min || '?'}-${max || '?'}`;
+  };
+
+  const getDisplayTitle = (game: any) => {
+    return game.custom_title || game.name;
   };
 
   // Bulk delete functions
@@ -1200,7 +1216,7 @@ const Library = () => {
                     <>
                       <CardHeader className="pb-2">
                         <CardTitle className="text-lg line-clamp-2 flex items-center gap-2">
-                          {group.baseGame.game.name}
+                          {getDisplayTitle(group.baseGame.game)}
                           {group.expansions.length > 0 && (
                             <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs">
                               +{group.expansions.length}
@@ -1268,8 +1284,8 @@ const Library = () => {
                   
                   {viewMode === 'small' && (
                     <div className="p-2">
-                      <h3 className="font-medium text-sm line-clamp-2 mb-1" title={group.baseGame.game.name}>
-                        {group.baseGame.game.name}
+                      <h3 className="font-medium text-sm line-clamp-2 mb-1" title={getDisplayTitle(group.baseGame.game)}>
+                        {getDisplayTitle(group.baseGame.game)}
                       </h3>
                       <div className="flex gap-1 justify-center">
                         <Button
@@ -1316,7 +1332,7 @@ const Library = () => {
       <Dialog open={!!editingGame} onOpenChange={() => setEditingGame(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit {editingGame?.game.name}</DialogTitle>
+            <DialogTitle>Edit {editingGame ? getDisplayTitle(editingGame.game) : ''}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -1338,6 +1354,18 @@ const Library = () => {
                 onChange={(e) => setEditNotes(e.target.value)}
                 placeholder="Add your thoughts about this game..."
               />
+            </div>
+            <div>
+              <Label htmlFor="custom-title">Custom Title (Optional)</Label>
+              <Input
+                id="custom-title"
+                value={editCustomTitle}
+                onChange={(e) => setEditCustomTitle(e.target.value)}
+                placeholder={editingGame?.game.name || "Enter custom title..."}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Override the display name for this game. Leave empty to use the original BGG title.
+              </p>
             </div>
             <div>
               <Label htmlFor="core-mechanic">Core Mechanic</Label>
