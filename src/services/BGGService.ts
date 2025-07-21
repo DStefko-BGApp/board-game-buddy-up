@@ -150,7 +150,7 @@ class BGGService {
   static async updateGameExpansionRelationship(gameId: number, isExpansion: boolean, baseGameBggId?: string): Promise<void> {
     const { data: { session } } = await supabase.auth.getSession();
     
-    const response = await fetch(`${this.baseUrl}/update-game-expansion`, {
+    const response = await fetch('https://bcuknlhpfqlidbjfegra.supabase.co/functions/v1/update-game-expansion', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
