@@ -16,14 +16,17 @@ export type Database = {
     Tables: {
       games: {
         Row: {
+          base_game_bgg_id: number | null
           bgg_id: number
           categories: string[] | null
           complexity: number | null
           created_at: string
           description: string | null
           designers: string[] | null
+          expands_games: number[] | null
           id: string
           image_url: string | null
+          is_expansion: boolean | null
           max_players: number | null
           mechanics: string[] | null
           min_age: number | null
@@ -37,14 +40,17 @@ export type Database = {
           year_published: number | null
         }
         Insert: {
+          base_game_bgg_id?: number | null
           bgg_id: number
           categories?: string[] | null
           complexity?: number | null
           created_at?: string
           description?: string | null
           designers?: string[] | null
+          expands_games?: number[] | null
           id?: string
           image_url?: string | null
+          is_expansion?: boolean | null
           max_players?: number | null
           mechanics?: string[] | null
           min_age?: number | null
@@ -58,14 +64,17 @@ export type Database = {
           year_published?: number | null
         }
         Update: {
+          base_game_bgg_id?: number | null
           bgg_id?: number
           categories?: string[] | null
           complexity?: number | null
           created_at?: string
           description?: string | null
           designers?: string[] | null
+          expands_games?: number[] | null
           id?: string
           image_url?: string | null
+          is_expansion?: boolean | null
           max_players?: number | null
           mechanics?: string[] | null
           min_age?: number | null

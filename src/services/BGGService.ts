@@ -24,6 +24,9 @@ export interface Game {
   publishers?: string[];
   rating?: number;
   complexity?: number;
+  is_expansion: boolean;
+  base_game_bgg_id?: number;
+  expands_games?: number[];
   created_at: string;
   updated_at: string;
 }

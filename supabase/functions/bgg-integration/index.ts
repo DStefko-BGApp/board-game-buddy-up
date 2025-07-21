@@ -22,6 +22,9 @@ interface BGGGameData {
   publishers?: string[];
   rating?: number;
   complexity?: number;
+  is_expansion?: boolean;
+  base_game_bgg_id?: number;
+  expands_games?: number[];
 }
 
 Deno.serve(async (req) => {
@@ -183,6 +186,12 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
     const designers = extractLinks(xmlText, 'boardgamedesigner')
     const publishers = extractLinks(xmlText, 'boardgamepublisher')
     
+    // Extract expansion relationships
+    const expansionLinks = extractExpansionLinks(xmlText)
+    const isExpansion = expansionLinks.expands.length > 0
+    const baseGameBggId = isExpansion ? expansionLinks.expands[0] : undefined
+    const expandsGames = expansionLinks.expandedBy.length > 0 ? expansionLinks.expandedBy : undefined
+    
     if (!nameMatch) {
       console.log('No game name found in BGG response')
       return null
@@ -205,6 +214,9 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
       publishers: publishers.length > 0 ? publishers : undefined,
       rating: ratingMatch && ratingMatch[1] !== '0' ? parseFloat(ratingMatch[1]) : undefined,
       complexity: complexityMatch && complexityMatch[1] !== '0' ? parseFloat(complexityMatch[1]) : undefined,
+      is_expansion: isExpansion,
+      base_game_bgg_id: baseGameBggId,
+      expands_games: expandsGames,
     }
     
     console.log(`Successfully parsed game details for: ${gameData.name}`)
@@ -226,6 +238,25 @@ function extractLinks(xmlText: string, type: string): string[] {
   }
   
   return results
+}
+
+function extractExpansionLinks(xmlText: string): { expands: number[], expandedBy: number[] } {
+  const expands: number[] = []
+  const expandedBy: number[] = []
+  
+  // Look for boardgameexpansion links - these indicate what this game expands
+  const expansionRegex = /<link[^>]*type="boardgameexpansion"[^>]*id="(\d+)"[^>]*>/g
+  let match
+  
+  while ((match = expansionRegex.exec(xmlText)) !== null) {
+    expands.push(parseInt(match[1]))
+  }
+  
+  // Note: BGG doesn't include reverse expansion links in game details
+  // We'd need to search for games that expand this one separately
+  // For now, we'll focus on identifying expansions
+  
+  return { expands, expandedBy }
 }
 
 async function syncBGGCollection(supabase: any, bggUsername: string, userId: string) {
