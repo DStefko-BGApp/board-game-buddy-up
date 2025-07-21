@@ -100,6 +100,11 @@ const Library = () => {
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
 
+  // Helper function to get display title (custom title or original name)
+  const getDisplayTitle = (game: any) => {
+    return game.custom_title || game.name;
+  };
+
   // Filter games based on search query
   const filteredGroupedLibrary = useMemo(() => {
     if (!groupedLibrary || !librarySearchQuery.trim()) return groupedLibrary;
@@ -349,9 +354,6 @@ const Library = () => {
     return `${min || '?'}-${max || '?'}`;
   };
 
-  const getDisplayTitle = (game: any) => {
-    return game.custom_title || game.name;
-  };
 
   // Bulk delete functions
   const toggleGameSelection = (gameId: string) => {
