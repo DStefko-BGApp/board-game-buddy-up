@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,8 @@ import {
   List,
   CheckSquare,
   Square,
-  Settings
+  Settings,
+  X
 } from "lucide-react";
 import { useBGGSearch, useUserLibrary, useAddGameToLibrary, useRemoveGameFromLibrary, useUpdateUserGame, useSyncBGGCollection, useGroupedLibrary, useUpdateGameExpansionRelationship, useUpdateGameCoreMechanic, useUpdateGameAdditionalMechanic1, useUpdateGameAdditionalMechanic2, useUpdateGameCustomTitle } from "@/hooks/useBGG";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,6 +64,7 @@ const Library = () => {
   const [editRating, setEditRating] = useState<number | undefined>();
   const [editNotes, setEditNotes] = useState("");
   const [editCustomTitle, setEditCustomTitle] = useState("");
+  const [librarySearchQuery, setLibrarySearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>('large');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
@@ -98,8 +100,39 @@ const Library = () => {
   const { searchResults, isLoading: isSearching, search } = useBGGSearch();
   const { data: groupedLibrary, flatData: userLibrary, isLoading: isLoadingLibrary } = useGroupedLibrary();
 
-  // Sort the grouped library based on selected option
-  const sortedGroupedLibrary = groupedLibrary ? [...groupedLibrary].sort((a, b) => {
+  // Filter games based on search query
+  const filteredGroupedLibrary = useMemo(() => {
+    if (!groupedLibrary || !librarySearchQuery.trim()) return groupedLibrary;
+    
+    const searchTerm = librarySearchQuery.toLowerCase().trim();
+    
+    return groupedLibrary.filter(group => {
+      // Search in base game
+      const baseGameMatches = (
+        getDisplayTitle(group.baseGame.game).toLowerCase().includes(searchTerm) ||
+        group.baseGame.game.core_mechanic?.toLowerCase().includes(searchTerm) ||
+        group.baseGame.game.additional_mechanic_1?.toLowerCase().includes(searchTerm) ||
+        group.baseGame.game.additional_mechanic_2?.toLowerCase().includes(searchTerm) ||
+        group.baseGame.game.designers?.some(d => d.toLowerCase().includes(searchTerm)) ||
+        group.baseGame.game.categories?.some(c => c.toLowerCase().includes(searchTerm)) ||
+        group.baseGame.notes?.toLowerCase().includes(searchTerm)
+      );
+      
+      // Search in expansions
+      const expansionMatches = group.expansions.some(expansion => 
+        getDisplayTitle(expansion.game).toLowerCase().includes(searchTerm) ||
+        expansion.game.core_mechanic?.toLowerCase().includes(searchTerm) ||
+        expansion.game.additional_mechanic_1?.toLowerCase().includes(searchTerm) ||
+        expansion.game.additional_mechanic_2?.toLowerCase().includes(searchTerm) ||
+        expansion.notes?.toLowerCase().includes(searchTerm)
+      );
+      
+      return baseGameMatches || expansionMatches;
+    });
+  }, [groupedLibrary, librarySearchQuery]);
+
+  // Sort the filtered library based on selected option
+  const sortedGroupedLibrary = filteredGroupedLibrary ? [...filteredGroupedLibrary].sort((a, b) => {
     const gameA = a.baseGame.game;
     const gameB = b.baseGame.game;
     const userGameA = a.baseGame;
@@ -107,7 +140,7 @@ const Library = () => {
 
     switch (sortBy) {
       case 'name':
-        return gameA.name.localeCompare(gameB.name);
+        return getDisplayTitle(gameA).localeCompare(getDisplayTitle(gameB));
       
       case 'date_added':
         return new Date(userGameB.date_added).getTime() - new Date(userGameA.date_added).getTime();
@@ -807,6 +840,39 @@ const Library = () => {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search your library (title, mechanics, designers, notes)..."
+                value={librarySearchQuery}
+                onChange={(e) => setLibrarySearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          {librarySearchQuery && (
+            <Button
+              variant="outline"
+              onClick={() => setLibrarySearchQuery("")}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Clear
+            </Button>
+          )}
+        </div>
+        
+        {librarySearchQuery && sortedGroupedLibrary && (
+          <div className="text-sm text-muted-foreground">
+            Found {sortedGroupedLibrary.length} game{sortedGroupedLibrary.length !== 1 ? 's' : ''} matching "{librarySearchQuery}"
+          </div>
+        )}
       </div>
 
       {/* Stats */}
