@@ -184,7 +184,7 @@ const Randomizer = () => {
             {coinResult && (
               <div className="text-center p-6">
                 <div className="text-6xl mb-2">
-                  {coinResult === "Heads" ? "👑" : "⚡"}
+                  {coinResult === "Heads" ? "🪙" : "⚪"}
                 </div>
                 <p className="text-2xl font-bold text-gaming-orange">
                   {coinResult}
