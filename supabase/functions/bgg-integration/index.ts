@@ -47,11 +47,26 @@ Deno.serve(async (req) => {
       }
     )
 
-    const { searchTerm, bggId, userId, gameData } = await req.json()
+    // Parse request body once
+    const requestBody = await req.json()
+    const { searchTerm, bggId, userId, bggUsername } = requestBody
 
     switch (req.method) {
       case 'POST':
-        if (searchTerm) {
+        // Check URL path to determine operation
+        const url = new URL(req.url)
+        
+        if (url.pathname.includes('sync-collection')) {
+          // Sync user's BGG collection
+          console.log(`Syncing BGG collection for user: ${bggUsername}`)
+          
+          const syncResult = await syncBGGCollection(supabase, bggUsername, userId)
+          
+          return new Response(
+            JSON.stringify({ success: true, data: syncResult }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        } else if (searchTerm) {
           // Search for games on BGG
           console.log(`Searching BGG for: ${searchTerm}`)
           const searchResults = await searchBGG(searchTerm)
@@ -79,17 +94,6 @@ Deno.serve(async (req) => {
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
             )
           }
-        } else if (req.url.includes('sync-collection')) {
-          // Sync user's BGG collection
-          const { bggUsername, userId } = await req.json()
-          console.log(`Syncing BGG collection for user: ${bggUsername}`)
-          
-          const syncResult = await syncBGGCollection(supabase, bggUsername, userId)
-          
-          return new Response(
-            JSON.stringify({ success: true, data: syncResult }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
         }
         break
 
