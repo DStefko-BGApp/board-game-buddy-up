@@ -51,7 +51,7 @@ export const GameCard = ({
 
   return (
     <Card className={cardClasses}>
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-3 p-3">
         {/* Selection Checkbox */}
         {isSelectionMode && (
           <div className="flex items-center">
@@ -59,18 +59,18 @@ export const GameCard = ({
               variant="ghost"
               size="sm"
               onClick={() => onSelect(userGame.id)}
-              className="h-6 w-6 p-0"
+              className="h-5 w-5 p-0"
             >
               {isSelected ? (
-                <CheckSquare className="h-4 w-4 text-primary" />
+                <CheckSquare className="h-3 w-3 text-primary" />
               ) : (
-                <Square className="h-4 w-4" />
+                <Square className="h-3 w-3" />
               )}
             </Button>
           </div>
         )}
 
-        <div className="w-20 h-20 flex-shrink-0">
+        <div className="w-16 h-16 flex-shrink-0">
           {userGame.game.image_url ? (
             <img 
               src={userGame.game.thumbnail_url || userGame.game.image_url} 
@@ -79,89 +79,86 @@ export const GameCard = ({
             />
           ) : (
             <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-              <BookOpen className="h-8 w-8 text-white" />
+              <BookOpen className="h-6 w-6 text-white" />
             </div>
           )}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="font-semibold text-lg truncate">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base truncate leading-tight">
                 {decodeHtmlEntities(getDisplayTitle(userGame.game))}
               </h3>
               {userGame.game.year_published && (
-                <p className="text-sm text-muted-foreground">({userGame.game.year_published})</p>
+                <p className="text-xs text-muted-foreground">({userGame.game.year_published})</p>
               )}
             </div>
             
-            <div className="flex gap-2 ml-4">
+            <div className="flex gap-1 ml-2 flex-shrink-0">
               {userGame.is_owned && (
-                <Badge variant="secondary" className="bg-gaming-green text-white">
+                <Badge variant="secondary" className="bg-gaming-green text-white text-xs px-1.5 py-0.5">
                   Owned
                 </Badge>
               )}
               {userGame.game.is_expansion && (
-                <Badge variant="outline" className="text-gaming-purple border-gaming-purple">
-                  Expansion
+                <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs px-1.5 py-0.5">
+                  Exp
                 </Badge>
               )}
             </div>
           </div>
           
-          <div className="flex items-center gap-6 mt-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
             <div className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
+              <Users className="h-3 w-3" />
               <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
             </div>
             {userGame.game.playing_time && (
               <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{userGame.game.playing_time}min</span>
+                <Clock className="h-3 w-3" />
+                <span>{userGame.game.playing_time}m</span>
               </div>
             )}
             {userGame.game.rating && (
               <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                <span>{userGame.game.rating.toFixed(1)} BGG</span>
+                <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                <span>{userGame.game.rating.toFixed(1)}</span>
               </div>
             )}
             {userGame.personal_rating && (
               <div className="flex items-center gap-1">
-                <Heart className="h-4 w-4 text-gaming-red fill-current" />
-                <span>{userGame.personal_rating}/10 Your rating</span>
+                <Heart className="h-3 w-3 text-gaming-red fill-current" />
+                <span>{userGame.personal_rating}/10</span>
               </div>
             )}
           </div>
           
-          {/* Core mechanic */}
-          {userGame.game.core_mechanic && (
-            <div className="mt-2">
-              <Badge variant="secondary" className="text-xs">
+          {/* Core and additional mechanics on same line */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            {userGame.game.core_mechanic && (
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                 {userGame.game.core_mechanic}
               </Badge>
-            </div>
-          )}
-          
-          {/* Additional mechanics */}
-          <div className="mt-2 flex flex-wrap gap-1">
+            )}
             {userGame.game.additional_mechanic_1 && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                 {userGame.game.additional_mechanic_1}
               </Badge>
             )}
             {userGame.game.additional_mechanic_2 && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                 {userGame.game.additional_mechanic_2}
               </Badge>
             )}
           </div>
           
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
               onClick={() => onEdit(userGame)}
+              className="h-7 px-2 text-xs"
             >
               <Edit className="h-3 w-3 mr-1" />
               Edit
@@ -171,7 +168,7 @@ export const GameCard = ({
               variant="outline"
               onClick={() => onRemove(userGame.id)}
               disabled={isRemoving}
-              className="text-destructive hover:text-destructive"
+              className="text-destructive hover:text-destructive h-7 px-2"
             >
               <Trash2 className="h-3 w-3" />
             </Button>

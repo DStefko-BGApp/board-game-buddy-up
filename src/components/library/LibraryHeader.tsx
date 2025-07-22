@@ -30,7 +30,7 @@ export const LibraryHeader = ({ onSearchClick, onSyncClick }: LibraryHeaderProps
                 onClick={onSearchClick}
                 className="px-6 py-3 bg-white/20 text-foreground border-2 border-white/40 rounded-lg hover:bg-white/30 backdrop-blur-sm font-semibold shadow-lg hover-scale transition-all duration-300"
               >
-                Add Manual Game
+                Add Game
               </button>
             </div>
           </div>

@@ -9,8 +9,10 @@ import Randomizer from "./pages/Randomizer";
 import GameNights from "./pages/GameNights";
 import Friends from "./pages/Friends";
 import Auth from "./pages/Auth";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
+import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -23,33 +25,39 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/library" element={
-              <ProtectedRoute>
-                <Library />
-              </ProtectedRoute>
-            } />
-            <Route path="/randomizer" element={
-              <ProtectedRoute>
-                <Randomizer />
-              </ProtectedRoute>
-            } />
-            <Route path="/game-nights" element={
-              <ProtectedRoute>
-                <GameNights />
-              </ProtectedRoute>
-            } />
-            <Route path="/friends" element={
-              <ProtectedRoute>
-                <Friends />
-              </ProtectedRoute>
-            } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/library" element={
+                  <ProtectedRoute>
+                    <Library />
+                  </ProtectedRoute>
+                } />
+                <Route path="/randomizer" element={
+                  <ProtectedRoute>
+                    <Randomizer />
+                  </ProtectedRoute>
+                } />
+                <Route path="/game-nights" element={
+                  <ProtectedRoute>
+                    <GameNights />
+                  </ProtectedRoute>
+                } />
+                <Route path="/friends" element={
+                  <ProtectedRoute>
+                    <Friends />
+                  </ProtectedRoute>
+                } />
+                <Route path="/faq" element={<FAQ />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

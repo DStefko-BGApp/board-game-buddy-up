@@ -6,6 +6,7 @@ import {
   Dice6, 
   Calendar, 
   Users,
+  HelpCircle,
   Menu,
   X,
   LogIn,
@@ -25,6 +26,7 @@ const Navigation = () => {
     { to: "/randomizer", icon: Dice6, label: "Dice & Tools" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
     { to: "/friends", icon: Users, label: "Friends" },
+    { to: "/faq", icon: HelpCircle, label: "FAQ" },
   ];
 
   return (
@@ -33,8 +35,8 @@ const Navigation = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <Crown className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
+            <Crown className="h-8 w-8 animate-gradient-fade" />
+            <span className="text-xl font-bold bg-gradient-to-r from-primary via-gaming-green to-primary bg-clip-text text-transparent">
               GameNight
             </span>
           </div>

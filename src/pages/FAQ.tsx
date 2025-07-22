@@ -1,0 +1,107 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { HelpCircle, Mail } from "lucide-react";
+
+const FAQ = () => {
+  const faqs = [
+    {
+      question: "How do I add games to my library?",
+      answer: "You can add games to your library in two ways: 1) Search for games manually using the 'Add Game' button, or 2) Sync your existing BoardGameGeek collection using the 'Sync BGG Collection' button."
+    },
+    {
+      question: "Can I import my BoardGameGeek collection?",
+      answer: "Yes! Use the 'Sync BGG Collection' feature on your library page. Enter your BGG username and we'll import all your games automatically."
+    },
+    {
+      question: "How do I organize game nights with friends?",
+      answer: "Navigate to the Game Nights page where you can create events, invite friends, and select games from your library. Friends can RSVP and see what games will be played."
+    },
+    {
+      question: "What gaming tools are available?",
+      answer: "The Dice & Tools page includes a dice roller (supporting D4, D6, D8, D10, D12, D20), coin flipper, random choice selector, and player order shuffler - everything you need for game night."
+    },
+    {
+      question: "Can I track my game ratings and plays?",
+      answer: "Yes! When editing games in your library, you can set personal ratings, track play counts, and add notes about your gaming experiences."
+    },
+    {
+      question: "How do I connect with other players?",
+      answer: "Use the Friends page to search for and connect with other GameNight users. You can see their public game libraries and coordinate game nights together."
+    },
+    {
+      question: "Is my game collection private?",
+      answer: "Your game collection is private by default. You can choose to make your library public in your profile settings if you want friends to see your games."
+    },
+    {
+      question: "Can I edit game information?",
+      answer: "You can edit personal information like ratings, play counts, and notes. You can also customize display titles and categorize games as expansions."
+    }
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
+      {/* Header */}
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+        <div className="relative bg-card/90 backdrop-blur-sm border border-white/20 rounded-2xl p-8 cozy-section">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <HelpCircle className="h-12 w-12 text-primary" />
+              <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
+                Frequently Asked Questions
+              </h1>
+            </div>
+            <p className="text-muted-foreground text-lg">
+              Find answers to common questions about using GameNight
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Accordion */}
+      <Card className="shadow-gaming section-background border-white/10 cozy-section mb-8">
+        <CardHeader>
+          <CardTitle>Common Questions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Accordion type="single" collapsible className="space-y-2">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`} className="border border-white/10 rounded-lg px-4">
+                <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed pt-2">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </CardContent>
+      </Card>
+
+      {/* Need More Help Section */}
+      <Card className="shadow-gaming section-background border-white/10 cozy-section">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-primary" />
+            Need More Help?
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p className="text-muted-foreground mb-6">
+            Can't find what you're looking for? We're here to help! Send us an email and we'll get back to you as soon as possible.
+          </p>
+          <Button asChild variant="gaming" size="lg" className="hover-scale">
+            <a href="mailto:support@gamenight.example.com">
+              <Mail className="h-5 w-5 mr-2" />
+              Contact Support
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default FAQ;

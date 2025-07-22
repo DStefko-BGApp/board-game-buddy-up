@@ -148,8 +148,8 @@ const Friends = () => {
                       {getStatusText(profile.status)}
                     </Badge>
                     {profile.library_public && (
-                      <Badge variant="secondary" className="bg-gaming-green/30 text-foreground text-xs">
-                        📚
+                      <Badge variant="secondary" className="bg-gaming-green/30 text-foreground text-xs" title="Public Library">
+                        Library
                       </Badge>
                     )}
                   </div>

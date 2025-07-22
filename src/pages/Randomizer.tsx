@@ -183,7 +183,7 @@ const Randomizer = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button onClick={flipCoin} variant="score" className="w-full">
+            <Button onClick={flipCoin} variant="secondary" className="w-full">
               Flip Coin
             </Button>
 
@@ -224,7 +224,7 @@ const Randomizer = () => {
 
             <Button 
               onClick={getRandomChoice} 
-              variant="default" 
+              variant="accent" 
               className="w-full"
               disabled={!customList.trim()}
             >
@@ -265,7 +265,7 @@ const Randomizer = () => {
 
             <Button 
               onClick={shufflePlayers} 
-              variant="gaming" 
+              variant="score" 
               className="w-full"
               disabled={!playerNames.trim()}
             >
