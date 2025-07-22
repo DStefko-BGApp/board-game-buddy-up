@@ -435,7 +435,7 @@ export type Database = {
           discord_handle: string | null
           display_name: string
           favorite_games: string[] | null
-          favorite_mechanic: string | null
+          favorite_mechanics: string[] | null
           gaming_experience: string | null
           gaming_style: string | null
           id: string
@@ -455,7 +455,7 @@ export type Database = {
           discord_handle?: string | null
           display_name: string
           favorite_games?: string[] | null
-          favorite_mechanic?: string | null
+          favorite_mechanics?: string[] | null
           gaming_experience?: string | null
           gaming_style?: string | null
           id?: string
@@ -475,7 +475,7 @@ export type Database = {
           discord_handle?: string | null
           display_name?: string
           favorite_games?: string[] | null
-          favorite_mechanic?: string | null
+          favorite_mechanics?: string[] | null
           gaming_experience?: string | null
           gaming_style?: string | null
           id?: string

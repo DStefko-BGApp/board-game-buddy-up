@@ -13,13 +13,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useProfile, Profile } from "@/hooks/useProfile";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { useUserGames } from "@/hooks/useUserGames";
-import { Loader2, Upload, X, Camera } from "lucide-react";
+import { Loader2, X, Camera } from "lucide-react";
 import { BOARD_GAME_MECHANICS } from "@/constants/boardGameMechanics";
 
 interface EditProfileDialogProps {
@@ -34,7 +33,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
   const [status, setStatus] = useState(profile.status);
   const [location, setLocation] = useState(profile.location || "");
   const [favoriteGames, setFavoriteGames] = useState<string[]>(profile.favorite_games || []);
-  const [favoriteMechanic, setFavoriteMechanic] = useState(profile.favorite_mechanic || "");
+  const [favoriteMechanics, setFavoriteMechanics] = useState<string[]>(profile.favorite_mechanics || []);
   const [gamingExperience, setGamingExperience] = useState(profile.gaming_experience || "");
   const [preferredPlayerCount, setPreferredPlayerCount] = useState(profile.preferred_player_count || "");
   const [gamingStyle, setGamingStyle] = useState(profile.gaming_style || "");
@@ -71,6 +70,16 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
     }
   };
 
+  const handleRemoveFavoriteMechanic = (mechanicToRemove: string) => {
+    setFavoriteMechanics(prev => prev.filter(mechanic => mechanic !== mechanicToRemove));
+  };
+
+  const handleAddFavoriteMechanic = (mechanic: string) => {
+    if (!favoriteMechanics.includes(mechanic) && favoriteMechanics.length < 3) {
+      setFavoriteMechanics(prev => [...prev, mechanic]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!displayName.trim()) return;
@@ -84,7 +93,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
         location: location.trim() || null,
         avatar_url: avatarUrl || null,
         favorite_games: favoriteGames.length > 0 ? favoriteGames : null,
-        favorite_mechanic: favoriteMechanic || null,
+        favorite_mechanics: favoriteMechanics.length > 0 ? favoriteMechanics : null,
         gaming_experience: (gamingExperience as 'beginner' | 'intermediate' | 'expert') || null,
         preferred_player_count: preferredPlayerCount || null,
         gaming_style: (gamingStyle as 'casual' | 'competitive' | 'teaching-friendly' | 'mixed') || null,
@@ -109,7 +118,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
       setStatus(profile.status);
       setLocation(profile.location || "");
       setFavoriteGames(profile.favorite_games || []);
-      setFavoriteMechanic(profile.favorite_mechanic || "");
+      setFavoriteMechanics(profile.favorite_mechanics || []);
       setGamingExperience(profile.gaming_experience || "");
       setPreferredPlayerCount(profile.preferred_player_count || "");
       setGamingStyle(profile.gaming_style || "");
@@ -273,24 +282,45 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
               </div>
             </div>
 
+            {/* Favorite Mechanics */}
+            <div className="grid gap-2">
+              <Label>Favorite Mechanics (Top 3)</Label>
+              <div className="space-y-2">
+                {favoriteMechanics.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {favoriteMechanics.map((mechanic) => (
+                      <Badge key={mechanic} variant="secondary" className="gap-1">
+                        {mechanic}
+                        <X 
+                          className="h-3 w-3 cursor-pointer" 
+                          onClick={() => handleRemoveFavoriteMechanic(mechanic)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                {favoriteMechanics.length < 3 && (
+                  <Select onValueChange={handleAddFavoriteMechanic}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Add a favorite mechanic" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BOARD_GAME_MECHANICS
+                        .filter(mechanic => !favoriteMechanics.includes(mechanic))
+                        .sort((a, b) => a.localeCompare(b))
+                        .map((mechanic) => (
+                          <SelectItem key={mechanic} value={mechanic}>
+                            {mechanic}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </div>
+
             {/* Gaming Preferences */}
             <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="favoriteMechanic">Favorite Mechanic</Label>
-                <Select value={favoriteMechanic} onValueChange={setFavoriteMechanic}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your favorite mechanic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BOARD_GAME_MECHANICS.map((mechanic) => (
-                      <SelectItem key={mechanic} value={mechanic}>
-                        {mechanic}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div className="grid gap-2">
                 <Label htmlFor="gamingExperience">Gaming Experience</Label>
                 <Select value={gamingExperience} onValueChange={setGamingExperience}>

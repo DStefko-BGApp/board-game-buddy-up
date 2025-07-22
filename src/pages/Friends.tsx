@@ -169,6 +169,18 @@ const Friends = () => {
                   </div>
                 </div>
               )}
+              {profile.favorite_mechanics && profile.favorite_mechanics.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium mb-1">Favorite Mechanics:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.favorite_mechanics.map((mechanic) => (
+                      <Badge key={mechanic} variant="outline" className="text-xs">
+                        {mechanic}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

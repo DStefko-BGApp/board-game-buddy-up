@@ -11,7 +11,7 @@ export interface Profile {
   status: 'online' | 'offline' | 'away' | 'busy';
   location?: string;
   favorite_games?: string[];
-  favorite_mechanic?: string;
+  favorite_mechanics?: string[];
   gaming_experience?: 'beginner' | 'intermediate' | 'expert';
   preferred_player_count?: string;
   gaming_style?: 'casual' | 'competitive' | 'teaching-friendly' | 'mixed';
