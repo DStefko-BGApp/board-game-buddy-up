@@ -172,7 +172,7 @@
   }
   
   .section-background {
-    @apply bg-gradient-to-br from-card/60 to-background game-board-pattern;
+    @apply bg-gradient-to-br from-card/60 to-background texture-subtle;
   }
   
   /* Board game night atmosphere */
