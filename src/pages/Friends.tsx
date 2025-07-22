@@ -119,43 +119,42 @@ const Friends = () => {
         </div>
       </div>
 
-      {/* Current Profile Card - New Layout */}
-      <div className="relative mb-8">
-        <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
-        <Card className="relative bg-card/95 backdrop-blur-sm border-white/20 shadow-2xl hover:shadow-gaming transition-all duration-300">
+      {/* Current Profile Card - Compact Layout */}
+      <div className="relative mb-6">
+        <Card className="bg-card/95 backdrop-blur-sm border-white/20 shadow-lg">
           <CardContent className="p-0">
-            {/* Header Section */}
-            <div className="relative bg-gradient-to-r from-gaming-blue/20 via-primary/10 to-gaming-green/20 p-6 rounded-t-2xl border-b border-white/10">
-              <div className="flex items-center gap-4">
-                <div className="relative group/avatar">
-                  <Avatar className="h-16 w-16 border-3 border-white/30 shadow-xl">
+            {/* Compact Header */}
+            <div className="relative bg-gradient-to-r from-gaming-blue/15 via-primary/8 to-gaming-green/15 p-4 rounded-t-2xl border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Avatar className="h-12 w-12 border-2 border-white/30">
                     {profile.avatar_url ? (
                       <AvatarImage src={profile.avatar_url} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="bg-gradient-gaming text-white text-xl font-bold">
+                      <AvatarFallback className="bg-gradient-gaming text-white font-bold">
                         {profile.display_name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${getStatusColor(profile.status)} shadow-lg`} />
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(profile.status)}`} />
                 </div>
                 
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-2xl font-bold text-white drop-shadow-md">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold text-white truncate">
                       {profile.display_name}
                     </h3>
-                    <Badge variant="outline" className="border-white/50 text-white bg-white/10 backdrop-blur-sm">
+                    <Badge variant="outline" className="border-white/40 text-white bg-white/10 text-xs">
                       {getStatusText(profile.status)}
                     </Badge>
                     {profile.library_public && (
-                      <Badge variant="secondary" className="bg-gaming-green/30 text-white border-gaming-green/50">
-                        📚 Public Library
+                      <Badge variant="secondary" className="bg-gaming-green/30 text-white text-xs">
+                        📚
                       </Badge>
                     )}
                   </div>
                   {profile.bio && (
-                    <p className="text-white/80 italic drop-shadow-sm">
+                    <p className="text-white/75 text-sm italic truncate">
                       "{profile.bio}"
                     </p>
                   )}
@@ -163,168 +162,135 @@ const Friends = () => {
               </div>
             </div>
 
-            {/* Main Content Grid */}
-            <div className="p-6 space-y-6">
-              {/* Gaming Profile Section */}
-              <div>
-                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
-                  🎮 Gaming Profile
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {profile.gaming_experience && (
-                    <Card className="bg-gradient-to-br from-primary/10 to-gaming-blue/10 border-primary/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Trophy className="h-5 w-5 text-primary" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Experience Level</span>
-                            <p className="font-semibold capitalize">{profile.gaming_experience}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                  
-                  {profile.gaming_style && (
-                    <Card className="bg-gradient-to-br from-gaming-green/10 to-gaming-blue/10 border-gaming-green/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Users className="h-5 w-5 text-gaming-green" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Gaming Style</span>
-                            <p className="font-semibold capitalize">{profile.gaming_style}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                  
-                  {profile.preferred_player_count && (
-                    <Card className="bg-gradient-to-br from-gaming-red/10 to-gaming-slate/10 border-gaming-red/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Users className="h-5 w-5 text-gaming-red" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Preferred Players</span>
-                            <p className="font-semibold">{profile.preferred_player_count}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </div>
-
-              {/* Personal Info Section */}
-              <div>
-                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
-                  📍 Personal Info
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {profile.location && (
-                    <Card className="bg-gradient-to-br from-gaming-slate/10 to-gaming-blue/10 border-gaming-slate/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-4 h-4 bg-gaming-slate rounded-full" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Location</span>
-                            <p className="font-semibold text-sm">{profile.location}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                  
-                  <Card className="bg-gradient-to-br from-gaming-green/10 to-gaming-blue/10 border-gaming-green/20">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-4 w-4 text-gaming-green" />
-                        <div>
-                          <span className="text-xs text-muted-foreground font-medium">Member Since</span>
-                          <p className="font-semibold text-sm">{new Date(profile.created_at).toLocaleDateString()}</p>
-                        </div>
+            {/* Compact Content Grid */}
+            <div className="p-4 space-y-4">
+              {/* Single row for all key info */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                {profile.gaming_experience && (
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Trophy className="h-3 w-3 text-primary" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Experience</p>
+                        <p className="text-xs font-semibold capitalize truncate">{profile.gaming_experience}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {profile.availability && (
-                    <Card className="bg-gradient-to-br from-primary/10 to-gaming-slate/10 border-primary/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Clock className="h-4 w-4 text-primary" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Availability</span>
-                            <p className="font-semibold text-sm">{profile.availability}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                  
-                  {(profile.bgg_username || profile.discord_handle) && (
-                    <Card className="bg-gradient-to-br from-gaming-red/10 to-gaming-blue/10 border-gaming-red/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <MessageCircle className="h-4 w-4 text-gaming-red" />
-                          <div>
-                            <span className="text-xs text-muted-foreground font-medium">Connect</span>
-                            <div className="space-y-1">
-                              {profile.bgg_username && (
-                                <p className="font-semibold text-xs">BGG: {profile.bgg_username}</p>
-                              )}
-                              {profile.discord_handle && (
-                                <p className="font-semibold text-xs">Discord: {profile.discord_handle}</p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                    </div>
+                  </div>
+                )}
+                
+                {profile.gaming_style && (
+                  <div className="bg-gaming-green/10 border border-gaming-green/20 rounded-lg p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3 w-3 text-gaming-green" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Style</p>
+                        <p className="text-xs font-semibold capitalize truncate">{profile.gaming_style}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {profile.preferred_player_count && (
+                  <div className="bg-gaming-red/10 border border-gaming-red/20 rounded-lg p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3 w-3 text-gaming-red" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Players</p>
+                        <p className="text-xs font-semibold truncate">{profile.preferred_player_count}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {profile.location && (
+                  <div className="bg-gaming-slate/10 border border-gaming-slate/20 rounded-lg p-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 bg-gaming-slate rounded-full flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Location</p>
+                        <p className="text-xs font-semibold truncate">{profile.location}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {profile.availability && (
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3 text-primary" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Available</p>
+                        <p className="text-xs font-semibold truncate">{profile.availability}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="bg-gaming-green/10 border border-gaming-green/20 rounded-lg p-2">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3 w-3 text-gaming-green" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Joined</p>
+                      <p className="text-xs font-semibold truncate">{new Date(profile.created_at).toLocaleDateString('en-US', {month: 'short', year: 'numeric'})}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Favorites Section */}
+              {/* Compact social handles */}
+              {(profile.bgg_username || profile.discord_handle) && (
+                <div className="flex gap-2 text-xs">
+                  {profile.bgg_username && (
+                    <Badge variant="outline" className="bg-gaming-red/5 border-gaming-red/20 text-gaming-red">
+                      BGG: {profile.bgg_username}
+                    </Badge>
+                  )}
+                  {profile.discord_handle && (
+                    <Badge variant="outline" className="bg-gaming-blue/5 border-gaming-blue/20 text-gaming-blue">
+                      Discord: {profile.discord_handle}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {/* Compact Favorites */}
               {(profile.favorite_games?.length || profile.favorite_mechanics?.length) && (
-                <div>
-                  <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
-                    ⭐ Favorites
-                  </h4>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {profile.favorite_games && profile.favorite_games.length > 0 && (
-                      <Card className="bg-gradient-to-br from-gaming-green/5 to-gaming-blue/5 border-gaming-green/20">
-                        <CardContent className="p-4">
-                          <h5 className="font-semibold mb-3 flex items-center gap-2 text-gaming-green">
-                            🎲 Favorite Games
-                          </h5>
-                          <div className="flex flex-wrap gap-2">
-                            {profile.favorite_games.map((game, index) => (
-                              <Badge key={game} variant="outline" className="bg-gaming-green/10 border-gaming-green/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
-                                {game}
-                              </Badge>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                    
-                    {profile.favorite_mechanics && profile.favorite_mechanics.length > 0 && (
-                      <Card className="bg-gradient-to-br from-gaming-red/5 to-gaming-slate/5 border-gaming-red/20">
-                        <CardContent className="p-4">
-                          <h5 className="font-semibold mb-3 flex items-center gap-2 text-gaming-red">
-                            ⚙️ Favorite Mechanics
-                          </h5>
-                          <div className="flex flex-wrap gap-2">
-                            {profile.favorite_mechanics.map((mechanic, index) => (
-                              <Badge key={mechanic} variant="outline" className="bg-gaming-red/10 border-gaming-red/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
-                                {mechanic}
-                              </Badge>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  {profile.favorite_games && profile.favorite_games.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold mb-1 text-gaming-green">🎲 Favorite Games</p>
+                      <div className="flex flex-wrap gap-1">
+                        {profile.favorite_games.slice(0, 4).map((game) => (
+                          <Badge key={game} variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
+                            {game}
+                          </Badge>
+                        ))}
+                        {profile.favorite_games.length > 4 && (
+                          <Badge variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
+                            +{profile.favorite_games.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {profile.favorite_mechanics && profile.favorite_mechanics.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold mb-1 text-gaming-red">⚙️ Favorite Mechanics</p>
+                      <div className="flex flex-wrap gap-1">
+                        {profile.favorite_mechanics.slice(0, 4).map((mechanic) => (
+                          <Badge key={mechanic} variant="outline" className="bg-gaming-red/5 border-gaming-red/20 text-xs">
+                            {mechanic}
+                          </Badge>
+                        ))}
+                        {profile.favorite_mechanics.length > 4 && (
+                          <Badge variant="outline" className="bg-gaming-red/5 border-gaming-red/20 text-xs">
+                            +{profile.favorite_mechanics.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
