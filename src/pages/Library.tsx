@@ -183,9 +183,9 @@ const Library = () => {
     setEditNotes(userGame.notes || "");
     setEditIsExpansion(userGame.game.is_expansion || false);
     setEditBaseGameId(userGame.game.base_game_bgg_id?.toString() || undefined);
-    setEditCoreMechanic(userGame.game.core_mechanic || "");
-    setEditAdditionalMechanic1(userGame.game.additional_mechanic_1 || "");
-    setEditAdditionalMechanic2(userGame.game.additional_mechanic_2 || "");
+    setEditCoreMechanic(userGame.game.core_mechanic || "none");
+    setEditAdditionalMechanic1(userGame.game.additional_mechanic_1 || "none");
+    setEditAdditionalMechanic2(userGame.game.additional_mechanic_2 || "none");
     setEditCustomTitle(userGame.game.custom_title || "");
   };
 
@@ -212,17 +212,17 @@ const Library = () => {
       // Update mechanics
       await updateCoreMechanicMutation.mutateAsync({
         gameId: editingGame.game.bgg_id,
-        coreMechanic: editCoreMechanic || null
+        coreMechanic: editCoreMechanic === "none" ? null : editCoreMechanic || null
       });
 
       await updateAdditionalMechanic1Mutation.mutateAsync({
         gameId: editingGame.game.bgg_id,
-        additionalMechanic1: editAdditionalMechanic1 || null
+        additionalMechanic1: editAdditionalMechanic1 === "none" ? null : editAdditionalMechanic1 || null
       });
 
       await updateAdditionalMechanic2Mutation.mutateAsync({
         gameId: editingGame.game.bgg_id,
-        additionalMechanic2: editAdditionalMechanic2 || null
+        additionalMechanic2: editAdditionalMechanic2 === "none" ? null : editAdditionalMechanic2 || null
       });
 
       // Update custom title
@@ -736,7 +736,7 @@ const Library = () => {
                     <SelectValue placeholder="Select core mechanic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {BOARD_GAME_MECHANICS.map((mechanic) => (
                       <SelectItem key={mechanic} value={mechanic}>
                         {mechanic}
@@ -753,7 +753,7 @@ const Library = () => {
                     <SelectValue placeholder="Select additional mechanic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {BOARD_GAME_MECHANICS.map((mechanic) => (
                       <SelectItem key={mechanic} value={mechanic}>
                         {mechanic}
@@ -770,7 +770,7 @@ const Library = () => {
                     <SelectValue placeholder="Select additional mechanic" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {BOARD_GAME_MECHANICS.map((mechanic) => (
                       <SelectItem key={mechanic} value={mechanic}>
                         {mechanic}
