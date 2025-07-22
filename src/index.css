@@ -15,22 +15,22 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 15% 9%;
 
-    --primary: 250 75% 60%;
+    --primary: 215 84% 56%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 250 85% 70%;
+    --primary-glow: 215 94% 66%;
 
-    --secondary: 45 100% 75%;
-    --secondary-foreground: 240 15% 9%;
+    --secondary: 210 16% 82%;
+    --secondary-foreground: 215 25% 27%;
 
-    --gaming-orange: 25 95% 58%;
-    --gaming-purple: 280 70% 65%;
-    --gaming-green: 145 80% 42%;
-    --gaming-red: 0 75% 60%;
+    --gaming-blue: 215 84% 56%;
+    --gaming-slate: 210 11% 71%;
+    --gaming-green: 142 62% 35%;
+    --gaming-red: 0 65% 48%;
 
-    --muted: 240 5% 94%;
-    --muted-foreground: 240 5% 45%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 280 70% 65%;
+    --accent: 142 62% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 60%;
@@ -40,11 +40,12 @@
     --input: 240 6% 90%;
     --ring: 250 75% 60%;
 
-    /* Gaming gradients */
+    /* Refined gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-gaming: linear-gradient(135deg, hsl(var(--gaming-purple)), hsl(var(--gaming-orange)));
+    --gradient-gaming: linear-gradient(135deg, hsl(var(--gaming-blue)), hsl(var(--gaming-slate)));
     --gradient-score: linear-gradient(135deg, hsl(var(--gaming-green)), hsl(var(--secondary)));
-    --gradient-hero: linear-gradient(135deg, hsl(250 75% 60% / 0.1), hsl(25 95% 58% / 0.1));
+    --gradient-hero: linear-gradient(135deg, hsl(215 84% 56% / 0.08), hsl(142 62% 35% / 0.05));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--gaming-red)), hsl(215 20% 65%));
 
     /* Gaming shadows */
     --shadow-gaming: 0 10px 30px -10px hsl(var(--primary) / 0.3);
@@ -71,19 +72,19 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 215 28% 17%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 215 25% 19%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 215 25% 19%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 215 84% 56%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 215 20% 25%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;

@@ -54,8 +54,8 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				gaming: {
-					orange: 'hsl(var(--gaming-orange))',
-					purple: 'hsl(var(--gaming-purple))',
+					blue: 'hsl(var(--gaming-blue))',
+					slate: 'hsl(var(--gaming-slate))',
 					green: 'hsl(var(--gaming-green))',
 					red: 'hsl(var(--gaming-red))'
 				},
@@ -74,7 +74,8 @@ export default {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-gaming': 'var(--gradient-gaming)',
 				'gradient-score': 'var(--gradient-score)',
-				'gradient-hero': 'var(--gradient-hero)'
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-accent': 'var(--gradient-accent)'
 			},
 			boxShadow: {
 				'gaming': 'var(--shadow-gaming)',

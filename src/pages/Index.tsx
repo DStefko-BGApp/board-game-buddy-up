@@ -27,21 +27,21 @@ const Index = () => {
       title: "Dice & Tools",
       description: "Roll dice, flip coins, and make random decisions",
       link: "/randomizer",
-      color: "text-gaming-purple",
+      color: "text-gaming-blue",
     },
     {
       icon: Calendar,
       title: "Game Nights",
       description: "Plan and organize gaming sessions with friends",
       link: "/game-nights",
-      color: "text-gaming-orange",
+      color: "text-gaming-slate",
     },
     {
       icon: Users,
       title: "Friends",
       description: "Connect with other board game enthusiasts",
       link: "/friends",
-      color: "text-gaming-red",
+      color: "text-gaming-green",
     },
   ];
 
@@ -52,24 +52,29 @@ const Index = () => {
         className="relative h-[70vh] flex items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/70" />
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Crown className="h-12 w-12" />
-            <h1 className="text-5xl md:text-6xl font-bold">GameNight</h1>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-gaming opacity-50 rounded-full blur-lg"></div>
+              <Crown className="h-16 w-16 relative text-white filter drop-shadow-lg" />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+              GameNight
+            </h1>
           </div>
-          <p className="text-xl md:text-2xl mb-8 text-white/90">
+          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
             Your all-in-one social board game companion. Manage your collection, 
             plan game nights, and connect with friends.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-3">
+            <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale shadow-xl">
               <Link to="/auth">
                 Get Started Now
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-3">
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4 hover-scale">
               <Link to="/randomizer">
                 Roll Some Dice
                 <Dice6 className="h-5 w-5" />
@@ -90,23 +95,24 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Link key={index} to={feature.link}>
-                <Card className="h-full hover:shadow-gaming transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <CardHeader>
+              <Link key={index} to={feature.link} className="group">
+                <Card className="h-full hover:shadow-gaming transition-all duration-300 hover:-translate-y-2 cursor-pointer relative overflow-hidden bg-gradient-to-br from-card to-card/50 border-white/10 backdrop-blur-sm">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-gaming opacity-10 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-20 transition-opacity"></div>
+                  <CardHeader className="relative">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                      <div className="p-3 rounded-xl bg-gradient-gaming/10 group-hover:scale-110 transition-transform">
+                        <feature.icon className={`h-8 w-8 ${feature.color}`} />
                       </div>
-                      <CardTitle className="text-xl">{feature.title}</CardTitle>
+                      <CardTitle className="text-xl bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">{feature.title}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                    <div className="flex items-center mt-4 text-primary font-medium">
-                      Learn more
-                      <ArrowRight className="h-4 w-4 ml-1" />
+                  <CardContent className="relative">
+                    <p className="text-muted-foreground mb-4 leading-relaxed">{feature.description}</p>
+                    <div className="flex items-center text-primary font-semibold group-hover:gap-3 transition-all">
+                      Explore
+                      <ArrowRight className="h-4 w-4 ml-1 group-hover:ml-0 transition-all" />
                     </div>
                   </CardContent>
                 </Card>
@@ -127,29 +133,33 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="text-4xl font-bold text-primary mb-2">10K+</div>
-                <div className="text-muted-foreground">Games Tracked</div>
+            <Card className="text-center group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/50 border-white/10">
+              <CardContent className="p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-gaming opacity-10 rounded-full -translate-y-8 translate-x-8 group-hover:opacity-20 transition-opacity"></div>
+                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2 relative">10K+</div>
+                <div className="text-muted-foreground font-medium">Games Tracked</div>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="text-4xl font-bold text-gaming-green mb-2">5K+</div>
-                <div className="text-muted-foreground">Game Nights Planned</div>
+            <Card className="text-center group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/50 border-white/10">
+              <CardContent className="p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-score opacity-10 rounded-full -translate-y-8 translate-x-8 group-hover:opacity-20 transition-opacity"></div>
+                <div className="text-5xl font-bold bg-gradient-to-r from-gaming-green to-gaming-green/70 bg-clip-text text-transparent mb-2 relative">5K+</div>
+                <div className="text-muted-foreground font-medium">Game Nights Planned</div>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="text-4xl font-bold text-gaming-orange mb-2">2K+</div>
-                <div className="text-muted-foreground">Active Players</div>
+            <Card className="text-center group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/50 border-white/10">
+              <CardContent className="p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gaming-blue/20 rounded-full -translate-y-8 translate-x-8 group-hover:opacity-30 transition-opacity"></div>
+                <div className="text-5xl font-bold bg-gradient-to-r from-gaming-blue to-gaming-slate bg-clip-text text-transparent mb-2 relative">2K+</div>
+                <div className="text-muted-foreground font-medium">Active Players</div>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <div className="text-4xl font-bold text-gaming-purple mb-2">4.9</div>
-                <div className="text-muted-foreground flex items-center justify-center gap-1">
-                  <Star className="h-4 w-4 fill-current text-yellow-500" />
+            <Card className="text-center group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/50 border-white/10">
+              <CardContent className="p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gaming-red/20 rounded-full -translate-y-8 translate-x-8 group-hover:opacity-30 transition-opacity"></div>
+                <div className="text-5xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent mb-2 relative">4.9</div>
+                <div className="text-muted-foreground flex items-center justify-center gap-1 font-medium">
+                  <Star className="h-4 w-4 fill-current text-gaming-green" />
                   User Rating
                 </div>
               </CardContent>
