@@ -386,7 +386,7 @@ const GameNights = () => {
             <div className="flex items-center justify-between relative">
               <div>
                 <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{upcomingEvents.length}</p>
-                <p className="text-muted-foreground text-sm font-medium">Upcoming Events</p>
+                <p className="text-foreground/70 text-sm font-medium">Upcoming Events</p>
               </div>
               <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Calendar className="h-7 w-7 text-white" />
@@ -416,9 +416,9 @@ const GameNights = () => {
             <div className="flex items-center justify-between relative">
               <div>
                 <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">12</p>
-                <p className="text-muted-foreground text-sm font-medium">Total Attendees</p>
+                <p className="text-foreground/70 text-sm font-medium">Total Attendees</p>
               </div>
-              <div className="h-14 w-14 bg-gaming-red rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Users className="h-7 w-7 text-white" />
               </div>
             </div>
