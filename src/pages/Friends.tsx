@@ -7,13 +7,17 @@ import { Input } from "@/components/ui/input";
 import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock } from "lucide-react";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
+import { useUserGames } from "@/hooks/useUserGames";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AvatarImage } from "@/components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
   const { profile } = useProfile();
+  const { userGames } = useUserGames();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -259,12 +263,21 @@ const Friends = () => {
                   {profile.favorite_games && profile.favorite_games.length > 0 && (
                     <div>
                       <p className="text-xs font-semibold mb-1 text-gaming-green">🎲 Favorite Games</p>
-                      <div className="flex flex-wrap gap-1">
-                        {profile.favorite_games.slice(0, 4).map((game) => (
-                          <Badge key={game} variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
-                            {game}
-                          </Badge>
-                        ))}
+                       <div className="flex flex-wrap gap-1">
+                         {profile.favorite_games.slice(0, 4).map((game) => {
+                           const gameInLibrary = userGames.find(ug => ug.name.toLowerCase() === game.toLowerCase());
+                           return (
+                             <Badge 
+                               key={game} 
+                               variant="outline" 
+                               className={`bg-gaming-green/5 border-gaming-green/20 text-xs ${gameInLibrary ? 'cursor-pointer hover:bg-gaming-green/10 hover:border-gaming-green/30 transition-colors' : ''}`}
+                               onClick={gameInLibrary ? () => navigate('/library') : undefined}
+                               title={gameInLibrary ? 'Click to view in library' : undefined}
+                             >
+                               {game}
+                             </Badge>
+                           );
+                         })}
                         {profile.favorite_games.length > 4 && (
                           <Badge variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
                             +{profile.favorite_games.length - 4}
@@ -344,7 +357,7 @@ const Friends = () => {
                 </p>
                 <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
               </div>
-              <div className="h-14 w-14 bg-gaming-red rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <div className="h-14 w-14 bg-gaming-blue rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Clock className="h-7 w-7 text-white" />
               </div>
             </div>

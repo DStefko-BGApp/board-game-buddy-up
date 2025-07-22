@@ -183,6 +183,16 @@ const Randomizer = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex justify-center gap-4 mb-4">
+              <div className="text-center">
+                <div className="text-2xl mb-1">🦁</div>
+                <p className="text-sm font-medium">Heads</p>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl mb-1">🐾</div>
+                <p className="text-sm font-medium">Tails</p>
+              </div>
+            </div>
             <Button onClick={flipCoin} variant="secondary" className="w-full">
               Flip Coin
             </Button>

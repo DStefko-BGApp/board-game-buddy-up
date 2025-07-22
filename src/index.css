@@ -26,6 +26,7 @@
     --gaming-yellow: 50 85% 65%;
     --gaming-orange: 25 85% 60%;
     --gaming-purple: 280 60% 60%;
+    --gaming-blue: 225 85% 55%;
 
     --muted: 340 30% 94%;
     --muted-foreground: 340 15% 45%;
@@ -140,8 +141,8 @@
   }
   
   .animate-gradient-fade {
-    background: linear-gradient(-45deg, hsl(330 75% 55%), hsl(50 85% 65%), hsl(330 75% 55%), hsl(50 85% 65%));
-    background-size: 400% 400%;
+    background: linear-gradient(-45deg, hsl(330 75% 55%), hsl(50 85% 65%));
+    background-size: 200% 200%;
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -149,10 +150,10 @@
   }
   
   @keyframes gradient-fade {
-    0%, 100% {
+    0% {
       background-position: 0% 50%;
     }
-    50% {
+    100% {
       background-position: 100% 50%;
     }
   }
