@@ -45,6 +45,8 @@ const mockGameNights = [
 const GameNights = () => {
   const [gameNights, setGameNights] = useState(mockGameNights);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingGameNight, setEditingGameNight] = useState<any>(null);
   const [formData, setFormData] = useState({
     title: "",
     date: "",
@@ -67,6 +69,14 @@ const GameNights = () => {
     }
   };
 
+  const formatTime = (time24: string) => {
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
   const handleCreateGameNight = () => {
     if (!formData.title || !formData.date || !formData.time) return;
     
@@ -84,6 +94,36 @@ const GameNights = () => {
     setGameNights([...gameNights, newGameNight]);
     setFormData({ title: "", date: "", time: "", location: "", games: "" });
     setIsCreateDialogOpen(false);
+  };
+
+  const handleEditGameNight = (gameNight: any) => {
+    setEditingGameNight(gameNight);
+    setFormData({
+      title: gameNight.title,
+      date: gameNight.date,
+      time: gameNight.time,
+      location: gameNight.location,
+      games: gameNight.games.join(", "),
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateGameNight = () => {
+    if (!formData.title || !formData.date || !formData.time || !editingGameNight) return;
+    
+    const updatedGameNight = {
+      ...editingGameNight,
+      title: formData.title,
+      date: formData.date,
+      time: formData.time,
+      location: formData.location || "TBD",
+      games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
+    };
+    
+    setGameNights(gameNights.map(gn => gn.id === editingGameNight.id ? updatedGameNight : gn));
+    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+    setEditingGameNight(null);
+    setIsEditDialogOpen(false);
   };
 
   return (
@@ -174,6 +214,84 @@ const GameNights = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Edit Game Night Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Game Night</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Title *</Label>
+                <Input
+                  id="edit-title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Weekly Strategy Night"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-date">Date *</Label>
+                  <Input
+                    id="edit-date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-time">Time *</Label>
+                  <Input
+                    id="edit-time"
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-location">Location</Label>
+                <Input
+                  id="edit-location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="e.g., Mike's Place"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-games">Games (comma-separated)</Label>
+                <Textarea
+                  id="edit-games"
+                  value={formData.games}
+                  onChange={(e) => setFormData({ ...formData, games: e.target.value })}
+                  placeholder="e.g., Wingspan, Azul, Ticket to Ride"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsEditDialogOpen(false);
+                    setEditingGameNight(null);
+                    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="gaming"
+                  onClick={handleUpdateGameNight}
+                  disabled={!formData.title || !formData.date || !formData.time}
+                >
+                  Update Game Night
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Quick Stats */}
@@ -238,7 +356,7 @@ const GameNights = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {event.time}
+                        {formatTime(event.time)}
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
@@ -248,7 +366,11 @@ const GameNights = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     {getStatusBadge(event.status)}
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleEditGameNight(event)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                   </div>
@@ -300,7 +422,7 @@ const GameNights = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {event.time}
+                        {formatTime(event.time)}
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
