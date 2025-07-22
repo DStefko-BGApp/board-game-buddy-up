@@ -141,20 +141,15 @@
   }
   
   .animate-gradient-fade {
-    background: linear-gradient(-45deg, hsl(330 75% 55%), hsl(50 85% 65%));
-    background-size: 200% 200%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     animation: gradient-fade 3s ease-in-out infinite;
   }
   
   @keyframes gradient-fade {
     0% {
-      background-position: 0% 50%;
+      color: hsl(330 75% 55%);
     }
     100% {
-      background-position: 100% 50%;
+      color: hsl(50 85% 65%);
     }
   }
 }

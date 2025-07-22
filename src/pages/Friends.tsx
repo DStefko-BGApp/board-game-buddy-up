@@ -135,7 +135,7 @@ const Friends = () => {
                     {profile.avatar_url ? (
                       <AvatarImage src={profile.avatar_url} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="bg-gradient-gaming text-white font-bold">
+                      <AvatarFallback className="bg-gradient-gaming text-primary-foreground font-bold">
                         {profile.display_name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     )}
@@ -324,7 +324,7 @@ const Friends = () => {
                 <p className="text-muted-foreground text-sm font-medium">Total Friends</p>
               </div>
               <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Users className="h-7 w-7 text-white" />
+                <Users className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
@@ -341,7 +341,7 @@ const Friends = () => {
                 <p className="text-muted-foreground text-sm font-medium">Online Now</p>
               </div>
               <div className="h-14 w-14 bg-gradient-score rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Wifi className="h-7 w-7 text-white" />
+                <Wifi className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
@@ -358,7 +358,7 @@ const Friends = () => {
                 <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
               </div>
               <div className="h-14 w-14 bg-gaming-blue rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Clock className="h-7 w-7 text-white" />
+                <Clock className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
@@ -385,7 +385,7 @@ const Friends = () => {
                     <div className="flex items-center gap-4">
                       <div className="relative">
                         <Avatar className="h-14 w-14 border-2 border-white/20 shadow-lg">
-                          <AvatarFallback className="bg-gradient-gaming text-white font-bold">
+                          <AvatarFallback className="bg-gradient-gaming text-primary-foreground font-bold">
                             {request.requester_profile?.display_name.split(' ').map(n => n[0]).join('') || 'U'}
                           </AvatarFallback>
                         </Avatar>
@@ -466,7 +466,7 @@ const Friends = () => {
                           {friend.avatar_url ? (
                             <AvatarImage src={friend.avatar_url} alt="Profile" />
                           ) : (
-                            <AvatarFallback className="bg-gradient-gaming text-white font-bold">
+                            <AvatarFallback className="bg-gradient-gaming text-primary-foreground font-bold">
                               {friend.display_name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           )}

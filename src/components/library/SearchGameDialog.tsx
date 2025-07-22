@@ -84,7 +84,7 @@ export const SearchGameDialog = ({
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-                          <BookOpen className="h-6 w-6 text-white" />
+                          <BookOpen className="h-6 w-6 text-primary-foreground" />
                         </div>
                       )}
                     </div>

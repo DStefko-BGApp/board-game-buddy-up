@@ -79,7 +79,7 @@ export const GameCard = ({
             />
           ) : (
             <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-              <BookOpen className="h-6 w-6 text-white" />
+              <BookOpen className="h-6 w-6 text-primary-foreground" />
             </div>
           )}
         </div>
@@ -97,7 +97,7 @@ export const GameCard = ({
             
             <div className="flex gap-1 ml-2 flex-shrink-0">
               {userGame.is_owned && (
-                <Badge variant="secondary" className="bg-gaming-green text-white text-xs px-1.5 py-0.5">
+                <Badge variant="secondary" className="bg-gaming-green text-primary-foreground text-xs px-1.5 py-0.5">
                   Owned
                 </Badge>
               )}

@@ -65,7 +65,7 @@ const GameNights = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "upcoming":
-        return <Badge className="bg-gaming-green text-white">Upcoming</Badge>;
+        return <Badge className="bg-gaming-green text-primary-foreground">Upcoming</Badge>;
       case "completed":
         return <Badge variant="secondary">Completed</Badge>;
       default:
@@ -389,7 +389,7 @@ const GameNights = () => {
                 <p className="text-muted-foreground text-sm font-medium">Upcoming Events</p>
               </div>
               <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Calendar className="h-7 w-7 text-white" />
+                <Calendar className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
@@ -404,7 +404,7 @@ const GameNights = () => {
                 <p className="text-muted-foreground text-sm font-medium">Past Events</p>
               </div>
               <div className="h-14 w-14 bg-gradient-score rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Clock className="h-7 w-7 text-white" />
+                <Clock className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
@@ -419,7 +419,7 @@ const GameNights = () => {
                 <p className="text-muted-foreground text-sm font-medium">Total Attendees</p>
               </div>
               <div className="h-14 w-14 bg-gaming-red rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Users className="h-7 w-7 text-white" />
+                <Users className="h-7 w-7 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
