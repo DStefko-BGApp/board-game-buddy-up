@@ -119,132 +119,214 @@ const Friends = () => {
         </div>
       </div>
 
-      {/* Current Profile Card */}
-      <div className="relative mb-8 group">
-        <div className="absolute inset-0 bg-gradient-gaming opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
-        <Card className="relative bg-card/95 backdrop-blur-sm border-white/20 shadow-2xl hover:shadow-gaming transition-all duration-300 cozy-section wooden-texture">
-          <CardContent className="p-8">
-            <div className="flex items-start gap-6">
-              <div className="relative group/avatar">
-                <div className="absolute inset-0 bg-gradient-gaming rounded-full opacity-0 group-hover/avatar:opacity-20 transition-opacity blur-lg"></div>
-                <Avatar className="h-20 w-20 relative border-2 border-white/20 shadow-lg">
-                  {profile.avatar_url ? (
-                    <AvatarImage src={profile.avatar_url} alt="Profile" />
-                  ) : (
-                    <AvatarFallback className="bg-gradient-gaming text-white text-2xl font-bold">
-                      {profile.display_name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-3 border-card ${getStatusColor(profile.status)} shadow-lg`} />
-              </div>
-              
-              <div className="flex-1 space-y-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+      {/* Current Profile Card - New Layout */}
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+        <Card className="relative bg-card/95 backdrop-blur-sm border-white/20 shadow-2xl hover:shadow-gaming transition-all duration-300">
+          <CardContent className="p-0">
+            {/* Header Section */}
+            <div className="relative bg-gradient-to-r from-gaming-blue/20 via-primary/10 to-gaming-green/20 p-6 rounded-t-2xl border-b border-white/10">
+              <div className="flex items-center gap-4">
+                <div className="relative group/avatar">
+                  <Avatar className="h-16 w-16 border-3 border-white/30 shadow-xl">
+                    {profile.avatar_url ? (
+                      <AvatarImage src={profile.avatar_url} alt="Profile" />
+                    ) : (
+                      <AvatarFallback className="bg-gradient-gaming text-white text-xl font-bold">
+                        {profile.display_name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white ${getStatusColor(profile.status)} shadow-lg`} />
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-2xl font-bold text-white drop-shadow-md">
                       {profile.display_name}
                     </h3>
-                    {profile.library_public && (
-                      <Badge variant="secondary" className="bg-gaming-green/20 text-gaming-green border-gaming-green/30 animate-pulse">
-                        📚 Library Public
-                      </Badge>
-                    )}
-                    <Badge variant="outline" className="border-primary/30 text-primary">
+                    <Badge variant="outline" className="border-white/50 text-white bg-white/10 backdrop-blur-sm">
                       {getStatusText(profile.status)}
                     </Badge>
+                    {profile.library_public && (
+                      <Badge variant="secondary" className="bg-gaming-green/30 text-white border-gaming-green/50">
+                        📚 Public Library
+                      </Badge>
+                    )}
                   </div>
-                  
                   {profile.bio && (
-                    <p className="text-muted-foreground text-lg italic">
+                    <p className="text-white/80 italic drop-shadow-sm">
                       "{profile.bio}"
                     </p>
                   )}
                 </div>
+              </div>
+            </div>
 
-                {/* Enhanced personal info cards layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {profile.location && (
-                    <div className="bg-gradient-to-r from-gaming-slate/10 to-gaming-blue/10 rounded-xl p-3 border border-gaming-slate/20 hover:shadow-lg transition-all group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-gaming-slate rounded-full group-hover:scale-110 transition-transform"></div>
-                        <div>
-                          <span className="text-xs text-muted-foreground font-medium">Location</span>
-                          <p className="font-semibold text-sm">{profile.location}</p>
+            {/* Main Content Grid */}
+            <div className="p-6 space-y-6">
+              {/* Gaming Profile Section */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                  🎮 Gaming Profile
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profile.gaming_experience && (
+                    <Card className="bg-gradient-to-br from-primary/10 to-gaming-blue/10 border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Trophy className="h-5 w-5 text-primary" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Experience Level</span>
+                            <p className="font-semibold capitalize">{profile.gaming_experience}</p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   )}
                   
-                  <div className="bg-gradient-to-r from-gaming-green/10 to-gaming-blue/10 rounded-xl p-3 border border-gaming-green/20 hover:shadow-lg transition-all group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-gaming-green rounded-full group-hover:scale-110 transition-transform"></div>
-                      <div>
-                        <span className="text-xs text-muted-foreground font-medium">Member since</span>
-                        <p className="font-semibold text-sm">{new Date(profile.created_at).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {profile.gaming_experience && (
-                    <div className="bg-gradient-to-r from-primary/10 to-gaming-blue/10 rounded-xl p-3 border border-primary/20 hover:shadow-lg transition-all group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-primary rounded-full group-hover:scale-110 transition-transform"></div>
-                        <div>
-                          <span className="text-xs text-muted-foreground font-medium">Experience</span>
-                          <p className="font-semibold text-sm capitalize">{profile.gaming_experience}</p>
+                  {profile.gaming_style && (
+                    <Card className="bg-gradient-to-br from-gaming-green/10 to-gaming-blue/10 border-gaming-green/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-5 w-5 text-gaming-green" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Gaming Style</span>
+                            <p className="font-semibold capitalize">{profile.gaming_style}</p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   )}
                   
                   {profile.preferred_player_count && (
-                    <div className="bg-gradient-to-r from-gaming-red/10 to-gaming-slate/10 rounded-xl p-3 border border-gaming-red/20 hover:shadow-lg transition-all group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-gaming-red rounded-full group-hover:scale-110 transition-transform"></div>
-                        <div>
-                          <span className="text-xs text-muted-foreground font-medium">Preferred Player Count</span>
-                          <p className="font-semibold text-sm">{profile.preferred_player_count}</p>
+                    <Card className="bg-gradient-to-br from-gaming-red/10 to-gaming-slate/10 border-gaming-red/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-5 w-5 text-gaming-red" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Preferred Players</span>
+                            <p className="font-semibold">{profile.preferred_player_count}</p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
+              </div>
 
-                {(profile.favorite_games?.length || profile.favorite_mechanics?.length) && (
-                  <div className="space-y-3">
-                    {profile.favorite_games && profile.favorite_games.length > 0 && (
-                      <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-                          🎲 Favorite Games:
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {profile.favorite_games.map((game, index) => (
-                            <Badge key={game} variant="outline" className="bg-gradient-to-r from-gaming-green/10 to-gaming-blue/10 border-gaming-green/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
-                              {game}
-                            </Badge>
-                          ))}
+              {/* Personal Info Section */}
+              <div>
+                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                  📍 Personal Info
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {profile.location && (
+                    <Card className="bg-gradient-to-br from-gaming-slate/10 to-gaming-blue/10 border-gaming-slate/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 bg-gaming-slate rounded-full" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Location</span>
+                            <p className="font-semibold text-sm">{profile.location}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
+                  <Card className="bg-gradient-to-br from-gaming-green/10 to-gaming-blue/10 border-gaming-green/20">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="h-4 w-4 text-gaming-green" />
+                        <div>
+                          <span className="text-xs text-muted-foreground font-medium">Member Since</span>
+                          <p className="font-semibold text-sm">{new Date(profile.created_at).toLocaleDateString()}</p>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {profile.availability && (
+                    <Card className="bg-gradient-to-br from-primary/10 to-gaming-slate/10 border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Clock className="h-4 w-4 text-primary" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Availability</span>
+                            <p className="font-semibold text-sm">{profile.availability}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
+                  {(profile.bgg_username || profile.discord_handle) && (
+                    <Card className="bg-gradient-to-br from-gaming-red/10 to-gaming-blue/10 border-gaming-red/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <MessageCircle className="h-4 w-4 text-gaming-red" />
+                          <div>
+                            <span className="text-xs text-muted-foreground font-medium">Connect</span>
+                            <div className="space-y-1">
+                              {profile.bgg_username && (
+                                <p className="font-semibold text-xs">BGG: {profile.bgg_username}</p>
+                              )}
+                              {profile.discord_handle && (
+                                <p className="font-semibold text-xs">Discord: {profile.discord_handle}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+
+              {/* Favorites Section */}
+              {(profile.favorite_games?.length || profile.favorite_mechanics?.length) && (
+                <div>
+                  <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                    ⭐ Favorites
+                  </h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {profile.favorite_games && profile.favorite_games.length > 0 && (
+                      <Card className="bg-gradient-to-br from-gaming-green/5 to-gaming-blue/5 border-gaming-green/20">
+                        <CardContent className="p-4">
+                          <h5 className="font-semibold mb-3 flex items-center gap-2 text-gaming-green">
+                            🎲 Favorite Games
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {profile.favorite_games.map((game, index) => (
+                              <Badge key={game} variant="outline" className="bg-gaming-green/10 border-gaming-green/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
+                                {game}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
                     
                     {profile.favorite_mechanics && profile.favorite_mechanics.length > 0 && (
-                      <div>
-                        <p className="text-sm font-semibold mb-2 flex items-center gap-2">
-                          ⚙️ Favorite Mechanics:
-                        </p>
-                         <div className="flex flex-wrap gap-2">
-                           {profile.favorite_mechanics.map((mechanic, index) => (
-                             <Badge key={mechanic} variant="outline" className="bg-gradient-to-r from-gaming-red/10 to-gaming-slate/10 border-gaming-red/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
-                               {mechanic}
-                             </Badge>
-                           ))}
-                         </div>
-                      </div>
+                      <Card className="bg-gradient-to-br from-gaming-red/5 to-gaming-slate/5 border-gaming-red/20">
+                        <CardContent className="p-4">
+                          <h5 className="font-semibold mb-3 flex items-center gap-2 text-gaming-red">
+                            ⚙️ Favorite Mechanics
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {profile.favorite_mechanics.map((mechanic, index) => (
+                              <Badge key={mechanic} variant="outline" className="bg-gaming-red/10 border-gaming-red/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
+                                {mechanic}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
                     )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
