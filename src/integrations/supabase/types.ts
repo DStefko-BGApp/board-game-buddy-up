@@ -56,6 +56,39 @@ export type Database = {
         }
         Relationships: []
       }
+      game_scores: {
+        Row: {
+          created_at: string
+          date: string
+          game_id: string | null
+          game_name: string
+          id: string
+          players: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          game_id?: string | null
+          game_name: string
+          id?: string
+          players: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          game_id?: string | null
+          game_name?: string
+          id?: string
+          players?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           additional_mechanic_1: string | null

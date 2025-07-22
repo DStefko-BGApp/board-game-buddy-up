@@ -152,23 +152,23 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
     setLoading(true);
 
     try {
-      // For now, we'll create a simple game score entry using user preferences table
-      // This is a temporary solution until the full scoring system is implemented
       const gameData = games.find(g => g.id === selectedGameId);
-      const scoreData = {
-        game_name: gameData?.name || "Unknown Game",
-        players: validPlayers,
-        date: new Date().toISOString().split('T')[0],
-        timestamp: new Date().toISOString()
-      };
+      
+      // Determine winner (highest score)
+      const maxScore = Math.max(...validPlayers.map(p => p.score));
+      const playersWithWinner = validPlayers.map(p => ({
+        ...p,
+        winner: p.score === maxScore
+      }));
 
-      // Store the score data as a user preference for now
       const { error } = await supabase
-        .from('user_preferences')
+        .from('game_scores')
         .insert({
           user_id: user?.id,
-          preference_key: `game_score_${Date.now()}`,
-          preference_value: JSON.stringify(scoreData)
+          game_id: selectedGameId,
+          game_name: gameData?.name || "Unknown Game",
+          players: playersWithWinner,
+          date: new Date().toISOString().split('T')[0]
         });
 
       if (error) throw error;
@@ -310,13 +310,49 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
 };
 
 const Scores = () => {
-  const [scores, setScores] = useState<GameScore[]>(mockScores);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { user } = useAuth();
+  const [scores, setScores] = useState<GameScore[]>([]);
+  const [loading, setLoading] = useState(true);
   const playerStats = calculatePlayerStats(scores);
 
+  const fetchScores = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('game_scores')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform the data to match our GameScore interface
+      const transformedScores: GameScore[] = data?.map(score => ({
+        id: score.id,
+        game: score.game_name,
+        date: score.date,
+        players: score.players as Array<{
+          name: string;
+          score: number;
+          winner: boolean;
+        }>
+      })) || [];
+
+      setScores(transformedScores);
+    } catch (error) {
+      console.error('Error fetching scores:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchScores();
+  }, [user]);
+
   const handleScoreAdded = () => {
-    setRefreshTrigger(prev => prev + 1);
-    // In the future, this will refresh data from the database
+    fetchScores(); // Refresh the data when a new score is added
   };
 
   return (
@@ -383,8 +419,17 @@ const Scores = () => {
       {/* Recent Games */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Recent Games</h2>
-        <div className="space-y-6">
-          {scores.map((gameResult) => (
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading scores...</p>
+          </div>
+        ) : scores.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No game scores yet. Add your first game result above!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {scores.map((gameResult) => (
             <Card key={gameResult.id} className="shadow-card-gaming">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -438,8 +483,9 @@ const Scores = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
