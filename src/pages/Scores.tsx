@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { GameSpecificScoreDialog } from "@/components/scores/GameSpecificScoreDialog";
+import { ScoreSheetDialog } from "@/components/scores/ScoreSheetDialog";
 
 interface GameScore {
   id: string;
@@ -107,7 +107,7 @@ const Scores = () => {
             Keep track of game results and player statistics
           </p>
         </div>
-        <GameSpecificScoreDialog onScoreAdded={handleScoreAdded} />
+        <ScoreSheetDialog onScoreAdded={handleScoreAdded} />
       </div>
 
       {/* Player Statistics */}
