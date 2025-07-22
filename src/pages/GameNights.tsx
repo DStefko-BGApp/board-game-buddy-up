@@ -65,7 +65,7 @@ const GameNights = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "upcoming":
-        return <Badge className="bg-gaming-green text-white">Upcoming</Badge>;
+        return <Badge className="bg-gradient-gaming text-white">Upcoming</Badge>;
       case "completed":
         return <Badge variant="secondary">Completed</Badge>;
       default:
