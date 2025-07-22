@@ -80,8 +80,9 @@ export default {
 			},
 			boxShadow: {
 				'gaming': 'var(--shadow-gaming)',
-				'card-gaming': 'var(--shadow-card)',
-				'glow': 'var(--shadow-glow)'
+				'card': 'var(--shadow-card)',
+				'glow': 'var(--shadow-glow)',
+				'deep': 'var(--shadow-deep)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
