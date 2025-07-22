@@ -52,6 +52,7 @@ const GameNights = () => {
     date: "",
     time: "",
     location: "",
+    attendees: "",
     games: "",
   });
 
@@ -86,13 +87,13 @@ const GameNights = () => {
       date: formData.date,
       time: formData.time,
       location: formData.location || "TBD",
-      attendees: [], // Start with empty attendees
+      attendees: formData.attendees ? formData.attendees.split(",").map(a => a.trim()) : [],
       games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
       status: "upcoming",
     };
     
     setGameNights([...gameNights, newGameNight]);
-    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
     setIsCreateDialogOpen(false);
   };
 
@@ -103,6 +104,7 @@ const GameNights = () => {
       date: gameNight.date,
       time: gameNight.time,
       location: gameNight.location,
+      attendees: gameNight.attendees.join(", "),
       games: gameNight.games.join(", "),
     });
     setIsEditDialogOpen(true);
@@ -117,11 +119,12 @@ const GameNights = () => {
       date: formData.date,
       time: formData.time,
       location: formData.location || "TBD",
+      attendees: formData.attendees ? formData.attendees.split(",").map(a => a.trim()) : [],
       games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
     };
     
     setGameNights(gameNights.map(gn => gn.id === editingGameNight.id ? updatedGameNight : gn));
-    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
     setEditingGameNight(null);
     setIsEditDialogOpen(false);
   };
@@ -187,6 +190,16 @@ const GameNights = () => {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="attendees">Attendees (comma-separated)</Label>
+                <Textarea
+                  id="attendees"
+                  value={formData.attendees}
+                  onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
+                  placeholder="e.g., Mike, Sarah, Tom, Lisa"
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="games">Games (comma-separated)</Label>
                 <Textarea
                   id="games"
@@ -199,7 +212,10 @@ const GameNights = () => {
               <div className="flex justify-end gap-2 pt-4">
                 <Button 
                   variant="outline" 
-                  onClick={() => setIsCreateDialogOpen(false)}
+                  onClick={() => {
+                    setIsCreateDialogOpen(false);
+                    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+                  }}
                 >
                   Cancel
                 </Button>
@@ -261,6 +277,16 @@ const GameNights = () => {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="edit-attendees">Attendees (comma-separated)</Label>
+                <Textarea
+                  id="edit-attendees"
+                  value={formData.attendees}
+                  onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
+                  placeholder="e.g., Mike, Sarah, Tom, Lisa"
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="edit-games">Games (comma-separated)</Label>
                 <Textarea
                   id="edit-games"
@@ -276,7 +302,7 @@ const GameNights = () => {
                   onClick={() => {
                     setIsEditDialogOpen(false);
                     setEditingGameNight(null);
-                    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+                    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
                   }}
                 >
                   Cancel
