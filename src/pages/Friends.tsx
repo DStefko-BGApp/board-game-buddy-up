@@ -27,9 +27,9 @@ const Friends = () => {
       case "online":
         return "bg-gaming-green";
       case "away":
-        return "bg-gaming-orange";
+        return "bg-gaming-slate";
       case "busy":
-        return "bg-red-500";
+        return "bg-gaming-red";
       case "offline":
         return "bg-gray-400";
       default:
@@ -162,34 +162,51 @@ const Friends = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Enhanced personal info cards layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {profile.location && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-gaming-orange rounded-full"></div>
-                      <span className="text-muted-foreground">Location:</span>
-                      <span className="font-medium">{profile.location}</span>
+                    <div className="bg-gradient-to-r from-gaming-slate/10 to-gaming-blue/10 rounded-xl p-3 border border-gaming-slate/20 hover:shadow-lg transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-gaming-slate rounded-full group-hover:scale-110 transition-transform"></div>
+                        <div>
+                          <span className="text-xs text-muted-foreground font-medium">Location</span>
+                          <p className="font-semibold text-sm">{profile.location}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-gaming-green rounded-full"></div>
-                    <span className="text-muted-foreground">Member since:</span>
-                    <span className="font-medium">{new Date(profile.created_at).toLocaleDateString()}</span>
+                  <div className="bg-gradient-to-r from-gaming-green/10 to-gaming-blue/10 rounded-xl p-3 border border-gaming-green/20 hover:shadow-lg transition-all group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-gaming-green rounded-full group-hover:scale-110 transition-transform"></div>
+                      <div>
+                        <span className="text-xs text-muted-foreground font-medium">Member since</span>
+                        <p className="font-semibold text-sm">{new Date(profile.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
                   </div>
                   
                   {profile.gaming_experience && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-muted-foreground">Experience:</span>
-                      <span className="font-medium capitalize">{profile.gaming_experience}</span>
+                    <div className="bg-gradient-to-r from-primary/10 to-gaming-blue/10 rounded-xl p-3 border border-primary/20 hover:shadow-lg transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-primary rounded-full group-hover:scale-110 transition-transform"></div>
+                        <div>
+                          <span className="text-xs text-muted-foreground font-medium">Experience</span>
+                          <p className="font-semibold text-sm capitalize">{profile.gaming_experience}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   
                   {profile.preferred_player_count && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-gaming-purple rounded-full"></div>
-                      <span className="text-muted-foreground">Prefers:</span>
-                      <span className="font-medium">{profile.preferred_player_count}</span>
+                    <div className="bg-gradient-to-r from-gaming-red/10 to-gaming-slate/10 rounded-xl p-3 border border-gaming-red/20 hover:shadow-lg transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-gaming-red rounded-full group-hover:scale-110 transition-transform"></div>
+                        <div>
+                          <span className="text-xs text-muted-foreground font-medium">Preferred Player Count</span>
+                          <p className="font-semibold text-sm">{profile.preferred_player_count}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -216,13 +233,13 @@ const Friends = () => {
                         <p className="text-sm font-semibold mb-2 flex items-center gap-2">
                           ⚙️ Favorite Mechanics:
                         </p>
-                        <div className="flex flex-wrap gap-2">
-                          {profile.favorite_mechanics.map((mechanic, index) => (
-                            <Badge key={mechanic} variant="outline" className="bg-gradient-to-r from-gaming-orange/10 to-gaming-purple/10 border-gaming-orange/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
-                              {mechanic}
-                            </Badge>
-                          ))}
-                        </div>
+                         <div className="flex flex-wrap gap-2">
+                           {profile.favorite_mechanics.map((mechanic, index) => (
+                             <Badge key={mechanic} variant="outline" className="bg-gradient-to-r from-gaming-red/10 to-gaming-slate/10 border-gaming-red/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
+                               {mechanic}
+                             </Badge>
+                           ))}
+                         </div>
                       </div>
                     )}
                   </div>
@@ -271,15 +288,15 @@ const Friends = () => {
 
         <Card className="group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/50 border-white/10">
           <CardContent className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gaming-orange/20 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-30 transition-opacity"></div>
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gaming-red/20 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-30 transition-opacity"></div>
             <div className="flex items-center justify-between relative">
               <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-orange to-gaming-purple bg-clip-text text-transparent">
+                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
                   {friendRequests.length}
                 </p>
                 <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
               </div>
-              <div className="h-14 w-14 bg-gaming-orange rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <div className="h-14 w-14 bg-gaming-red rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                 <Clock className="h-7 w-7 text-white" />
               </div>
             </div>
@@ -292,10 +309,10 @@ const Friends = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-8 w-1 bg-gradient-gaming rounded-full"></div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-gaming-orange to-gaming-purple bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
               Friend Requests
             </h2>
-            <Badge variant="secondary" className="bg-gaming-orange/20 text-gaming-orange">
+            <Badge variant="secondary" className="bg-gaming-red/20 text-gaming-red border-gaming-red/30">
               {friendRequests.length}
             </Badge>
           </div>
@@ -311,7 +328,9 @@ const Friends = () => {
                             {request.requester_profile?.display_name.split(' ').map(n => n[0]).join('') || 'U'}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-gaming-orange rounded-full animate-pulse"></div>
+                         <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-gaming-red to-gaming-red/80 rounded-full animate-pulse border-2 border-white shadow-lg">
+                           <div className="w-full h-full bg-gaming-red rounded-full animate-ping opacity-75"></div>
+                         </div>
                       </div>
                       <div>
                         <h3 className="font-bold text-lg">{request.requester_profile?.display_name}</h3>
