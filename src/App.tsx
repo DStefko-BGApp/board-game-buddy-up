@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import Library from "./pages/Library";
 import Randomizer from "./pages/Randomizer";
 import GameNights from "./pages/GameNights";
-
 import Friends from "./pages/Friends";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";

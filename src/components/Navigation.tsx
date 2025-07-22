@@ -5,7 +5,6 @@ import {
   BookOpen, 
   Dice6, 
   Calendar, 
-  Trophy, 
   Users,
   Menu,
   X,
