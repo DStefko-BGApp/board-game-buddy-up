@@ -9,6 +9,16 @@ export interface Profile {
   avatar_url?: string;
   bio?: string;
   status: 'online' | 'offline' | 'away' | 'busy';
+  location?: string;
+  favorite_games?: string[];
+  favorite_mechanic?: string;
+  gaming_experience?: 'beginner' | 'intermediate' | 'expert';
+  preferred_player_count?: string;
+  gaming_style?: 'casual' | 'competitive' | 'teaching-friendly' | 'mixed';
+  availability?: string;
+  bgg_username?: string;
+  discord_handle?: string;
+  library_public: boolean;
   created_at: string;
   updated_at: string;
 }

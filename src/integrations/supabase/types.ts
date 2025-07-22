@@ -427,31 +427,61 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability: string | null
           avatar_url: string | null
+          bgg_username: string | null
           bio: string | null
           created_at: string
+          discord_handle: string | null
           display_name: string
+          favorite_games: string[] | null
+          favorite_mechanic: string | null
+          gaming_experience: string | null
+          gaming_style: string | null
           id: string
+          library_public: boolean | null
+          location: string | null
+          preferred_player_count: string | null
           status: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          availability?: string | null
           avatar_url?: string | null
+          bgg_username?: string | null
           bio?: string | null
           created_at?: string
+          discord_handle?: string | null
           display_name: string
+          favorite_games?: string[] | null
+          favorite_mechanic?: string | null
+          gaming_experience?: string | null
+          gaming_style?: string | null
           id?: string
+          library_public?: boolean | null
+          location?: string | null
+          preferred_player_count?: string | null
           status?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          availability?: string | null
           avatar_url?: string | null
+          bgg_username?: string | null
           bio?: string | null
           created_at?: string
+          discord_handle?: string | null
           display_name?: string
+          favorite_games?: string[] | null
+          favorite_mechanic?: string | null
+          gaming_experience?: string | null
+          gaming_style?: string | null
           id?: string
+          library_public?: boolean | null
+          location?: string | null
+          preferred_player_count?: string | null
           status?: string | null
           updated_at?: string
           user_id?: string

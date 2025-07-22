@@ -9,6 +9,7 @@ import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
+import { AvatarImage } from "@/components/ui/avatar";
 
 const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
@@ -117,21 +118,57 @@ const Friends = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Avatar className="h-16 w-16">
-                <AvatarFallback className="bg-gradient-gaming text-white text-xl">
-                  {profile.display_name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
+                {profile.avatar_url ? (
+                  <AvatarImage src={profile.avatar_url} alt="Profile" />
+                ) : (
+                  <AvatarFallback className="bg-gradient-gaming text-white text-xl">
+                    {profile.display_name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${getStatusColor(profile.status)}`} />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold">{profile.display_name}</h3>
-              <p className="text-muted-foreground">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-xl font-semibold">{profile.display_name}</h3>
+                {profile.library_public && (
+                  <Badge variant="secondary" className="text-xs">
+                    Library Public
+                  </Badge>
+                )}
+              </div>
+              <p className="text-muted-foreground mb-2">
                 {profile.bio || 'No bio available'}
               </p>
-              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+              {profile.location && (
+                <p className="text-sm text-muted-foreground mb-1">
+                  📍 {profile.location}
+                </p>
+              )}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span>Status: {getStatusText(profile.status)}</span>
                 <span>Member since {new Date(profile.created_at).toLocaleDateString()}</span>
+                {profile.gaming_experience && (
+                  <span>Experience: {profile.gaming_experience}</span>
+                )}
               </div>
+              {profile.favorite_games && profile.favorite_games.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium mb-1">Favorite Games:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.favorite_games.slice(0, 3).map((game) => (
+                      <Badge key={game} variant="outline" className="text-xs">
+                        {game}
+                      </Badge>
+                    ))}
+                    {profile.favorite_games.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{profile.favorite_games.length - 3} more
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -252,9 +289,13 @@ const Friends = () => {
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gradient-gaming text-white">
-                          {friend.display_name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
+                        {friend.avatar_url ? (
+                          <AvatarImage src={friend.avatar_url} alt="Profile" />
+                        ) : (
+                          <AvatarFallback className="bg-gradient-gaming text-white">
+                            {friend.display_name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                       <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getStatusColor(friend.status)}`} />
                     </div>
