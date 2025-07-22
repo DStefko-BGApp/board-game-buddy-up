@@ -261,6 +261,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
                     <SelectContent>
                       {userGames
                         .filter(game => !favoriteGames.includes(game.name))
+                        .sort((a, b) => a.name.localeCompare(b.name))
                         .map((game) => (
                           <SelectItem key={game.id} value={game.id}>
                             {game.name}
