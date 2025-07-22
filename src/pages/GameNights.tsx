@@ -65,7 +65,14 @@ const GameNights = () => {
             Plan and organize your gaming sessions with friends
           </p>
         </div>
-        <Button variant="gaming" className="mt-4 md:mt-0">
+        <Button 
+          variant="gaming" 
+          className="mt-4 md:mt-0"
+          onClick={() => {
+            // TODO: Implement create game night functionality
+            console.log("Create Game Night clicked");
+          }}
+        >
           <Plus className="h-4 w-4" />
           Create Game Night
         </Button>
