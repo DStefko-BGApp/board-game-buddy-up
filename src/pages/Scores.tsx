@@ -143,17 +143,49 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
       return;
     }
 
-    // For now, just show a success message
-    // In the future, this will save to the scoring system
-    toast({
-      title: "Success", 
-      description: "Score saved! (Feature coming soon with dynamic scoring)"
-    });
+    setLoading(true);
 
-    setOpen(false);
-    setSelectedGameId("");
-    setPlayerEntries([{ name: "", score: 0 }]);
-    onScoreAdded();
+    try {
+      // For now, we'll create a simple game score entry using user preferences table
+      // This is a temporary solution until the full scoring system is implemented
+      const gameData = games.find(g => g.id === selectedGameId);
+      const scoreData = {
+        game_name: gameData?.name || "Unknown Game",
+        players: validPlayers,
+        date: new Date().toISOString().split('T')[0],
+        timestamp: new Date().toISOString()
+      };
+
+      // Store the score data as a user preference for now
+      const { error } = await supabase
+        .from('user_preferences')
+        .insert({
+          user_id: user?.id,
+          preference_key: `game_score_${Date.now()}`,
+          preference_value: JSON.stringify(scoreData)
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success", 
+        description: "Game score saved successfully!"
+      });
+
+      setOpen(false);
+      setSelectedGameId("");
+      setPlayerEntries([{ name: "", score: 0 }]);
+      onScoreAdded();
+    } catch (error) {
+      console.error('Error saving score:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save game score. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
