@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User } from "lucide-react";
+import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock } from "lucide-react";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
@@ -200,7 +200,7 @@ const Friends = () => {
                 <p className="text-muted-foreground text-sm">Online Now</p>
               </div>
               <div className="h-12 w-12 bg-gradient-score rounded-full flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-white" />
+                <Wifi className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
@@ -214,7 +214,7 @@ const Friends = () => {
                 <p className="text-muted-foreground text-sm">Pending Requests</p>
               </div>
               <div className="h-12 w-12 bg-gaming-orange rounded-full flex items-center justify-center">
-                <Trophy className="h-6 w-6 text-white" />
+                <Clock className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
