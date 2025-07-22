@@ -4,14 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2 } from "lucide-react";
+import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User } from "lucide-react";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
+import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 
 const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
   const { profile } = useProfile();
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCreateProfile, setShowCreateProfile] = useState(false);
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -60,12 +62,27 @@ const Friends = () => {
   if (!profile) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Profile Required</h2>
-          <p className="text-muted-foreground">
-            Please create a profile to use the friends feature.
-          </p>
+        <div className="text-center space-y-6">
+          <div className="space-y-2">
+            <User className="h-16 w-16 mx-auto text-muted-foreground" />
+            <h2 className="text-2xl font-bold">Profile Required</h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Create your gaming profile to connect with friends and join the community.
+            </p>
+          </div>
+          <Button 
+            variant="gaming" 
+            size="lg"
+            onClick={() => setShowCreateProfile(true)}
+          >
+            <User className="h-4 w-4 mr-2" />
+            Create Profile
+          </Button>
         </div>
+        <CreateProfileDialog 
+          open={showCreateProfile} 
+          onOpenChange={setShowCreateProfile} 
+        />
       </div>
     );
   }
@@ -248,6 +265,10 @@ const Friends = () => {
           ))}
         </div>
       </div>
+      <CreateProfileDialog 
+        open={showCreateProfile} 
+        onOpenChange={setShowCreateProfile} 
+      />
     </div>
   );
 };
