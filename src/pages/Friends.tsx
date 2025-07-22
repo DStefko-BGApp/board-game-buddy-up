@@ -141,20 +141,20 @@ const Friends = () => {
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-xl font-bold text-white truncate">
+                    <h3 className="text-xl font-bold text-foreground truncate">
                       {profile.display_name}
                     </h3>
-                    <Badge variant="outline" className="border-white/40 text-white bg-white/10 text-xs">
+                    <Badge variant="outline" className="border-foreground/30 text-foreground bg-background/50 text-xs">
                       {getStatusText(profile.status)}
                     </Badge>
                     {profile.library_public && (
-                      <Badge variant="secondary" className="bg-gaming-green/30 text-white text-xs">
+                      <Badge variant="secondary" className="bg-gaming-green/30 text-foreground text-xs">
                         📚
                       </Badge>
                     )}
                   </div>
                   {profile.bio && (
-                    <p className="text-white/75 text-sm italic truncate">
+                    <p className="text-muted-foreground text-sm italic truncate">
                       "{profile.bio}"
                     </p>
                   )}
