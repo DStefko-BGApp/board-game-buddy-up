@@ -22,7 +22,7 @@ export const LibraryHeader = ({ onSearchClick, onSyncClick }: LibraryHeaderProps
             <div className="flex gap-3 mt-6 md:mt-0">
               <button
                 onClick={onSyncClick}
-                className="px-6 py-3 bg-gradient-gaming text-primary-foreground border-0 rounded-lg hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg"
+                className="px-6 py-3 bg-gradient-gaming text-white border-0 rounded-lg hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg"
               >
                 Sync BGG Collection
               </button>

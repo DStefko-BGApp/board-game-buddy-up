@@ -149,7 +149,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt="Profile" />
                   ) : (
-                    <AvatarFallback className="bg-gradient-gaming text-primary-foreground text-2xl">
+                    <AvatarFallback className="bg-gradient-gaming text-white text-2xl">
                       {displayName.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   )}
