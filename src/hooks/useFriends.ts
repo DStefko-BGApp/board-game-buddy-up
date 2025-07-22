@@ -1,17 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-export interface Profile {
-  id: string;
-  user_id: string;
-  display_name: string;
-  avatar_url?: string;
-  bio?: string;
-  status: 'online' | 'offline' | 'away' | 'busy';
-  created_at: string;
-  updated_at: string;
-}
+import { Profile } from './useProfile';
 
 export interface Friendship {
   id: string;

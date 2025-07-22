@@ -8,12 +8,14 @@ import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
 
 const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
   const { profile } = useProfile();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateProfile, setShowCreateProfile] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -97,11 +99,43 @@ const Friends = () => {
             Connect with fellow board game enthusiasts
           </p>
         </div>
-        <Button variant="gaming" className="mt-4 md:mt-0">
-          <UserPlus className="h-4 w-4" />
-          Add Friend
-        </Button>
+        <div className="flex gap-2 mt-4 md:mt-0">
+          <Button variant="outline" onClick={() => setShowEditProfile(true)}>
+            <User className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
+          <Button variant="gaming">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Friend
+          </Button>
+        </div>
       </div>
+
+      {/* Current Profile Card */}
+      <Card className="mb-8">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Avatar className="h-16 w-16">
+                <AvatarFallback className="bg-gradient-gaming text-white text-xl">
+                  {profile.display_name.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${getStatusColor(profile.status)}`} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold">{profile.display_name}</h3>
+              <p className="text-muted-foreground">
+                {profile.bio || 'No bio available'}
+              </p>
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                <span>Status: {getStatusText(profile.status)}</span>
+                <span>Member since {new Date(profile.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -269,6 +303,13 @@ const Friends = () => {
         open={showCreateProfile} 
         onOpenChange={setShowCreateProfile} 
       />
+      {profile && (
+        <EditProfileDialog 
+          open={showEditProfile} 
+          onOpenChange={setShowEditProfile}
+          profile={profile}
+        />
+      )}
     </div>
   );
 };
