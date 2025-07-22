@@ -1,13 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Plus, TrendingUp, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
-// Mock data for game scores
-const mockScores = [
+interface GameScore {
+  id: string;
+  game: string;
+  date: string;
+  players: Array<{
+    name: string;
+    score: number;
+    winner: boolean;
+  }>;
+}
+
+interface PlayerStats {
+  name: string;
+  wins: number;
+  games: number;
+  totalScore: number;
+  winRate: string;
+  avgScore: number;
+}
+
+// Simple mock data for now - will be replaced with dynamic data from scoring system
+const mockScores: GameScore[] = [
   {
-    id: 1,
+    id: "1",
     game: "Wingspan",
     date: "2024-01-20",
     players: [
@@ -18,7 +46,7 @@ const mockScores = [
     ],
   },
   {
-    id: 2,
+    id: "2", 
     game: "Azul",
     date: "2024-01-18",
     players: [
@@ -28,8 +56,8 @@ const mockScores = [
     ],
   },
   {
-    id: 3,
-    game: "Ticket to Ride",
+    id: "3",
+    game: "Ticket to Ride", 
     date: "2024-01-15",
     players: [
       { name: "Lisa", score: 145, winner: true },
@@ -40,8 +68,7 @@ const mockScores = [
   },
 ];
 
-// Calculate player statistics
-const calculatePlayerStats = (scores: typeof mockScores) => {
+const calculatePlayerStats = (scores: GameScore[]): PlayerStats[] => {
   const playerStats: Record<string, { wins: number; games: number; totalScore: number }> = {};
 
   scores.forEach((game) => {
@@ -65,9 +92,163 @@ const calculatePlayerStats = (scores: typeof mockScores) => {
   }));
 };
 
+// Simple Add Score Dialog Component
+const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [games, setGames] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedGameId, setSelectedGameId] = useState("");
+  const [playerEntries, setPlayerEntries] = useState([{ name: "", score: 0 }]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      const { data } = await supabase
+        .from('games')
+        .select('id, name')
+        .limit(50);
+      
+      if (data) {
+        setGames(data);
+      }
+    };
+
+    fetchGames();
+  }, []);
+
+  const addPlayer = () => {
+    setPlayerEntries([...playerEntries, { name: "", score: 0 }]);
+  };
+
+  const removePlayer = (index: number) => {
+    setPlayerEntries(playerEntries.filter((_, i) => i !== index));
+  };
+
+  const updatePlayer = (index: number, field: 'name' | 'score', value: string | number) => {
+    const updated = [...playerEntries];
+    updated[index] = { ...updated[index], [field]: value };
+    setPlayerEntries(updated);
+  };
+
+  const handleSubmit = async () => {
+    const validPlayers = playerEntries.filter(p => p.name.trim());
+    
+    if (!selectedGameId || validPlayers.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select a game and add at least one player",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // For now, just show a success message
+    // In the future, this will save to the scoring system
+    toast({
+      title: "Success", 
+      description: "Score saved! (Feature coming soon with dynamic scoring)"
+    });
+
+    setOpen(false);
+    setSelectedGameId("");
+    setPlayerEntries([{ name: "", score: 0 }]);
+    onScoreAdded();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="gaming">
+          <Plus className="h-4 w-4" />
+          Add Game Result
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Add Game Score</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="game">Select Game</Label>
+            <Select value={selectedGameId} onValueChange={setSelectedGameId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a game..." />
+              </SelectTrigger>
+              <SelectContent>
+                {games.map(game => (
+                  <SelectItem key={game.id} value={game.id}>
+                    {game.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <Label>Players & Scores</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addPlayer}>
+                <Plus className="h-4 w-4" />
+                Add Player
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              {playerEntries.map((player, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    placeholder="Player name"
+                    value={player.name}
+                    onChange={(e) => updatePlayer(index, 'name', e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Score"
+                    value={player.score || ""}
+                    onChange={(e) => updatePlayer(index, 'score', parseInt(e.target.value) || 0)}
+                    className="w-24"
+                  />
+                  {playerEntries.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removePlayer(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Saving..." : "Save Score"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const Scores = () => {
-  const [scores] = useState(mockScores);
+  const [scores, setScores] = useState<GameScore[]>(mockScores);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const playerStats = calculatePlayerStats(scores);
+
+  const handleScoreAdded = () => {
+    setRefreshTrigger(prev => prev + 1);
+    // In the future, this will refresh data from the database
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -79,10 +260,7 @@ const Scores = () => {
             Keep track of game results and player statistics
           </p>
         </div>
-        <Button variant="gaming" className="mt-4 md:mt-0">
-          <Plus className="h-4 w-4" />
-          Add Game Result
-        </Button>
+        <AddScoreDialog onScoreAdded={handleScoreAdded} />
       </div>
 
       {/* Player Statistics */}
