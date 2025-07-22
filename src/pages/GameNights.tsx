@@ -56,7 +56,9 @@ const GameNights = () => {
     games: "",
   });
 
-  const upcomingEvents = gameNights.filter(event => event.status === "upcoming");
+  const upcomingEvents = gameNights
+    .filter(event => event.status === "upcoming")
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const pastEvents = gameNights.filter(event => event.status === "completed");
 
   const getStatusBadge = (status: string) => {
