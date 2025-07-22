@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      game_nights: {
+        Row: {
+          attendees: string[] | null
+          created_at: string
+          date: string
+          games: string[] | null
+          id: string
+          location: string | null
+          status: string
+          time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendees?: string[] | null
+          created_at?: string
+          date: string
+          games?: string[] | null
+          id?: string
+          location?: string | null
+          status?: string
+          time: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendees?: string[] | null
+          created_at?: string
+          date?: string
+          games?: string[] | null
+          id?: string
+          location?: string | null
+          status?: string
+          time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           additional_mechanic_1: string | null
