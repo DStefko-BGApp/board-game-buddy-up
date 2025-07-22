@@ -202,16 +202,11 @@ const Friends = () => {
                           🎲 Favorite Games:
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          {profile.favorite_games.slice(0, 3).map((game, index) => (
+                          {profile.favorite_games.map((game, index) => (
                             <Badge key={game} variant="outline" className="bg-gradient-to-r from-gaming-green/10 to-gaming-blue/10 border-gaming-green/30 hover:shadow-lg transition-all animate-fade-in" style={{animationDelay: `${index * 100}ms`}}>
                               {game}
                             </Badge>
                           ))}
-                          {profile.favorite_games.length > 3 && (
-                            <Badge variant="outline" className="bg-muted/50">
-                              +{profile.favorite_games.length - 3} more
-                            </Badge>
-                          )}
                         </div>
                       </div>
                     )}
