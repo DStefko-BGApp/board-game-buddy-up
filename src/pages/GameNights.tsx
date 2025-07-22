@@ -6,10 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, Users, MapPin, Plus, Edit } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, Plus, Edit, Download, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { generateICalFile, generateGoogleCalendarUrl } from "@/utils/calendarUtils";
 
 const GameNights = () => {
   const { user } = useAuth();
@@ -447,7 +448,24 @@ const GameNights = () => {
                     <Button 
                       variant="ghost" 
                       size="icon"
+                      onClick={() => generateICalFile(event)}
+                      title="Download iCal"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => window.open(generateGoogleCalendarUrl(event), '_blank')}
+                      title="Add to Google Calendar"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
                       onClick={() => handleEditGameNight(event)}
+                      title="Edit Game Night"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
