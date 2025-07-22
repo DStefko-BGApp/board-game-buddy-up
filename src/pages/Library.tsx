@@ -28,8 +28,6 @@ import { useLibraryFilters } from "@/hooks/useLibraryFilters";
 import { useGameSelection } from "@/hooks/useGameSelection";
 
 const Library = () => {
-  console.log('Library component rendered');
-  
   const { user } = useAuth();
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);

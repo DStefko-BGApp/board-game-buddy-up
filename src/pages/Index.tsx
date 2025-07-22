@@ -6,7 +6,6 @@ import {
   BookOpen, 
   Dice6, 
   Calendar, 
-  Trophy, 
   Users, 
   Crown,
   ArrowRight,
@@ -36,13 +35,6 @@ const Index = () => {
       description: "Plan and organize gaming sessions with friends",
       link: "/game-nights",
       color: "text-gaming-orange",
-    },
-    {
-      icon: Trophy,
-      title: "Score Tracker",
-      description: "Keep track of game results and player statistics",
-      link: "/scores",
-      color: "text-gaming-green",
     },
     {
       icon: Users,
@@ -93,7 +85,7 @@ const Index = () => {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything You Need for Game Night</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              From organizing your collection to tracking scores and connecting with friends, 
+              From organizing your collection to planning game nights and connecting with friends, 
               GameNight has all the tools you need.
             </p>
           </div>
