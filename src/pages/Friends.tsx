@@ -4,86 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle } from "lucide-react";
-
-// Mock data for friends
-const mockFriends = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    username: "sarahgames",
-    status: "online",
-    gamesOwned: 45,
-    favoriteGame: "Wingspan",
-    lastPlayed: "2 hours ago",
-    mutualGames: 12,
-  },
-  {
-    id: 2,
-    name: "Mike Chen",
-    username: "mikec",
-    status: "offline",
-    gamesOwned: 32,
-    favoriteGame: "Gloomhaven",
-    lastPlayed: "1 day ago",
-    mutualGames: 8,
-  },
-  {
-    id: 3,
-    name: "Emma Wilson",
-    username: "emmaw",
-    status: "online",
-    gamesOwned: 28,
-    favoriteGame: "Azul",
-    lastPlayed: "30 minutes ago",
-    mutualGames: 15,
-  },
-  {
-    id: 4,
-    name: "Tom Davis",
-    username: "tomdavis",
-    status: "playing",
-    gamesOwned: 67,
-    favoriteGame: "Ticket to Ride",
-    lastPlayed: "Now playing",
-    mutualGames: 22,
-  },
-];
-
-// Mock friend requests
-const mockFriendRequests = [
-  {
-    id: 1,
-    name: "Alex Rodriguez",
-    username: "alexr",
-    mutualFriends: 3,
-    gamesOwned: 23,
-  },
-  {
-    id: 2,
-    name: "Lisa Park",
-    username: "lisap",
-    mutualFriends: 1,
-    gamesOwned: 18,
-  },
-];
+import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2 } from "lucide-react";
+import { useFriends } from "@/hooks/useFriends";
+import { useProfile } from "@/hooks/useProfile";
 
 const Friends = () => {
-  const [friends] = useState(mockFriends);
-  const [friendRequests] = useState(mockFriendRequests);
+  const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
+  const { profile } = useProfile();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredFriends = friends.filter(friend =>
-    friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    friend.username.toLowerCase().includes(searchTerm.toLowerCase())
+    friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "online":
         return "bg-gaming-green";
-      case "playing":
+      case "away":
         return "bg-gaming-orange";
+      case "busy":
+        return "bg-red-500";
       case "offline":
         return "bg-gray-400";
       default:
@@ -95,14 +36,39 @@ const Friends = () => {
     switch (status) {
       case "online":
         return "Online";
-      case "playing":
-        return "Playing";
+      case "away":
+        return "Away";
+      case "busy":
+        return "Busy";
       case "offline":
         return "Offline";
       default:
         return "Unknown";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Profile Required</h2>
+          <p className="text-muted-foreground">
+            Please create a profile to use the friends feature.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -141,7 +107,7 @@ const Friends = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold">
-                  {friends.filter(f => f.status === "online" || f.status === "playing").length}
+                  {friends.filter(f => f.status === "online" || f.status === "away" || f.status === "busy").length}
                 </p>
                 <p className="text-muted-foreground text-sm">Online Now</p>
               </div>
@@ -179,22 +145,29 @@ const Friends = () => {
                     <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12">
                         <AvatarFallback className="bg-gradient-gaming text-white">
-                          {request.name.split(' ').map(n => n[0]).join('')}
+                          {request.requester_profile?.display_name.split(' ').map(n => n[0]).join('') || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-semibold">{request.name}</h3>
-                        <p className="text-muted-foreground text-sm">@{request.username}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {request.mutualFriends} mutual friends • {request.gamesOwned} games
+                        <h3 className="font-semibold">{request.requester_profile?.display_name}</h3>
+                        <p className="text-muted-foreground text-sm">
+                          {request.requester_profile?.bio || 'No bio available'}
                         </p>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="gaming" size="sm">
+                      <Button 
+                        variant="gaming" 
+                        size="sm"
+                        onClick={() => acceptFriendRequest(request.id)}
+                      >
                         Accept
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => rejectFriendRequest(request.id)}
+                      >
                         Decline
                       </Button>
                     </div>
@@ -229,37 +202,35 @@ const Friends = () => {
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarFallback className="bg-gradient-gaming text-white">
-                          {friend.name.split(' ').map(n => n[0]).join('')}
+                          {friend.display_name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getStatusColor(friend.status)}`} />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{friend.name}</h3>
-                      <p className="text-muted-foreground text-sm">@{friend.username}</p>
+                      <h3 className="font-semibold">{friend.display_name}</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {friend.bio || 'No bio available'}
+                      </p>
                     </div>
                   </div>
-                  <Badge variant={friend.status === "online" || friend.status === "playing" ? "default" : "secondary"}>
+                  <Badge variant={friend.status === "online" || friend.status === "away" || friend.status === "busy" ? "default" : "secondary"}>
                     {getStatusText(friend.status)}
                   </Badge>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Games Owned</span>
-                    <span className="font-medium">{friend.gamesOwned}</span>
+                    <span className="text-muted-foreground">Member Since</span>
+                    <span className="font-medium">
+                      {new Date(friend.created_at).toLocaleDateString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mutual Games</span>
-                    <span className="font-medium">{friend.mutualGames}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Favorite Game</span>
-                    <span className="font-medium">{friend.favoriteGame}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Last Active</span>
-                    <span className="font-medium">{friend.lastPlayed}</span>
+                    <span className="text-muted-foreground">Last Updated</span>
+                    <span className="font-medium">
+                      {new Date(friend.updated_at).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 
