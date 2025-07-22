@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import Library from "./pages/Library";
 import Randomizer from "./pages/Randomizer";
 import GameNights from "./pages/GameNights";
-import Scores from "./pages/Scores";
+
 import Friends from "./pages/Friends";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -41,11 +41,6 @@ const App = () => (
             <Route path="/game-nights" element={
               <ProtectedRoute>
                 <GameNights />
-              </ProtectedRoute>
-            } />
-            <Route path="/scores" element={
-              <ProtectedRoute>
-                <Scores />
               </ProtectedRoute>
             } />
             <Route path="/friends" element={

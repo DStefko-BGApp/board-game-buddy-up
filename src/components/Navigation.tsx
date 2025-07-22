@@ -25,7 +25,6 @@ const Navigation = () => {
     { to: "/library", icon: BookOpen, label: "My Games" },
     { to: "/randomizer", icon: Dice6, label: "Dice & Tools" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
-    { to: "/scores", icon: Trophy, label: "Scores" },
     { to: "/friends", icon: Users, label: "Friends" },
   ];
 
