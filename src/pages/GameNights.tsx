@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar, Clock, Users, MapPin, Plus, Edit } from "lucide-react";
 
 // Mock data for game nights
@@ -39,7 +43,15 @@ const mockGameNights = [
 ];
 
 const GameNights = () => {
-  const [gameNights] = useState(mockGameNights);
+  const [gameNights, setGameNights] = useState(mockGameNights);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    date: "",
+    time: "",
+    location: "",
+    games: "",
+  });
 
   const upcomingEvents = gameNights.filter(event => event.status === "upcoming");
   const pastEvents = gameNights.filter(event => event.status === "completed");
@@ -55,6 +67,25 @@ const GameNights = () => {
     }
   };
 
+  const handleCreateGameNight = () => {
+    if (!formData.title || !formData.date || !formData.time) return;
+    
+    const newGameNight = {
+      id: gameNights.length + 1,
+      title: formData.title,
+      date: formData.date,
+      time: formData.time,
+      location: formData.location || "TBD",
+      attendees: [], // Start with empty attendees
+      games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
+      status: "upcoming",
+    };
+    
+    setGameNights([...gameNights, newGameNight]);
+    setFormData({ title: "", date: "", time: "", location: "", games: "" });
+    setIsCreateDialogOpen(false);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -65,17 +96,84 @@ const GameNights = () => {
             Plan and organize your gaming sessions with friends
           </p>
         </div>
-        <Button 
-          variant="gaming" 
-          className="mt-4 md:mt-0"
-          onClick={() => {
-            // TODO: Implement create game night functionality
-            console.log("Create Game Night clicked");
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Create Game Night
-        </Button>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="gaming" className="mt-4 md:mt-0">
+              <Plus className="h-4 w-4" />
+              Create Game Night
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New Game Night</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Weekly Strategy Night"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time">Time *</Label>
+                  <Input
+                    id="time"
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  placeholder="e.g., Mike's Place"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="games">Games (comma-separated)</Label>
+                <Textarea
+                  id="games"
+                  value={formData.games}
+                  onChange={(e) => setFormData({ ...formData, games: e.target.value })}
+                  placeholder="e.g., Wingspan, Azul, Ticket to Ride"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="gaming"
+                  onClick={handleCreateGameNight}
+                  disabled={!formData.title || !formData.date || !formData.time}
+                >
+                  Create Game Night
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Quick Stats */}
