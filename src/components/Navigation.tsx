@@ -11,7 +11,8 @@ import {
   X,
   LogIn,
   LogOut,
-  User
+  User,
+  Settings
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,12 +65,22 @@ const Navigation = () => {
             <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
               {user ? (
                 <>
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm">
+                  <NavLink
+                    to="/settings"
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                        isActive
+                          ? "text-primary bg-primary/10"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      }`
+                    }
+                  >
                     <User className="h-4 w-4" />
-                    <span className="text-muted-foreground">
+                    <span className="hidden lg:inline">
                       {user.user_metadata?.display_name || user.email}
                     </span>
-                  </div>
+                    <span className="lg:hidden">Account</span>
+                  </NavLink>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -129,10 +140,20 @@ const Navigation = () => {
               <div className="pt-4 mt-4 border-t border-border">
                 {user ? (
                   <>
-                    <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                    <NavLink
+                      to="/settings"
+                      className={({ isActive }) =>
+                        `flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          isActive
+                            ? "text-primary bg-primary/10"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        }`
+                      }
+                      onClick={() => setIsOpen(false)}
+                    >
                       <User className="h-4 w-4" />
                       <span>{user.user_metadata?.display_name || user.email}</span>
-                    </div>
+                    </NavLink>
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-muted-foreground hover:text-foreground"

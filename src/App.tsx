@@ -10,6 +10,7 @@ import GameNights from "./pages/GameNights";
 import Friends from "./pages/Friends";
 import Auth from "./pages/Auth";
 import FAQ from "./pages/FAQ";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
@@ -52,6 +53,11 @@ const App = () => (
                   </ProtectedRoute>
                 } />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
