@@ -76,8 +76,23 @@ export const ScoreSheetDialog = ({ onScoreAdded }: ScoreSheetDialogProps) => {
     if (template?.scoring_fields) {
       fields = (template.scoring_fields as unknown) as ScoringField[];
     } else {
-      // Create default template
-      fields = [{ id: "total", name: "Total Score", type: "number", defaultValue: 0 }];
+      // Create appropriate template based on game name
+      const gameName = game.name.toLowerCase();
+      if (gameName.includes('ark nova')) {
+        fields = [
+          { id: "conservation_projects", name: "Conservation Projects", type: "number", defaultValue: 0 },
+          { id: "zoo_cards", name: "Zoo Cards", type: "number", defaultValue: 0 },
+          { id: "enclosures", name: "Enclosures", type: "number", defaultValue: 0 },
+          { id: "reputation", name: "Reputation", type: "number", defaultValue: 0 },
+          { id: "appeal", name: "Appeal", type: "number", defaultValue: 0 },
+          { id: "association_workers", name: "Association Workers", type: "number", defaultValue: 0 },
+          { id: "bonus_tiles", name: "Bonus Tiles", type: "number", defaultValue: 0 },
+          { id: "final_scoring", name: "Final Scoring", type: "number", defaultValue: 0 }
+        ];
+      } else {
+        // Default template
+        fields = [{ id: "total", name: "Total Score", type: "number", defaultValue: 0 }];
+      }
       
       // Create the template in database
       await supabase
