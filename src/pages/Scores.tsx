@@ -2,19 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Plus, TrendingUp, Calendar } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Search } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Trophy, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { GameSpecificScoreDialog } from "@/components/scores/GameSpecificScoreDialog";
 
 interface GameScore {
   id: string;
@@ -35,42 +26,6 @@ interface PlayerStats {
   winRate: string;
   avgScore: number;
 }
-
-// Simple mock data for now - will be replaced with dynamic data from scoring system
-const mockScores: GameScore[] = [
-  {
-    id: "1",
-    game: "Wingspan",
-    date: "2024-01-20",
-    players: [
-      { name: "Sarah", score: 85, winner: true },
-      { name: "Mike", score: 78, winner: false },
-      { name: "Tom", score: 72, winner: false },
-      { name: "Lisa", score: 69, winner: false },
-    ],
-  },
-  {
-    id: "2", 
-    game: "Azul",
-    date: "2024-01-18",
-    players: [
-      { name: "Tom", score: 102, winner: true },
-      { name: "Sarah", score: 89, winner: false },
-      { name: "Mike", score: 85, winner: false },
-    ],
-  },
-  {
-    id: "3",
-    game: "Ticket to Ride", 
-    date: "2024-01-15",
-    players: [
-      { name: "Lisa", score: 145, winner: true },
-      { name: "Alex", score: 132, winner: false },
-      { name: "Emma", score: 128, winner: false },
-      { name: "Jack", score: 115, winner: false },
-    ],
-  },
-];
 
 const calculatePlayerStats = (scores: GameScore[]): PlayerStats[] => {
   const playerStats: Record<string, { wins: number; games: number; totalScore: number }> = {};
@@ -94,219 +49,6 @@ const calculatePlayerStats = (scores: GameScore[]): PlayerStats[] => {
     winRate: ((stats.wins / stats.games) * 100).toFixed(1),
     avgScore: Math.round(stats.totalScore / stats.games),
   }));
-};
-
-// Simple Add Score Dialog Component
-const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-  const [gameSelectOpen, setGameSelectOpen] = useState(false);
-  const [games, setGames] = useState<Array<{ id: string; name: string }>>([]);
-  const [selectedGameId, setSelectedGameId] = useState("");
-  const [playerEntries, setPlayerEntries] = useState([{ name: "", score: 0 }]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchGames = async () => {
-      const { data } = await supabase
-        .from('games')
-        .select('id, name')
-        .order('name', { ascending: true }) // Sort alphabetically
-        .limit(50);
-      
-      if (data) {
-        setGames(data);
-      }
-    };
-
-    fetchGames();
-  }, []);
-
-  const addPlayer = () => {
-    setPlayerEntries([...playerEntries, { name: "", score: 0 }]);
-  };
-
-  const removePlayer = (index: number) => {
-    setPlayerEntries(playerEntries.filter((_, i) => i !== index));
-  };
-
-  const updatePlayer = (index: number, field: 'name' | 'score', value: string | number) => {
-    const updated = [...playerEntries];
-    updated[index] = { ...updated[index], [field]: value };
-    setPlayerEntries(updated);
-  };
-
-  const handleSubmit = async () => {
-    const validPlayers = playerEntries.filter(p => p.name.trim());
-    
-    if (!selectedGameId || validPlayers.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select a game and add at least one player",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const gameData = games.find(g => g.id === selectedGameId);
-      
-      // Determine winner (highest score)
-      const maxScore = Math.max(...validPlayers.map(p => p.score));
-      const playersWithWinner = validPlayers.map(p => ({
-        ...p,
-        winner: p.score === maxScore
-      }));
-
-      const { error } = await supabase
-        .from('game_scores')
-        .insert({
-          user_id: user?.id,
-          game_id: selectedGameId,
-          game_name: gameData?.name || "Unknown Game",
-          players: playersWithWinner,
-          date: new Date().toISOString().split('T')[0]
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success", 
-        description: "Game score saved successfully!"
-      });
-
-      setOpen(false);
-      setSelectedGameId("");
-      setPlayerEntries([{ name: "", score: 0 }]);
-      onScoreAdded();
-    } catch (error) {
-      console.error('Error saving score:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save game score. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="gaming">
-          <Plus className="h-4 w-4" />
-          Add Game Result
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Add Game Score</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="game">Select Game</Label>
-            <Popover open={gameSelectOpen} onOpenChange={setGameSelectOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={gameSelectOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedGameId
-                    ? games.find(game => game.id === selectedGameId)?.name
-                    : "Choose a game..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput placeholder="Search games..." />
-                  <CommandList>
-                    <CommandEmpty>No games found.</CommandEmpty>
-                    <CommandGroup>
-                      {games.map(game => (
-                        <CommandItem
-                          key={game.id}
-                          value={game.name}
-                          onSelect={() => {
-                            setSelectedGameId(game.id);
-                            setGameSelectOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedGameId === game.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {game.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <Label>Players & Scores</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addPlayer}>
-                <Plus className="h-4 w-4" />
-                Add Player
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              {playerEntries.map((player, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    placeholder="Player name"
-                    value={player.name}
-                    onChange={(e) => updatePlayer(index, 'name', e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Score"
-                    value={player.score || ""}
-                    onChange={(e) => updatePlayer(index, 'score', parseInt(e.target.value) || 0)}
-                    className="w-24"
-                  />
-                  {playerEntries.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removePlayer(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Saving..." : "Save Score"}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 };
 
 const Scores = () => {
@@ -365,7 +107,7 @@ const Scores = () => {
             Keep track of game results and player statistics
           </p>
         </div>
-        <AddScoreDialog onScoreAdded={handleScoreAdded} />
+        <GameSpecificScoreDialog onScoreAdded={handleScoreAdded} />
       </div>
 
       {/* Player Statistics */}

@@ -64,6 +64,8 @@ export type Database = {
           game_name: string
           id: string
           players: Json
+          scoring_data: Json | null
+          total_score: number | null
           updated_at: string
           user_id: string
         }
@@ -74,6 +76,8 @@ export type Database = {
           game_name: string
           id?: string
           players: Json
+          scoring_data?: Json | null
+          total_score?: number | null
           updated_at?: string
           user_id: string
         }
@@ -84,6 +88,38 @@ export type Database = {
           game_name?: string
           id?: string
           players?: Json
+          scoring_data?: Json | null
+          total_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_scoring_templates: {
+        Row: {
+          created_at: string
+          game_id: string
+          game_name: string
+          id: string
+          scoring_fields: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          game_name: string
+          id?: string
+          scoring_fields?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          game_name?: string
+          id?: string
+          scoring_fields?: Json
           updated_at?: string
           user_id?: string
         }
