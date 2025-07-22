@@ -183,7 +183,7 @@ const Friends = () => {
                     <div className="flex items-center gap-1.5">
                       <Users className="h-3 w-3 text-gaming-green" />
                       <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">Style</p>
+                        <p className="text-xs text-muted-foreground">Gaming Style</p>
                         <p className="text-xs font-semibold capitalize truncate">{profile.gaming_style}</p>
                       </div>
                     </div>
@@ -195,7 +195,7 @@ const Friends = () => {
                     <div className="flex items-center gap-1.5">
                       <Users className="h-3 w-3 text-gaming-red" />
                       <div className="min-w-0">
-                        <p className="text-xs text-muted-foreground">Players</p>
+                        <p className="text-xs text-muted-foreground">Preferred Player Count</p>
                         <p className="text-xs font-semibold truncate">{profile.preferred_player_count}</p>
                       </div>
                     </div>
