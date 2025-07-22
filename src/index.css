@@ -6,14 +6,14 @@
 
 @layer base {
   :root {
-    --background: 20 14% 97%;
-    --foreground: 240 15% 9%;
+    --background: 215 20% 98%;
+    --foreground: 215 25% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 15% 9%;
+    --card: 215 30% 99%;
+    --card-foreground: 215 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 15% 9%;
+    --popover: 215 30% 99%;
+    --popover-foreground: 215 25% 15%;
 
     --primary: 215 84% 56%;
     --primary-foreground: 0 0% 100%;
@@ -27,48 +27,43 @@
     --gaming-green: 142 62% 35%;
     --gaming-red: 0 65% 48%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 215 25% 96%;
+    --muted-foreground: 215 18% 48%;
 
     --accent: 142 62% 35%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 75% 60%;
+    --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 250 75% 60%;
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 215 84% 56%;
 
     /* Refined gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-gaming: linear-gradient(135deg, hsl(var(--gaming-blue)), hsl(var(--gaming-slate)));
     --gradient-score: linear-gradient(135deg, hsl(var(--gaming-green)), hsl(var(--secondary)));
     --gradient-hero: linear-gradient(135deg, hsl(215 84% 56% / 0.08), hsl(142 62% 35% / 0.05));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--gaming-red)), hsl(215 20% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(0 65% 48%), hsl(215 20% 65%));
+    --gradient-warm: linear-gradient(135deg, hsl(215 30% 99%), hsl(215 25% 96%));
 
-    /* Gaming shadows */
-    --shadow-gaming: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-card: 0 4px 20px -8px hsl(240 15% 9% / 0.15);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.4);
+    /* Subtle gaming shadows with warmth */
+    --shadow-gaming: 0 10px 30px -10px hsl(215 84% 56% / 0.25);
+    --shadow-card: 0 4px 20px -8px hsl(215 25% 15% / 0.12);
+    --shadow-glow: 0 0 40px hsl(215 94% 66% / 0.35);
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Warm sidebar tones */
+    --sidebar-background: 215 25% 98%;
+    --sidebar-foreground: 215 25% 26%;
+    --sidebar-primary: 215 25% 18%;
+    --sidebar-primary-foreground: 215 30% 98%;
+    --sidebar-accent: 215 20% 94%;
+    --sidebar-accent-foreground: 215 25% 18%;
+    --sidebar-border: 215 18% 88%;
+    --sidebar-ring: 215 84% 56%;
   }
 
   .dark {
@@ -141,5 +136,56 @@
   
   .clip-path-icagon {
     clip-path: polygon(50% 0%, 85% 15%, 100% 50%, 85% 85%, 50% 100%, 15% 85%, 0% 50%, 15% 15%);
+  }
+  
+  /* Subtle board game textures */
+  .texture-subtle {
+    background-image: 
+      radial-gradient(circle at 2px 2px, rgba(215, 84, 56, 0.05) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  
+  .texture-dots {
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(215, 84, 56, 0.08) 1px, transparent 0);
+    background-size: 12px 12px;
+  }
+  
+  .game-board-pattern {
+    background-image: 
+      linear-gradient(45deg, transparent 40%, rgba(215, 84, 56, 0.03) 40%, rgba(215, 84, 56, 0.03) 60%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, rgba(142, 62, 35, 0.02) 40%, rgba(142, 62, 35, 0.02) 60%, transparent 60%);
+    background-size: 30px 30px;
+  }
+  
+  .wooden-texture {
+    background-image: 
+      linear-gradient(90deg, rgba(215, 84, 56, 0.02) 0%, transparent 50%, rgba(215, 84, 56, 0.02) 100%);
+    background-size: 40px 8px;
+  }
+}
+
+@layer components {
+  /* Enhanced page backgrounds */
+  .page-background {
+    @apply bg-gradient-warm texture-subtle;
+  }
+  
+  .section-background {
+    @apply bg-gradient-to-br from-card/60 to-background game-board-pattern;
+  }
+  
+  /* Board game night atmosphere */
+  .cozy-section {
+    @apply relative;
+  }
+  
+  .cozy-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(215, 84, 56, 0.02) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: inherit;
   }
 }

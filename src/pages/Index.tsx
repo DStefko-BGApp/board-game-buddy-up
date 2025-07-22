@@ -46,7 +46,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen page-background">
       {/* Hero Section */}
       <section 
         className="relative h-[70vh] flex items-center justify-center bg-cover bg-center"
@@ -85,7 +85,7 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gradient-hero">
+      <section className="py-20 section-background cozy-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Everything You Need for Game Night</h2>
@@ -123,7 +123,7 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20">
+      <section className="py-20 wooden-texture">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Join the Community</h2>
@@ -169,7 +169,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-gaming">
+      <section className="py-20 bg-gradient-gaming texture-subtle cozy-section">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-4">
             Ready to Level Up Your Game Nights?

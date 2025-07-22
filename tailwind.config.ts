@@ -75,7 +75,8 @@ export default {
 				'gradient-gaming': 'var(--gradient-gaming)',
 				'gradient-score': 'var(--gradient-score)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-accent': 'var(--gradient-accent)'
+				'gradient-accent': 'var(--gradient-accent)',
+				'gradient-warm': 'var(--gradient-warm)'
 			},
 			boxShadow: {
 				'gaming': 'var(--shadow-gaming)',

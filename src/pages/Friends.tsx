@@ -91,11 +91,11 @@ const Friends = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
       {/* Header */}
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
-        <div className="relative bg-card/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+        <div className="relative bg-card/90 backdrop-blur-sm border border-white/10 rounded-2xl p-8 cozy-section">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div className="space-y-2">
               <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
@@ -122,7 +122,7 @@ const Friends = () => {
       {/* Current Profile Card */}
       <div className="relative mb-8 group">
         <div className="absolute inset-0 bg-gradient-gaming opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
-        <Card className="relative bg-card/90 backdrop-blur-sm border-white/20 shadow-2xl hover:shadow-gaming transition-all duration-300">
+        <Card className="relative bg-card/95 backdrop-blur-sm border-white/20 shadow-2xl hover:shadow-gaming transition-all duration-300 cozy-section wooden-texture">
           <CardContent className="p-8">
             <div className="flex items-start gap-6">
               <div className="relative group/avatar">
