@@ -138,6 +138,7 @@
   .clip-path-icagon {
     clip-path: polygon(50% 0%, 85% 15%, 100% 50%, 85% 85%, 50% 100%, 15% 85%, 0% 50%, 15% 15%);
   }
+}
 
 @layer components {
   /* Enhanced page backgrounds with strategic shadows */
