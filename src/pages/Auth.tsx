@@ -60,7 +60,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero px-4">
+    <div className="min-h-screen flex items-center justify-center page-background px-4 cozy-section">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -75,7 +75,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <Card className="shadow-gaming">
+        <Card className="shadow-gaming section-background backdrop-blur-sm border-white/20">
           <CardHeader>
             <CardTitle className="text-center text-2xl">Welcome Back</CardTitle>
           </CardHeader>

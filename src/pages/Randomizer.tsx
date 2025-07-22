@@ -94,17 +94,23 @@ const Randomizer = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Gaming Tools & Randomizers</h1>
-        <p className="text-muted-foreground">
-          Roll dice, flip coins, and make random decisions for your games
-        </p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
+      {/* Enhanced header with Friends page aesthetic */}
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+        <div className="relative bg-card/90 backdrop-blur-sm border border-white/20 rounded-2xl p-8 cozy-section">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent mb-2">Gaming Tools & Randomizers</h1>
+            <p className="text-muted-foreground text-lg">
+              Roll dice, flip coins, and make random decisions for your games
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Dice Roller */}
-        <Card className="shadow-card-gaming">
+        <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Dice6 className="h-5 w-5 text-primary" />
@@ -169,7 +175,7 @@ const Randomizer = () => {
         </Card>
 
         {/* Coin Flip */}
-        <Card className="shadow-card-gaming">
+        <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shuffle className="h-5 w-5 text-secondary" />
@@ -186,7 +192,7 @@ const Randomizer = () => {
                 <div className="text-6xl mb-2">
                   {coinResult === "Heads" ? "🦁" : "🐾"}
                 </div>
-                <p className="text-2xl font-bold text-gaming-orange">
+                <p className="text-2xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
                   {coinResult}
                 </p>
               </div>
@@ -195,7 +201,7 @@ const Randomizer = () => {
         </Card>
 
         {/* Random Choice */}
-        <Card className="shadow-card-gaming">
+        <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shuffle className="h-5 w-5 text-gaming-green" />
@@ -236,7 +242,7 @@ const Randomizer = () => {
         </Card>
 
         {/* Player Order */}
-        <Card className="shadow-card-gaming">
+        <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-gaming-red" />

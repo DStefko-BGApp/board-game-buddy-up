@@ -183,235 +183,243 @@ const GameNights = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Game Nights</h1>
-          <p className="text-muted-foreground">
-            Plan and organize your gaming sessions with friends
-          </p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="gaming" className="mt-4 md:mt-0">
-              <Plus className="h-4 w-4" />
-              Create Game Night
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Game Night</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Weekly Strategy Night"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time">Time *</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="e.g., Mike's Place"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="attendees">Attendees (comma-separated)</Label>
-                <Textarea
-                  id="attendees"
-                  value={formData.attendees}
-                  onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
-                  placeholder="e.g., Mike, Sarah, Tom, Lisa"
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="games">Games (comma-separated)</Label>
-                <Textarea
-                  id="games"
-                  value={formData.games}
-                  onChange={(e) => setFormData({ ...formData, games: e.target.value })}
-                  placeholder="e.g., Wingspan, Azul, Ticket to Ride"
-                  rows={3}
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsCreateDialogOpen(false);
-                    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="gaming"
-                  onClick={handleCreateGameNight}
-                  disabled={!formData.title || !formData.date || !formData.time}
-                >
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
+      {/* Enhanced header with Friends page aesthetic */}
+      <div className="relative mb-8">
+        <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+        <div className="relative bg-card/90 backdrop-blur-sm border border-white/20 rounded-2xl p-8 cozy-section">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">Game Nights</h1>
+              <p className="text-muted-foreground text-lg">
+                Plan and organize your gaming sessions with friends
+              </p>
+            </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="gaming" className="mt-6 md:mt-0 hover-scale shadow-lg">
+                  <Plus className="h-4 w-4" />
                   Create Game Night
                 </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Create New Game Night</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Title *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g., Weekly Strategy Night"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Date *</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="time">Time *</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={formData.time}
+                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="e.g., Mike's Place"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="attendees">Attendees (comma-separated)</Label>
+                    <Textarea
+                      id="attendees"
+                      value={formData.attendees}
+                      onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
+                      placeholder="e.g., Mike, Sarah, Tom, Lisa"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="games">Games (comma-separated)</Label>
+                    <Textarea
+                      id="games"
+                      value={formData.games}
+                      onChange={(e) => setFormData({ ...formData, games: e.target.value })}
+                      placeholder="e.g., Wingspan, Azul, Ticket to Ride"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsCreateDialogOpen(false);
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="gaming"
+                      onClick={handleCreateGameNight}
+                      disabled={!formData.title || !formData.date || !formData.time}
+                    >
+                      Create Game Night
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-        {/* Edit Game Night Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Game Night</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Title *</Label>
-                <Input
-                  id="edit-title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Weekly Strategy Night"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-date">Date *</Label>
-                  <Input
-                    id="edit-date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  />
+            {/* Edit Game Night Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Game Night</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title">Title *</Label>
+                    <Input
+                      id="edit-title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g., Weekly Strategy Night"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-date">Date *</Label>
+                      <Input
+                        id="edit-date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-time">Time *</Label>
+                      <Input
+                        id="edit-time"
+                        type="time"
+                        value={formData.time}
+                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-location">Location</Label>
+                    <Input
+                      id="edit-location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="e.g., Mike's Place"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-attendees">Attendees (comma-separated)</Label>
+                    <Textarea
+                      id="edit-attendees"
+                      value={formData.attendees}
+                      onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
+                      placeholder="e.g., Mike, Sarah, Tom, Lisa"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-games">Games (comma-separated)</Label>
+                    <Textarea
+                      id="edit-games"
+                      value={formData.games}
+                      onChange={(e) => setFormData({ ...formData, games: e.target.value })}
+                      placeholder="e.g., Wingspan, Azul, Ticket to Ride"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsEditDialogOpen(false);
+                        setEditingGameNight(null);
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="gaming"
+                      onClick={handleUpdateGameNight}
+                      disabled={!formData.title || !formData.date || !formData.time}
+                    >
+                      Update Game Night
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-time">Time *</Label>
-                  <Input
-                    id="edit-time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-location">Location</Label>
-                <Input
-                  id="edit-location"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="e.g., Mike's Place"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-attendees">Attendees (comma-separated)</Label>
-                <Textarea
-                  id="edit-attendees"
-                  value={formData.attendees}
-                  onChange={(e) => setFormData({ ...formData, attendees: e.target.value })}
-                  placeholder="e.g., Mike, Sarah, Tom, Lisa"
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-games">Games (comma-separated)</Label>
-                <Textarea
-                  id="edit-games"
-                  value={formData.games}
-                  onChange={(e) => setFormData({ ...formData, games: e.target.value })}
-                  placeholder="e.g., Wingspan, Azul, Ticket to Ride"
-                  rows={3}
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsEditDialogOpen(false);
-                    setEditingGameNight(null);
-                    setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="gaming"
-                  onClick={handleUpdateGameNight}
-                  disabled={!formData.title || !formData.date || !formData.time}
-                >
-                  Update Game Night
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Stats with enhanced styling */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+        <Card className="group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 section-background border-white/10">
+          <CardContent className="p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-gaming opacity-10 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-20 transition-opacity"></div>
+            <div className="flex items-center justify-between relative">
               <div>
-                <p className="text-2xl font-bold">{upcomingEvents.length}</p>
-                <p className="text-muted-foreground text-sm">Upcoming Events</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">{upcomingEvents.length}</p>
+                <p className="text-muted-foreground text-sm font-medium">Upcoming Events</p>
               </div>
-              <div className="h-12 w-12 bg-gradient-gaming rounded-full flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-white" />
+              <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Calendar className="h-7 w-7 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+        <Card className="group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 section-background border-white/10">
+          <CardContent className="p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-score opacity-10 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-20 transition-opacity"></div>
+            <div className="flex items-center justify-between relative">
               <div>
-                <p className="text-2xl font-bold">{pastEvents.length}</p>
-                <p className="text-muted-foreground text-sm">Past Events</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-green to-gaming-green/70 bg-clip-text text-transparent">{pastEvents.length}</p>
+                <p className="text-muted-foreground text-sm font-medium">Past Events</p>
               </div>
-              <div className="h-12 w-12 bg-gradient-score rounded-full flex items-center justify-center">
-                <Clock className="h-6 w-6 text-white" />
+              <div className="h-14 w-14 bg-gradient-score rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Clock className="h-7 w-7 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+        <Card className="group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 section-background border-white/10">
+          <CardContent className="p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gaming-red/20 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-30 transition-opacity"></div>
+            <div className="flex items-center justify-between relative">
               <div>
-                <p className="text-2xl font-bold">12</p>
-                <p className="text-muted-foreground text-sm">Total Attendees</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">12</p>
+                <p className="text-muted-foreground text-sm font-medium">Total Attendees</p>
               </div>
-              <div className="h-12 w-12 bg-gaming-orange rounded-full flex items-center justify-center">
-                <Users className="h-6 w-6 text-white" />
+              <div className="h-14 w-14 bg-gaming-red rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Users className="h-7 w-7 text-white" />
               </div>
             </div>
           </CardContent>
