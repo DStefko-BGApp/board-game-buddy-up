@@ -7,7 +7,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2 } from "lucide-react";
+import { Trash2, Search } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -97,6 +101,7 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [gameSelectOpen, setGameSelectOpen] = useState(false);
   const [games, setGames] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedGameId, setSelectedGameId] = useState("");
   const [playerEntries, setPlayerEntries] = useState([{ name: "", score: 0 }]);
@@ -107,6 +112,7 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
       const { data } = await supabase
         .from('games')
         .select('id, name')
+        .order('name', { ascending: true }) // Sort alphabetically
         .limit(50);
       
       if (data) {
@@ -204,18 +210,49 @@ const AddScoreDialog = ({ onScoreAdded }: { onScoreAdded: () => void }) => {
         <div className="space-y-4">
           <div>
             <Label htmlFor="game">Select Game</Label>
-            <Select value={selectedGameId} onValueChange={setSelectedGameId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a game..." />
-              </SelectTrigger>
-              <SelectContent>
-                {games.map(game => (
-                  <SelectItem key={game.id} value={game.id}>
-                    {game.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={gameSelectOpen} onOpenChange={setGameSelectOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={gameSelectOpen}
+                  className="w-full justify-between"
+                >
+                  {selectedGameId
+                    ? games.find(game => game.id === selectedGameId)?.name
+                    : "Choose a game..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search games..." />
+                  <CommandList>
+                    <CommandEmpty>No games found.</CommandEmpty>
+                    <CommandGroup>
+                      {games.map(game => (
+                        <CommandItem
+                          key={game.id}
+                          value={game.name}
+                          onSelect={() => {
+                            setSelectedGameId(game.id);
+                            setGameSelectOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedGameId === game.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {game.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div>
