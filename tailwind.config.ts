@@ -54,10 +54,10 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				gaming: {
-					blue: 'hsl(var(--gaming-blue))',
-					slate: 'hsl(var(--gaming-slate))',
-					green: 'hsl(var(--gaming-green))',
-					red: 'hsl(var(--gaming-red))'
+					pink: 'hsl(var(--gaming-pink))',
+					yellow: 'hsl(var(--gaming-yellow))',
+					orange: 'hsl(var(--gaming-orange))',
+					purple: 'hsl(var(--gaming-purple))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

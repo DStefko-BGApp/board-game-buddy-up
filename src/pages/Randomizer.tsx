@@ -69,15 +69,15 @@ const Randomizer = () => {
     const getDieShape = () => {
       switch (dieType) {
         case "4":
-          return "clip-path-triangle bg-gradient-to-br from-red-500 to-red-700 text-white";
+          return "clip-path-triangle bg-gradient-to-br from-gaming-pink to-gaming-purple text-white";
         case "8":
-          return "clip-path-octagon bg-gradient-to-br from-blue-500 to-blue-700 text-white";
+          return "clip-path-octagon bg-gradient-to-br from-gaming-yellow to-gaming-orange text-white";
         case "10":
-          return "clip-path-pentagon bg-gradient-to-br from-green-500 to-green-700 text-white";
+          return "clip-path-pentagon bg-gradient-to-br from-gaming-purple to-gaming-pink text-white";
         case "12":
-          return "clip-path-dodecagon bg-gradient-to-br from-purple-500 to-purple-700 text-white";
+          return "clip-path-dodecagon bg-gradient-to-br from-gaming-orange to-gaming-yellow text-white";
         case "20":
-          return "clip-path-icagon bg-gradient-to-br from-orange-500 to-orange-700 text-white";
+          return "clip-path-icagon bg-gradient-to-br from-gaming-purple to-gaming-pink text-white";
         default:
           return "bg-primary text-primary-foreground";
       }

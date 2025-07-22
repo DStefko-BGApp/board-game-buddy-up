@@ -36,7 +36,7 @@ const Navigation = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <Crown className="h-8 w-8 animate-gradient-fade" />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary via-gaming-green to-primary bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-gaming-pink via-gaming-yellow to-gaming-pink bg-clip-text text-transparent">
               GameNight
             </span>
           </div>
