@@ -369,40 +369,40 @@ const Scores = () => {
       </div>
 
       {/* Player Statistics */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Player Leaderboard</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-3">Player Leaderboard</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {playerStats
             .sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate))
             .map((player, index) => (
               <Card key={player.name} className="hover:shadow-gaming transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-lg">{player.name}</h3>
+                    <h3 className="font-semibold text-base">{player.name}</h3>
                     {index < 3 && (
                       <div className="flex items-center gap-1">
                         <Trophy 
-                          className={`h-5 w-5 ${
+                          className={`h-4 w-4 ${
                             index === 0 ? 'text-yellow-500' : 
                             index === 1 ? 'text-gray-400' : 
                             'text-amber-600'
                           }`} 
                         />
-                        <span className="text-sm font-medium">#{index + 1}</span>
+                        <span className="text-xs font-medium">#{index + 1}</span>
                       </div>
                     )}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Win Rate</span>
                       <span className="font-medium text-gaming-green">{player.winRate}%</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Games Played</span>
+                      <span className="text-muted-foreground">Games</span>
                       <span className="font-medium">{player.games}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Total Wins</span>
+                      <span className="text-muted-foreground">Wins</span>
                       <span className="font-medium">{player.wins}</span>
                     </div>
                     <div className="flex justify-between text-sm">
