@@ -150,7 +150,14 @@ const Friends = () => {
                     <h3 className="text-xl font-bold text-foreground truncate">
                       {profile.display_name}
                     </h3>
-                    <Badge variant="outline" className="border-foreground/30 text-foreground bg-background/50 text-xs">
+                    <Badge 
+                      variant={profile.status === "online" ? "default" : "outline"} 
+                      className={`text-xs font-medium px-3 py-1 rounded-full ${
+                        profile.status === "online" 
+                          ? "bg-green-100 text-green-800 border-green-200" 
+                          : "border-foreground/30 text-foreground bg-background/50"
+                      }`}
+                    >
                       {getStatusText(profile.status)}
                     </Badge>
                     {profile.library_public && (
@@ -474,7 +481,18 @@ const Friends = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-bold text-lg truncate">{friend.display_name}</h3>
-                      <Badge variant={friend.status === "online" ? "success" : friend.status === "away" || friend.status === "busy" ? "gaming" : "secondary"} className="text-xs">
+                      <Badge 
+                        variant={friend.status === "online" ? "default" : "outline"} 
+                        className={`text-xs font-medium px-3 py-1 rounded-full ${
+                          friend.status === "online" 
+                            ? "bg-green-100 text-green-800 border-green-200" 
+                            : friend.status === "away" 
+                            ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                            : friend.status === "busy"
+                            ? "bg-red-100 text-red-800 border-red-200"
+                            : "bg-gray-100 text-gray-600 border-gray-200"
+                        }`}
+                      >
                         {getStatusText(friend.status)}
                       </Badge>
                     </div>
