@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { type GameStatus } from "@/components/library/GameStatusSelector";
 
-type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
+type SortOption = 'name_asc' | 'name_desc' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
 
 export const sortOptions: { value: SortOption; label: string }[] = [
-  { value: 'name', label: 'Alphabetical' },
+  { value: 'name_asc', label: 'A-Z' },
+  { value: 'name_desc', label: 'Z-A' },
   { value: 'date_added', label: 'Recently Added' },
   { value: 'bgg_rating', label: 'BGG Rating' },
   { value: 'personal_rating', label: 'Personal Rating' },
@@ -17,7 +18,7 @@ export const sortOptions: { value: SortOption; label: string }[] = [
 
 export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [sortBy, setSortBy] = useState<SortOption>('name_asc');
   const [statusFilter, setStatusFilter] = useState<GameStatus | 'all'>('all');
 
   const getDisplayTitle = (game: any) => {
@@ -48,8 +49,10 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
         const gameB = b.baseGame;
         
         switch (sortBy) {
-          case 'name':
+          case 'name_asc':
             return getDisplayTitle(gameA.game).localeCompare(getDisplayTitle(gameB.game));
+          case 'name_desc':
+            return getDisplayTitle(gameB.game).localeCompare(getDisplayTitle(gameA.game));
           case 'date_added':
             return new Date(gameB.date_added).getTime() - new Date(gameA.date_added).getTime();
           case 'bgg_rating':
