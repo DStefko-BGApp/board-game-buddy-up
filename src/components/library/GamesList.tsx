@@ -34,13 +34,18 @@ export const GamesList = ({
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
   const toggleGroupExpansion = (bggId: number) => {
+    console.log('Toggle expansion clicked for bggId:', bggId);
+    console.log('Current expandedGroups:', expandedGroups);
     setExpandedGroups(prev => {
       const newSet = new Set(prev);
       if (newSet.has(bggId)) {
         newSet.delete(bggId);
+        console.log('Collapsing group:', bggId);
       } else {
         newSet.add(bggId);
+        console.log('Expanding group:', bggId);
       }
+      console.log('New expandedGroups:', newSet);
       return newSet;
     });
   };
