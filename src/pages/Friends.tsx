@@ -10,17 +10,19 @@ import { useProfile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
+import { AddFriendDialog } from "@/components/AddFriendDialog";
 import { AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 
 const Friends = () => {
-  const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest } = useFriends();
+  const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest, refetch } = useFriends();
   const { profile } = useProfile();
   const { userGames } = useUserGames();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showAddFriend, setShowAddFriend] = useState(false);
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -114,7 +116,7 @@ const Friends = () => {
                 <User className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
-              <Button variant="gaming" className="hover-scale shadow-lg">
+              <Button variant="gaming" className="hover-scale shadow-lg" onClick={() => setShowAddFriend(true)}>
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add Friend
               </Button>
@@ -521,11 +523,18 @@ const Friends = () => {
         onOpenChange={setShowCreateProfile} 
       />
       {profile && (
-        <EditProfileDialog 
-          open={showEditProfile} 
-          onOpenChange={setShowEditProfile}
-          profile={profile}
-        />
+        <>
+          <EditProfileDialog 
+            open={showEditProfile} 
+            onOpenChange={setShowEditProfile}
+            profile={profile}
+          />
+          <AddFriendDialog 
+            open={showAddFriend} 
+            onOpenChange={setShowAddFriend}
+            onFriendAdded={refetch}
+          />
+        </>
       )}
     </div>
   );
