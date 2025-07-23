@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="flex items-center gap-3">
             <Crown className="h-6 w-6 animate-gradient-fade" />
             <div className="text-center md:text-left">
-              <span className="text-lg font-bold bg-gradient-to-r from-primary via-gaming-green to-primary bg-clip-text text-transparent">
+              <span className="text-lg font-bold bg-gradient-gaming bg-clip-text text-transparent">
                 GameNight
               </span>
               <p className="text-sm text-muted-foreground">
