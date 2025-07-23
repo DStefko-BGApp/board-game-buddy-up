@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Profile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
 import { useNavigate } from "react-router-dom";
+import { FriendLibraryDialog } from "./FriendLibraryDialog";
 
 interface FriendProfileDialogProps {
   friend: Profile | null;
@@ -19,6 +21,7 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
   const { userGames } = useUserGames();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showLibraryDialog, setShowLibraryDialog] = useState(false);
 
   if (!friend) return null;
 
@@ -256,12 +259,7 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                 {friend.library_public && (
                   <Button 
                     variant="outline" 
-                    onClick={() => {
-                      toast({
-                        title: "Coming Soon!",
-                        description: "Friend library viewing is being developed.",
-                      });
-                    }}
+                    onClick={() => setShowLibraryDialog(true)}
                   >
                     View Library
                   </Button>
@@ -270,6 +268,13 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
             </div>
           </CardContent>
         </Card>
+
+        {/* Friend Library Dialog */}
+        <FriendLibraryDialog 
+          friend={friend}
+          open={showLibraryDialog}
+          onOpenChange={setShowLibraryDialog}
+        />
       </DialogContent>
     </Dialog>
   );
