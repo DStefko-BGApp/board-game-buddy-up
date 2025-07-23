@@ -216,7 +216,7 @@ const Randomizer = () => {
             </div>
             
             {/* Add spacing to match dice roller button alignment */}
-            <div className="h-8"></div>
+            <div className="h-6"></div>
             
             <Button 
               onClick={flipCoin} 
