@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
@@ -20,6 +21,7 @@ const Friends = () => {
   const { profile } = useProfile();
   const { userGames } = useUserGames();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -606,7 +608,17 @@ const Friends = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1 hover-scale">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 hover-scale"
+                    onClick={() => {
+                      toast({
+                        title: "Coming Soon!",
+                        description: "Direct messaging feature is being developed.",
+                      });
+                    }}
+                  >
                     <MessageCircle className="h-3 w-3 mr-2" />
                     Message
                   </Button>
