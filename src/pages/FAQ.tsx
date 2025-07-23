@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Mail } from "lucide-react";
+import { HelpCircle, Mail, Lightbulb } from "lucide-react";
+import { ContactSupportDialog } from "@/components/ContactSupportDialog";
+import { FeatureSuggestionDialog } from "@/components/FeatureSuggestionDialog";
 
 const FAQ = () => {
   const faqs = [
@@ -90,21 +92,21 @@ const FAQ = () => {
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground mb-6">
-            Can't find what you're looking for? We're here to help! Send us an email and we'll get back to you as soon as possible.
+            Can't find what you're looking for? We're here to help! Use the forms below to get in touch with us.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="gaming" size="lg" className="hover-scale">
-              <a href="mailto:support@gamenight.example.com">
+            <ContactSupportDialog>
+              <Button variant="gaming" size="lg" className="hover-scale">
                 <Mail className="h-5 w-5 mr-2" />
                 Contact Support
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="hover-scale border-primary/20 hover:border-primary/40">
-              <a href="mailto:support@gamenight.example.com?subject=Feature Suggestion">
-                <HelpCircle className="h-5 w-5 mr-2" />
+              </Button>
+            </ContactSupportDialog>
+            <FeatureSuggestionDialog>
+              <Button variant="outline" size="lg" className="hover-scale border-primary/20 hover:border-primary/40">
+                <Lightbulb className="h-5 w-5 mr-2" />
                 Suggest Features
-              </a>
-            </Button>
+              </Button>
+            </FeatureSuggestionDialog>
           </div>
         </CardContent>
       </Card>
