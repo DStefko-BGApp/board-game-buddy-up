@@ -16,6 +16,10 @@ const FAQ = () => {
       answer: "Yes! Use the 'Sync BGG Collection' feature on your library page. Enter your BGG username and we'll import all your games automatically."
     },
     {
+      question: "My BGG collection didn't fully import - what should I do?",
+      answer: "For large BGG collections (200+ games), you may need to run the sync 2-4 times to import your entire collection. This is normal! Each sync attempt will import additional games. Simply click 'Sync BGG Collection' again until all your games are imported. The process works incrementally, so you won't get duplicates."
+    },
+    {
       question: "How do I organize game nights with friends?",
       answer: "Navigate to the Game Nights page where you can create events, invite friends, and select games from your library. Friends can RSVP and see what games will be played."
     },
