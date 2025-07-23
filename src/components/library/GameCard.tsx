@@ -11,7 +11,8 @@ import {
   Edit,
   CheckSquare,
   Square,
-  ChevronDown
+  ChevronDown,
+  ExternalLink
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { decodeHtmlEntities } from "@/lib/utils";
@@ -197,6 +198,21 @@ export const GameCard = ({
             >
               <Edit className="h-3 w-3 mr-1" />
               Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="h-7 px-2 text-xs"
+            >
+              <a 
+                href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                BGG
+              </a>
             </Button>
             <Button
               size="sm"
