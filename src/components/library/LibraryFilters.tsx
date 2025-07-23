@@ -5,7 +5,7 @@ import { Search, CheckSquare, Square, Trash2, Filter } from "lucide-react";
 import { sortOptions } from "@/hooks/useLibraryFilters";
 import { gameStatusOptions, type GameStatus } from "./GameStatusSelector";
 
-type SortOption = 'name_asc' | 'name_desc' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
+type SortOption = 'name_asc' | 'name_desc' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time' | 'status';
 
 interface LibraryFiltersProps {
   searchQuery: string;
