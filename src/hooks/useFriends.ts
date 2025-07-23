@@ -30,8 +30,8 @@ export const useFriends = () => {
         .from('friendships')
         .select(`
           *,
-          requester_profile:profiles!friendships_requester_id_fkey(id, user_id, display_name, avatar_url, bio, status),
-          addressee_profile:profiles!friendships_addressee_id_fkey(id, user_id, display_name, avatar_url, bio, status)
+          requester_profile:profiles!friendships_requester_id_fkey(id, user_id, display_name, avatar_url, bio, status, gaming_experience, gaming_style, preferred_player_count, favorite_games, favorite_mechanics, location, availability, bgg_username, discord_handle, library_public, created_at),
+          addressee_profile:profiles!friendships_addressee_id_fkey(id, user_id, display_name, avatar_url, bio, status, gaming_experience, gaming_style, preferred_player_count, favorite_games, favorite_mechanics, location, availability, bgg_username, discord_handle, library_public, created_at)
         `)
         .eq('status', 'accepted')
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
