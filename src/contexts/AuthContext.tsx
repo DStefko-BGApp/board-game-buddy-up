@@ -39,26 +39,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
+        // Disable onboarding since we collect profile info during signup
         // Check if this is a new signup and trigger onboarding
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Small delay to let the profile creation trigger complete
-          setTimeout(async () => {
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('bio, location, gaming_experience')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              // Show onboarding if profile is incomplete (no bio, location, or gaming experience)
-              if (profile && !profile.bio && !profile.location && !profile.gaming_experience) {
-                setShowOnboarding(true);
-              }
-            } catch (error) {
-              console.error('Error checking profile:', error);
-            }
-          }, 1000);
-        }
+        // if (event === 'SIGNED_IN' && session?.user) {
+        //   // Small delay to let the profile creation trigger complete
+        //   setTimeout(async () => {
+        //     try {
+        //       const { data: profile } = await supabase
+        //         .from('profiles')
+        //         .select('bio, location, gaming_experience')
+        //         .eq('user_id', session.user.id)
+        //         .single();
+        //       
+        //       // Show onboarding if profile is incomplete (no bio, location, or gaming experience)
+        //       if (profile && !profile.bio && !profile.location && !profile.gaming_experience) {
+        //         setShowOnboarding(true);
+        //       }
+        //     } catch (error) {
+        //       console.error('Error checking profile:', error);
+        //     }
+        //   }, 1000);
+        // }
       }
     );
 
