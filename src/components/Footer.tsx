@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Crown, Mail, HelpCircle } from "lucide-react";
+import { ContactSupportDialog } from "@/components/ContactSupportDialog";
 
 const Footer = () => {
   return (
@@ -46,12 +47,12 @@ const Footer = () => {
           </div>
 
           {/* Need Help Button */}
-          <Button asChild variant="outline" size="sm" className="hover-scale">
-            <a href="mailto:support@gamenight.example.com">
+          <ContactSupportDialog>
+            <Button variant="outline" size="sm" className="hover-scale">
               <HelpCircle className="h-4 w-4 mr-2" />
               Need Help?
-            </a>
-          </Button>
+            </Button>
+          </ContactSupportDialog>
         </div>
       </div>
     </footer>
