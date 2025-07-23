@@ -15,9 +15,59 @@ import NotFound from "./pages/NotFound";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./contexts/AuthContext";
+import OnboardingDialog from "./components/OnboardingDialog";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { showOnboarding, setShowOnboarding } = useAuth();
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navigation />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/library" element={
+            <ProtectedRoute>
+              <Library />
+            </ProtectedRoute>
+          } />
+          <Route path="/randomizer" element={
+            <ProtectedRoute>
+              <Randomizer />
+            </ProtectedRoute>
+          } />
+          <Route path="/game-nights" element={
+            <ProtectedRoute>
+              <GameNights />
+            </ProtectedRoute>
+          } />
+          <Route path="/friends" element={
+            <ProtectedRoute>
+              <Friends />
+            </ProtectedRoute>
+          } />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <Footer />
+      <OnboardingDialog 
+        open={showOnboarding} 
+        onComplete={() => setShowOnboarding(false)} 
+      />
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -26,44 +76,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/library" element={
-                  <ProtectedRoute>
-                    <Library />
-                  </ProtectedRoute>
-                } />
-                <Route path="/randomizer" element={
-                  <ProtectedRoute>
-                    <Randomizer />
-                  </ProtectedRoute>
-                } />
-                <Route path="/game-nights" element={
-                  <ProtectedRoute>
-                    <GameNights />
-                  </ProtectedRoute>
-                } />
-                <Route path="/friends" element={
-                  <ProtectedRoute>
-                    <Friends />
-                  </ProtectedRoute>
-                } />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                } />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

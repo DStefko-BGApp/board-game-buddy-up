@@ -7,6 +7,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  showOnboarding: boolean;
+  setShowOnboarding: (show: boolean) => void;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -26,15 +28,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check if this is a new signup and trigger onboarding
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Small delay to let the profile creation trigger complete
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('bio, location, gaming_experience')
+                .eq('user_id', session.user.id)
+                .single();
+              
+              // Show onboarding if profile is incomplete (no bio, location, or gaming experience)
+              if (profile && !profile.bio && !profile.location && !profile.gaming_experience) {
+                setShowOnboarding(true);
+              }
+            } catch (error) {
+              console.error('Error checking profile:', error);
+            }
+          }, 1000);
+        }
       }
     );
 
@@ -110,6 +134,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     session,
     loading,
+    showOnboarding,
+    setShowOnboarding,
     signUp,
     signIn,
     signOut,
