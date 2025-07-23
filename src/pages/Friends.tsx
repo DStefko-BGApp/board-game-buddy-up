@@ -12,6 +12,7 @@ import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AddFriendDialog } from "@/components/AddFriendDialog";
 import { AvatarImage } from "@/components/ui/avatar";
+import { FriendProfileDialog } from "@/components/FriendProfileDialog";
 import { useNavigate } from "react-router-dom";
 
 const Friends = () => {
@@ -23,6 +24,8 @@ const Friends = () => {
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState<any>(null);
+  const [showFriendProfile, setShowFriendProfile] = useState(false);
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -56,6 +59,11 @@ const Friends = () => {
       default:
         return "Unknown";
     }
+  };
+
+  const handleFriendClick = (friend: any) => {
+    setSelectedFriend(friend);
+    setShowFriendProfile(true);
   };
 
   if (loading) {
@@ -602,7 +610,12 @@ const Friends = () => {
                     <MessageCircle className="h-3 w-3 mr-2" />
                     Message
                   </Button>
-                  <Button variant="secondary" size="sm" className="flex-1 hover-scale">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="flex-1 hover-scale"
+                    onClick={() => handleFriendClick(friend)}
+                  >
                     <User className="h-3 w-3 mr-2" />
                     Profile
                   </Button>
@@ -627,6 +640,11 @@ const Friends = () => {
             open={showAddFriend} 
             onOpenChange={setShowAddFriend}
             onFriendAdded={refetch}
+          />
+          <FriendProfileDialog 
+            friend={selectedFriend}
+            open={showFriendProfile}
+            onOpenChange={setShowFriendProfile}
           />
         </>
       )}
