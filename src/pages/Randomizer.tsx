@@ -11,6 +11,7 @@ const Randomizer = () => {
   const [numDice, setNumDice] = useState(1);
   const [dieType, setDieType] = useState("6");
   const [coinResult, setCoinResult] = useState<string>("");
+  const [isFlipping, setIsFlipping] = useState(false);
   const [customList, setCustomList] = useState("");
   const [randomChoice, setRandomChoice] = useState("");
   const [playerOrder, setPlayerOrder] = useState<string[]>([]);
@@ -37,7 +38,27 @@ const Randomizer = () => {
   };
 
   const flipCoin = () => {
-    setCoinResult(Math.random() < 0.5 ? "Heads" : "Tails");
+    setIsFlipping(true);
+    setCoinResult("");
+    
+    // Simulate coin flipping animation
+    let flipCount = 0;
+    const maxFlips = 8; // Number of flips to show
+    
+    const flipInterval = setInterval(() => {
+      setCoinResult(flipCount % 2 === 0 ? "Heads" : "Tails");
+      flipCount++;
+      
+      if (flipCount >= maxFlips) {
+        clearInterval(flipInterval);
+        // Final result after animation
+        setTimeout(() => {
+          const finalResult = Math.random() < 0.5 ? "Heads" : "Tails";
+          setCoinResult(finalResult);
+          setIsFlipping(false);
+        }, 150);
+      }
+    }, 120); // 120ms between flips for smooth animation
   };
 
   const getRandomChoice = () => {
@@ -193,18 +214,28 @@ const Randomizer = () => {
                 <p className="text-sm font-medium">Tails</p>
               </div>
             </div>
-            <Button onClick={flipCoin} variant="secondary" className="w-full">
-              Flip Coin
+            <Button 
+              onClick={flipCoin} 
+              variant="gaming" 
+              className="w-full"
+              disabled={isFlipping}
+            >
+              {isFlipping ? "Flipping..." : "Flip Coin"}
             </Button>
 
             {coinResult && (
               <div className="text-center p-6">
-                <div className="text-6xl mb-2">
+                <div className={`text-6xl mb-2 transition-transform duration-150 ${isFlipping ? 'animate-pulse scale-110' : ''}`}>
                   {coinResult === "Heads" ? "🦁" : "🐾"}
                 </div>
-                <p className="text-2xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
+                <p className={`text-2xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent ${isFlipping ? 'opacity-70' : ''}`}>
                   {coinResult}
                 </p>
+                {!isFlipping && (
+                  <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
+                    Result!
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
