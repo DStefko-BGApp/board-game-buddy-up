@@ -92,12 +92,20 @@ const FAQ = () => {
           <p className="text-muted-foreground mb-6">
             Can't find what you're looking for? We're here to help! Send us an email and we'll get back to you as soon as possible.
           </p>
-          <Button asChild variant="gaming" size="lg" className="hover-scale">
-            <a href="mailto:support@gamenight.example.com">
-              <Mail className="h-5 w-5 mr-2" />
-              Contact Support
-            </a>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild variant="gaming" size="lg" className="hover-scale">
+              <a href="mailto:support@gamenight.example.com">
+                <Mail className="h-5 w-5 mr-2" />
+                Contact Support
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="hover-scale border-primary/20 hover:border-primary/40">
+              <a href="mailto:support@gamenight.example.com?subject=Feature Suggestion">
+                <HelpCircle className="h-5 w-5 mr-2" />
+                Suggest Features
+              </a>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
