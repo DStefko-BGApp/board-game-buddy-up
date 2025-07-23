@@ -28,13 +28,13 @@ const Auth = () => {
   const tabFromUrl = searchParams.get('tab');
   const [activeTab, setActiveTab] = useState(tabFromUrl === 'signup' ? 'signup' : 'signin');
 
-  // Redirect authenticated users to library instead of home
+  // Only redirect authenticated users if they're not explicitly trying to access signup
   useEffect(() => {
-    if (user) {
+    if (user && !tabFromUrl) {
       const from = (location.state as any)?.from?.pathname || "/library";
       navigate(from, { replace: true });
     }
-  }, [user, navigate, location]);
+  }, [user, navigate, location, tabFromUrl]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
