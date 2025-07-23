@@ -53,13 +53,13 @@ const Index = () => {
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/70" />
-        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
+        <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 py-8">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-gaming opacity-50 rounded-full blur-lg"></div>
               <Crown className="h-16 w-16 relative text-white filter drop-shadow-lg" />
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent leading-relaxed">
+            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent leading-normal pb-2">
               GameNight
             </h1>
           </div>
