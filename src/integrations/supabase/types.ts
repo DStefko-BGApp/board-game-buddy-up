@@ -179,6 +179,7 @@ export type Database = {
           games: string[] | null
           id: string
           location: string | null
+          notes: string | null
           status: string
           time: string
           title: string
@@ -192,6 +193,7 @@ export type Database = {
           games?: string[] | null
           id?: string
           location?: string | null
+          notes?: string | null
           status?: string
           time: string
           title: string
@@ -205,6 +207,7 @@ export type Database = {
           games?: string[] | null
           id?: string
           location?: string | null
+          notes?: string | null
           status?: string
           time?: string
           title?: string

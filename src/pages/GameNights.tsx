@@ -27,6 +27,7 @@ const GameNights = () => {
     location: "",
     attendees: "",
     games: "",
+    notes: "",
   });
 
   // Load game nights from database
@@ -95,6 +96,7 @@ const GameNights = () => {
           location: formData.location || "TBD",
           attendees: formData.attendees ? formData.attendees.split(",").map(a => a.trim()) : [],
           games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
+          notes: formData.notes || "",
           status: "upcoming",
         }])
         .select()
@@ -103,7 +105,7 @@ const GameNights = () => {
       if (error) throw error;
 
       setGameNights([...gameNights, data]);
-      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
       setIsCreateDialogOpen(false);
       
       toast({
@@ -129,6 +131,7 @@ const GameNights = () => {
       location: gameNight.location,
       attendees: gameNight.attendees.join(", "),
       games: gameNight.games.join(", "),
+      notes: gameNight.notes || "",
     });
     setIsEditDialogOpen(true);
   };
@@ -146,6 +149,7 @@ const GameNights = () => {
           location: formData.location || "TBD",
           attendees: formData.attendees ? formData.attendees.split(",").map(a => a.trim()) : [],
           games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
+          notes: formData.notes || "",
         })
         .eq('id', editingGameNight.id)
         .select()
@@ -154,7 +158,7 @@ const GameNights = () => {
       if (error) throw error;
 
       setGameNights(gameNights.map(gn => gn.id === editingGameNight.id ? data : gn));
-      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
       setEditingGameNight(null);
       setIsEditDialogOpen(false);
       
@@ -265,12 +269,22 @@ const GameNights = () => {
                       rows={3}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      placeholder="Additional details, rules to remember, snacks to bring, etc."
+                      rows={3}
+                    />
+                  </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <Button 
                       variant="outline" 
                       onClick={() => {
                         setIsCreateDialogOpen(false);
-                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
                       }}
                     >
                       Cancel
@@ -352,13 +366,23 @@ const GameNights = () => {
                       rows={3}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-notes">Notes</Label>
+                    <Textarea
+                      id="edit-notes"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      placeholder="Additional details, rules to remember, snacks to bring, etc."
+                      rows={3}
+                    />
+                  </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <Button 
                       variant="outline" 
                       onClick={() => {
                         setIsEditDialogOpen(false);
                         setEditingGameNight(null);
-                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "" });
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
                       }}
                     >
                       Cancel
@@ -502,6 +526,14 @@ const GameNights = () => {
                       ))}
                     </div>
                   </div>
+                  {event.notes && (
+                    <div>
+                      <p className="text-sm font-medium mb-2">Notes</p>
+                      <p className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded-lg">
+                        {event.notes}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -559,6 +591,14 @@ const GameNights = () => {
                       ))}
                     </div>
                   </div>
+                  {event.notes && (
+                    <div>
+                      <p className="text-sm font-medium mb-2">Notes</p>
+                      <p className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded-lg">
+                        {event.notes}
+                      </p>
+                    </div>
+                  )} 
                 </div>
               </CardContent>
             </Card>
