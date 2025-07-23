@@ -142,7 +142,6 @@ const Friends = () => {
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${getStatusColor(profile.status)}`} />
                 </div>
                 
                 <div className="flex-1 min-w-0">
