@@ -89,7 +89,7 @@ export const GamesList = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
-                className="absolute -left-8 top-4 z-10 h-6 w-6 p-0"
+                className="absolute -left-8 md:-left-8 -left-2 top-4 z-10 h-8 w-8 md:h-6 md:w-6 p-0 touch-manipulation"
               >
                 {expandedGroups.has(group.baseGame.game.bgg_id) ? (
                   <ChevronDown className="h-4 w-4" />
