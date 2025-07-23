@@ -24,48 +24,50 @@ const AppContent = () => {
   const { showOnboarding, setShowOnboarding } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navigation />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/library" element={
-            <ProtectedRoute>
-              <Library />
-            </ProtectedRoute>
-          } />
-          <Route path="/randomizer" element={
-            <ProtectedRoute>
-              <Randomizer />
-            </ProtectedRoute>
-          } />
-          <Route path="/game-nights" element={
-            <ProtectedRoute>
-              <GameNights />
-            </ProtectedRoute>
-          } />
-          <Route path="/friends" element={
-            <ProtectedRoute>
-              <Friends />
-            </ProtectedRoute>
-          } />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          } />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-      <Footer />
+    <>
+      <div className="min-h-screen flex flex-col">
+        <Navigation />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/library" element={
+              <ProtectedRoute>
+                <Library />
+              </ProtectedRoute>
+            } />
+            <Route path="/randomizer" element={
+              <ProtectedRoute>
+                <Randomizer />
+              </ProtectedRoute>
+            } />
+            <Route path="/game-nights" element={
+              <ProtectedRoute>
+                <GameNights />
+              </ProtectedRoute>
+            } />
+            <Route path="/friends" element={
+              <ProtectedRoute>
+                <Friends />
+              </ProtectedRoute>
+            } />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
       <OnboardingDialog 
         open={showOnboarding} 
         onComplete={() => setShowOnboarding(false)} 
       />
-    </div>
+    </>
   );
 };
 
