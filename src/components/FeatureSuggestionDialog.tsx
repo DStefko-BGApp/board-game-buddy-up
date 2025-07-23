@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Lightbulb } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FeatureSuggestionDialogProps {
   children: React.ReactNode;
@@ -37,38 +38,55 @@ export const FeatureSuggestionDialog = ({ children }: FeatureSuggestionDialogPro
   });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const emailBody = `Feature Suggestion: ${formData.featureTitle}
-Name: ${formData.name}
-Email: ${formData.email}
-Priority: ${formData.priority}
+    if (!formData.name || !formData.email || !formData.featureTitle || !formData.priority || !formData.useCase || !formData.description) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-Use Case:
-${formData.useCase}
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          type: 'feature',
+          name: formData.name,
+          email: formData.email,
+          featureTitle: formData.featureTitle,
+          priority: formData.priority,
+          useCase: formData.useCase,
+          description: formData.description,
+        }
+      });
 
-Detailed Description:
-${formData.description}`;
+      if (error) throw error;
 
-    const mailtoLink = `mailto:support@gamenight.example.com?subject=${encodeURIComponent(`Feature Suggestion: ${formData.featureTitle}`)}&body=${encodeURIComponent(emailBody)}`;
-    
-    window.location.href = mailtoLink;
-    
-    toast({
-      title: "Opening email client",
-      description: "Your feature suggestion will be opened in your default email application.",
-    });
-    
-    setOpen(false);
-    setFormData({
-      name: "",
-      email: "",
-      featureTitle: "",
-      priority: "",
-      useCase: "",
-      description: "",
-    });
+      toast({
+        title: "Suggestion sent!",
+        description: "Your feature suggestion has been submitted. Thank you for your feedback!",
+      });
+      
+      setOpen(false);
+      setFormData({
+        name: "",
+        email: "",
+        featureTitle: "",
+        priority: "",
+        useCase: "",
+        description: "",
+      });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send your suggestion. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactSupportDialogProps {
   children: React.ReactNode;
@@ -36,33 +37,53 @@ export const ContactSupportDialog = ({ children }: ContactSupportDialogProps) =>
   });
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const emailBody = `Issue Type: ${formData.issueType}
-Name: ${formData.name}
-Email: ${formData.email}
+    if (!formData.name || !formData.email || !formData.issueType || !formData.subject || !formData.description) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-Description:
-${formData.description}`;
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          type: 'support',
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          issueType: formData.issueType,
+          description: formData.description,
+        }
+      });
 
-    const mailtoLink = `mailto:support@gamenight.example.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    window.location.href = mailtoLink;
-    
-    toast({
-      title: "Opening email client",
-      description: "Your support request will be opened in your default email application.",
-    });
-    
-    setOpen(false);
-    setFormData({
-      name: "",
-      email: "",
-      issueType: "",
-      subject: "",
-      description: "",
-    });
+      if (error) throw error;
+
+      toast({
+        title: "Message sent!",
+        description: "Your support request has been submitted. We'll get back to you soon.",
+      });
+      
+      setOpen(false);
+      setFormData({
+        name: "",
+        email: "",
+        issueType: "",
+        subject: "",
+        description: "",
+      });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send your message. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
