@@ -95,7 +95,7 @@ const Navigation = () => {
                 <Button asChild variant="gaming" size="sm">
                   <NavLink to="/auth">
                     <LogIn className="h-4 w-4 mr-2" />
-                    Sign In
+                    Login
                   </NavLink>
                 </Button>
               )}
@@ -175,7 +175,7 @@ const Navigation = () => {
                   >
                     <NavLink to="/auth">
                       <LogIn className="h-4 w-4 mr-2" />
-                      Sign In
+                      Login
                     </NavLink>
                   </Button>
                 )}

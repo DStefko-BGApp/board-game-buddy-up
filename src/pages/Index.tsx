@@ -68,13 +68,7 @@ const Index = () => {
             plan game nights, and connect with friends.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale shadow-xl">
-              <Link to="/auth?tab=signup">
-                Get Started Now
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4 hover-scale">
+            <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale">
               <Link to="/randomizer">
                 Roll Some Dice
                 <Dice6 className="h-5 w-5" />
@@ -130,12 +124,6 @@ const Index = () => {
             <p className="text-xl text-muted-foreground mb-8">
               Connect with board game enthusiasts and level up your game nights
             </p>
-            <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale shadow-xl">
-              <Link to="/auth?tab=signup">
-                Join the Community
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
           </div>
         </div>
       </section>
@@ -149,12 +137,6 @@ const Index = () => {
           <p className="text-xl text-white/90 mb-8">
             Start organizing your collection and planning amazing game sessions today.
           </p>
-          <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-3">
-            <Link to="/auth?tab=signup">
-              Get Started Now
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </Button>
         </div>
       </section>
     </div>
