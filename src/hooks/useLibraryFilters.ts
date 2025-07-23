@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { type GameStatus } from "@/components/library/GameStatusSelector";
 
 type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
 
@@ -17,6 +18,7 @@ export const sortOptions: { value: SortOption; label: string }[] = [
 export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [statusFilter, setStatusFilter] = useState<GameStatus | 'all'>('all');
 
   const getDisplayTitle = (game: any) => {
     return game.custom_title || decodeHtmlEntities(game.name);
@@ -29,7 +31,17 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
       .filter(group => {
         const title = getDisplayTitle(group.baseGame.game).toLowerCase();
         const searchTerm = searchQuery.toLowerCase();
-        return title.includes(searchTerm);
+        const titleMatches = title.includes(searchTerm);
+        
+        if (statusFilter === 'all') {
+          return titleMatches;
+        }
+        
+        // Filter by status - check both base game and expansions
+        const hasMatchingStatus = group.baseGame.status === statusFilter || 
+          group.expansions.some((expansion: any) => expansion.status === statusFilter);
+        
+        return titleMatches && hasMatchingStatus;
       })
       .sort((a, b) => {
         const gameA = a.baseGame;
@@ -56,13 +68,15 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
             return 0;
         }
       });
-  }, [groupedLibrary, searchQuery, sortBy]);
+  }, [groupedLibrary, searchQuery, sortBy, statusFilter]);
 
   return {
     searchQuery,
     setSearchQuery,
     sortBy,
     setSortBy,
+    statusFilter,
+    setStatusFilter,
     sortedFilteredLibrary,
     getDisplayTitle
   };

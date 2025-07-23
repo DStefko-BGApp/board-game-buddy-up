@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, CheckSquare, Square, Trash2 } from "lucide-react";
+import { Search, CheckSquare, Square, Trash2, Filter } from "lucide-react";
 import { sortOptions } from "@/hooks/useLibraryFilters";
+import { gameStatusOptions, type GameStatus } from "./GameStatusSelector";
 
 type SortOption = 'name' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time';
 
@@ -11,6 +12,8 @@ interface LibraryFiltersProps {
   setSearchQuery: (query: string) => void;
   sortBy: SortOption;
   setSortBy: (sort: SortOption) => void;
+  statusFilter: GameStatus | 'all';
+  setStatusFilter: (status: GameStatus | 'all') => void;
   isSelectionMode: boolean;
   selectedGames: Set<string>;
   onToggleSelectionMode: () => void;
@@ -26,6 +29,8 @@ export const LibraryFilters = ({
   setSearchQuery,
   sortBy,
   setSortBy,
+  statusFilter,
+  setStatusFilter,
   isSelectionMode,
   selectedGames,
   onToggleSelectionMode,
@@ -46,6 +51,27 @@ export const LibraryFilters = ({
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10"
         />
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Status:</span>
+          <Select value={statusFilter} onValueChange={(value: GameStatus | 'all') => setStatusFilter(value)}>
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Games</SelectItem>
+              {gameStatusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Controls */}

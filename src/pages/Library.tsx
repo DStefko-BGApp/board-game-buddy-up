@@ -55,6 +55,8 @@ const Library = () => {
     setSearchQuery,
     sortBy,
     setSortBy,
+    statusFilter,
+    setStatusFilter,
     sortedFilteredLibrary,
     getDisplayTitle
   } = useLibraryFilters(groupedLibrary);
@@ -93,11 +95,11 @@ const Library = () => {
   }, [user]);
 
   // Event handlers
-  const handleAddGame = async (game: any) => {
+  const handleAddGame = async (game: any, status: any) => {
     if (!user) return;
     
     try {
-      await addGameMutation.mutateAsync(game.bgg_id);
+      await addGameMutation.mutateAsync({ bggId: game.bgg_id, status });
       setSearchDialogOpen(false);
     } catch (error) {
       console.error('Error adding game:', error);
@@ -207,6 +209,8 @@ const Library = () => {
           setSearchQuery={setSearchQuery}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
           isSelectionMode={isSelectionMode}
           selectedGames={selectedGames}
           onToggleSelectionMode={toggleSelectionMode}

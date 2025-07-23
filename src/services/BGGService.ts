@@ -44,6 +44,7 @@ export interface UserGame {
   notes?: string;
   is_owned: boolean;
   is_wishlist: boolean;
+  status: 'owned' | 'wishlist' | 'played_unowned' | 'want_trade_sell' | 'on_order';
   created_at: string;
   updated_at: string;
   game: Game;
@@ -70,7 +71,7 @@ class BGGService {
     return result.data;
   }
 
-  static async addGameToLibrary(bggId: number, userId: string): Promise<Game> {
+  static async addGameToLibrary(bggId: number, userId: string, status: string = 'owned'): Promise<Game> {
     const { data: { session } } = await supabase.auth.getSession();
     
     const response = await fetch(this.baseUrl, {
@@ -79,7 +80,7 @@ class BGGService {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session?.access_token}`,
       },
-      body: JSON.stringify({ bggId, userId }),
+      body: JSON.stringify({ bggId, userId, status }),
     });
 
     const result = await response.json();
@@ -123,7 +124,7 @@ class BGGService {
       throw new Error(`Failed to fetch user library: ${error.message}`);
     }
 
-    return data || [];
+    return (data || []) as UserGame[];
   }
 
   static async removeGameFromLibrary(userGameId: string): Promise<void> {
@@ -137,7 +138,7 @@ class BGGService {
     }
   }
 
-  static async updateUserGame(userGameId: string, updates: Partial<Pick<UserGame, 'personal_rating' | 'notes' | 'is_owned' | 'is_wishlist'>>): Promise<void> {
+  static async updateUserGame(userGameId: string, updates: Partial<Pick<UserGame, 'personal_rating' | 'notes' | 'is_owned' | 'is_wishlist' | 'status'>>): Promise<void> {
     const { error } = await supabase
       .from('user_games')
       .update(updates)

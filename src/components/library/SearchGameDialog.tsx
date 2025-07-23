@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { GameStatusSelector, type GameStatus } from "./GameStatusSelector";
 
 interface SearchGameDialogProps {
   open: boolean;
   onClose: () => void;
   onSearch: (query: string) => void;
-  onAddGame: (game: any) => void;
+  onAddGame: (game: any, status: GameStatus) => void;
   searchResults: any[];
   isSearching: boolean;
   isAdding: boolean;
@@ -26,6 +27,7 @@ export const SearchGameDialog = ({
   isAdding
 }: SearchGameDialogProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<GameStatus>('owned');
 
   const formatPlayerCount = (min?: number, max?: number) => {
     if (!min && !max) return 'Unknown';
@@ -43,6 +45,7 @@ export const SearchGameDialog = ({
 
   const handleClose = () => {
     setSearchQuery("");
+    setSelectedStatus('owned');
     onClose();
   };
 
@@ -64,10 +67,20 @@ export const SearchGameDialog = ({
                   handleSearch();
                 }
               }}
+              className="flex-1"
             />
             <Button onClick={handleSearch} disabled={isSearching}>
               {isSearching ? 'Searching...' : 'Search'}
             </Button>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Add as:</span>
+            <GameStatusSelector
+              value={selectedStatus}
+              onValueChange={setSelectedStatus}
+              className="w-48"
+            />
           </div>
 
           {searchResults && searchResults.length > 0 && (
@@ -102,7 +115,7 @@ export const SearchGameDialog = ({
                     </div>
                     
                     <Button
-                      onClick={() => onAddGame(game)}
+                      onClick={() => onAddGame(game, selectedStatus)}
                       disabled={isAdding}
                     >
                       Add

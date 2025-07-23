@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
 
     // Parse request body once
     const requestBody = await req.json()
-    const { searchTerm, bggId, userId, bggUsername } = requestBody
+    const { searchTerm, bggId, userId, bggUsername, status } = requestBody
 
     switch (req.method) {
       case 'POST':
@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
           
           if (gameDetails) {
             const game = await upsertGame(supabase, gameDetails)
-            await addToUserLibrary(supabase, userId, game.id)
+            await addToUserLibrary(supabase, userId, game.id, status)
 
             return new Response(
               JSON.stringify({ success: true, data: game }),
@@ -341,7 +341,7 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
           
           // Add game to database and user library
           const game = await upsertGame(supabase, gameDetails)
-          await addToUserLibrary(supabase, userId, game.id)
+          await addToUserLibrary(supabase, userId, game.id, 'owned')
           
           imported++
           console.log(`Imported game: ${gameDetails.name}`)
@@ -404,12 +404,13 @@ async function upsertGame(supabase: any, gameDetails: BGGGameData) {
   }
 }
 
-async function addToUserLibrary(supabase: any, userId: string, gameId: string) {
+async function addToUserLibrary(supabase: any, userId: string, gameId: string, status: string = 'owned') {
   const { error } = await supabase
     .from('user_games')
     .insert({
       user_id: userId,
-      game_id: gameId
+      game_id: gameId,
+      status: status
     })
   
   if (error && !error.message.includes('duplicate')) {

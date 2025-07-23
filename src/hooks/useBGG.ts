@@ -115,9 +115,9 @@ export const useAddGameToLibrary = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (bggId: number) => {
+    mutationFn: ({ bggId, status }: { bggId: number; status: string }) => {
       if (!user) throw new Error('User not authenticated');
-      return BGGService.addGameToLibrary(bggId, user.id);
+      return BGGService.addGameToLibrary(bggId, user.id, status);
     },
     onSuccess: (game) => {
       toast({

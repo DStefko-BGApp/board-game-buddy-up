@@ -13,6 +13,7 @@ import {
   Square
 } from "lucide-react";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { gameStatusOptions } from "./GameStatusSelector";
 
 interface GameCardProps {
   userGame: any;
@@ -96,9 +97,19 @@ export const GameCard = ({
             </div>
             
             <div className="flex gap-1 ml-2 flex-shrink-0">
-              {userGame.is_owned && (
-                <Badge variant="secondary" className="bg-gaming-green text-white text-xs px-1.5 py-0.5">
-                  Owned
+              {userGame.status && (
+                <Badge 
+                  variant="secondary" 
+                  className={`text-white text-xs px-1.5 py-0.5 ${
+                    userGame.status === 'owned' ? 'bg-gaming-green' :
+                    userGame.status === 'wishlist' ? 'bg-gaming-purple' :
+                    userGame.status === 'played_unowned' ? 'bg-blue-600' :
+                    userGame.status === 'want_trade_sell' ? 'bg-orange-600' :
+                    userGame.status === 'on_order' ? 'bg-yellow-600' :
+                    'bg-gray-600'
+                  }`}
+                >
+                  {gameStatusOptions.find(opt => opt.value === userGame.status)?.label || userGame.status}
                 </Badge>
               )}
               {userGame.game.is_expansion && (
