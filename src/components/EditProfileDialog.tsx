@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useProfile, Profile } from "@/hooks/useProfile";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
-import { useUserGames } from "@/hooks/useUserGames";
+import { FavoriteGameSearch } from "@/components/FavoriteGameSearch";
 import { Loader2, X, Camera } from "lucide-react";
 import { BOARD_GAME_MECHANICS } from "@/constants/boardGameMechanics";
 
@@ -47,7 +47,6 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { updateProfile } = useProfile();
   const { uploadAvatar, uploading } = useAvatarUpload();
-  const { userGames } = useUserGames();
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -59,15 +58,12 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
     }
   };
 
-  const handleRemoveFavoriteGame = (gameToRemove: string) => {
-    setFavoriteGames(prev => prev.filter(game => game !== gameToRemove));
+  const handleAddFavoriteGame = (gameName: string) => {
+    setFavoriteGames(prev => [...prev, gameName]);
   };
 
-  const handleAddFavoriteGame = (gameId: string) => {
-    const game = userGames.find(g => g.id === gameId);
-    if (game && !favoriteGames.includes(game.name) && favoriteGames.length < 5) {
-      setFavoriteGames(prev => [...prev, game.name]);
-    }
+  const handleRemoveFavoriteGame = (gameToRemove: string) => {
+    setFavoriteGames(prev => prev.filter(game => game !== gameToRemove));
   };
 
   const handleRemoveFavoriteMechanic = (mechanicToRemove: string) => {
@@ -248,38 +244,12 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
             {/* Favorite Games */}
             <div className="grid gap-2">
               <Label>Favorite Games (Top 5)</Label>
-              <div className="space-y-2">
-                {favoriteGames.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {favoriteGames.map((game) => (
-                      <Badge key={game} variant="secondary" className="gap-1">
-                        {game}
-                        <X 
-                          className="h-3 w-3 cursor-pointer" 
-                          onClick={() => handleRemoveFavoriteGame(game)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                {favoriteGames.length < 5 && userGames.length > 0 && (
-                  <Select onValueChange={handleAddFavoriteGame}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Add a favorite game" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userGames
-                        .filter(game => !favoriteGames.includes(game.name))
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((game) => (
-                          <SelectItem key={game.id} value={game.id}>
-                            {game.name}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+              <FavoriteGameSearch
+                favoriteGames={favoriteGames}
+                onAddGame={handleAddFavoriteGame}
+                onRemoveGame={handleRemoveFavoriteGame}
+                maxGames={5}
+              />
             </div>
 
             {/* Favorite Mechanics */}
