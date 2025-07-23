@@ -214,6 +214,10 @@ const Randomizer = () => {
                 <p className="text-sm font-medium">Tails</p>
               </div>
             </div>
+            
+            {/* Add spacing to match dice roller button alignment */}
+            <div className="h-16"></div>
+            
             <Button 
               onClick={flipCoin} 
               variant="gaming" 
