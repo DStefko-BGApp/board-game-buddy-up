@@ -455,68 +455,140 @@ const Friends = () => {
             {filteredFriends.length}
           </Badge>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredFriends.map((friend, index) => (
             <Card key={friend.id} className="group hover:shadow-gaming transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br from-card to-card/80 border-white/10 animate-fade-in" style={{animationDelay: `${index * 50}ms`}}>
-              <CardContent className="p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-gaming/5 rounded-full -translate-y-16 translate-x-16 group-hover:bg-gradient-gaming/10 transition-colors"></div>
-                <div className="relative">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="relative group/avatar">
-                        <Avatar className="h-14 w-14 border-2 border-white/20 shadow-lg group-hover/avatar:scale-110 transition-transform">
-                          {friend.avatar_url ? (
-                            <AvatarImage src={friend.avatar_url} alt="Profile" />
-                          ) : (
-                            <AvatarFallback className="bg-gradient-gaming text-white font-bold">
-                              {friend.display_name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-card ${getStatusColor(friend.status)} shadow-lg`} />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{friend.display_name}</h3>
-                        <p className="text-muted-foreground">
-                          {friend.bio || 'No bio available'}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant={friend.status === "online" || friend.status === "away" || friend.status === "busy" ? "default" : "secondary"} className="shadow-sm">
-                      {getStatusText(friend.status)}
-                    </Badge>
-                    {friend.library_public && (
-                      <Badge variant="secondary" className="bg-gaming-green/30 text-foreground ml-2" title="Library is Public">
-                        📚 Public Library
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 border-2 border-white/20 shadow-lg">
+                      {friend.avatar_url ? (
+                        <AvatarImage src={friend.avatar_url} alt="Profile" />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-gaming text-white font-bold">
+                          {friend.display_name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-lg truncate">{friend.display_name}</h3>
+                      <Badge variant={friend.status === "online" ? "success" : friend.status === "away" || friend.status === "busy" ? "gaming" : "secondary"} className="text-xs">
+                        {getStatusText(friend.status)}
                       </Badge>
+                    </div>
+                    {friend.bio && (
+                      <p className="text-muted-foreground text-sm line-clamp-2">
+                        {friend.bio}
+                      </p>
                     )}
                   </div>
+                </div>
+              </CardHeader>
 
-                <div className="space-y-3 mb-6">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-gaming-green rounded-full"></div>
-                      <span className="text-muted-foreground">Joined:</span>
-                      <span className="font-medium">{new Date(friend.created_at).toLocaleDateString()}</span>
+              <CardContent className="pt-0 space-y-4">
+                {/* Gaming Profile Info */}
+                <div className="grid grid-cols-2 gap-3">
+                  {friend.gaming_experience && (
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
+                      <div className="flex items-center gap-1.5">
+                        <Trophy className="h-3 w-3 text-primary" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Experience</p>
+                          <p className="text-xs font-semibold capitalize truncate">{friend.gaming_experience}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-gaming-blue rounded-full"></div>
-                      <span className="text-muted-foreground">Updated:</span>
-                      <span className="font-medium">{new Date(friend.updated_at).toLocaleDateString()}</span>
+                  )}
+                  
+                  {friend.gaming_style && (
+                    <div className="bg-gaming-green/10 border border-gaming-green/20 rounded-lg p-2">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3 w-3 text-gaming-green" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Style</p>
+                          <p className="text-xs font-semibold capitalize truncate">{friend.gaming_style}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {friend.preferred_player_count && (
+                    <div className="bg-gaming-red/10 border border-gaming-red/20 rounded-lg p-2 col-span-2">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3 w-3 text-gaming-red" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Preferred Player Count</p>
+                          <p className="text-xs font-semibold truncate">{friend.preferred_player_count}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Favorite Games */}
+                {friend.favorite_games && friend.favorite_games.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold mb-2 text-gaming-green flex items-center gap-1">
+                      🎲 Favorite Games
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {friend.favorite_games.slice(0, 3).map((game) => (
+                        <Badge key={game} variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
+                          {game}
+                        </Badge>
+                      ))}
+                      {friend.favorite_games.length > 3 && (
+                        <Badge variant="outline" className="bg-gaming-green/5 border-gaming-green/20 text-xs">
+                          +{friend.favorite_games.length - 3}
+                        </Badge>
+                      )}
                     </div>
                   </div>
+                )}
+
+                {/* Favorite Mechanics */}
+                {friend.favorite_mechanics && friend.favorite_mechanics.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold mb-2 text-gaming-red flex items-center gap-1">
+                      ⚙️ Favorite Mechanics
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {friend.favorite_mechanics.slice(0, 3).map((mechanic) => (
+                        <Badge key={mechanic} variant="outline" className="bg-gaming-red/5 border-gaming-red/20 text-xs">
+                          {mechanic}
+                        </Badge>
+                      ))}
+                      {friend.favorite_mechanics.length > 3 && (
+                        <Badge variant="outline" className="bg-gaming-red/5 border-gaming-red/20 text-xs">
+                          +{friend.favorite_mechanics.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Additional Info */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-white/10">
+                  <span>Joined {new Date(friend.created_at).toLocaleDateString('en-US', {month: 'short', year: 'numeric'})}</span>
+                  {friend.library_public && (
+                    <Badge variant="outline" className="bg-gaming-green/10 border-gaming-green/20 text-gaming-green text-xs">
+                      📚 Public Library
+                    </Badge>
+                  )}
                 </div>
 
-                <div className="flex gap-3">
-                  <Button variant="outline" size="sm" className="flex-1 hover-scale group/btn">
-                    <MessageCircle className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform" />
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" size="sm" className="flex-1 hover-scale">
+                    <MessageCircle className="h-3 w-3 mr-2" />
                     Message
                   </Button>
-                  <Button variant="secondary" size="sm" className="flex-1 hover-scale group/btn">
-                    <User className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform" />
+                  <Button variant="secondary" size="sm" className="flex-1 hover-scale">
+                    <User className="h-3 w-3 mr-2" />
                     Profile
                   </Button>
-                </div>
                 </div>
               </CardContent>
             </Card>
