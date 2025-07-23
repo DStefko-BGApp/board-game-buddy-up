@@ -83,13 +83,13 @@ export const GamesList = ({
       {sortedFilteredLibrary.map((group) => (
         <div key={group.baseGame.id} className="space-y-2">
           {/* Base game with expansion toggle */}
-          <div className="relative">
+          <div className="flex items-start gap-2">
             {group.expansions.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
-                className="absolute -left-8 md:-left-8 -left-2 top-4 z-10 h-8 w-8 md:h-6 md:w-6 p-0 touch-manipulation"
+                className="flex-shrink-0 mt-4 h-8 w-8 p-0 touch-manipulation"
               >
                 {expandedGroups.has(group.baseGame.game.bgg_id) ? (
                   <ChevronDown className="h-4 w-4" />
@@ -99,22 +99,23 @@ export const GamesList = ({
               </Button>
             )}
             
-            <GameCard
-              userGame={group.baseGame}
-              isExpansion={false}
-              isSelectionMode={isSelectionMode}
-              isSelected={selectedGames.has(group.baseGame.id)}
-              onEdit={onEditGame}
-              onRemove={onRemoveGame}
-              onSelect={onSelectGame}
-              getDisplayTitle={getDisplayTitle}
-              isRemoving={isRemoving}
-            />
+            <div className="flex-1 min-w-0">
+              <GameCard
+                userGame={group.baseGame}
+                isExpansion={false}
+                isSelectionMode={isSelectionMode}
+                isSelected={selectedGames.has(group.baseGame.id)}
+                onEdit={onEditGame}
+                onRemove={onRemoveGame}
+                onSelect={onSelectGame}
+                getDisplayTitle={getDisplayTitle}
+                isRemoving={isRemoving}
+              />
+            </div>
           </div>
 
-          {/* Expansions (when expanded) */}
           {expandedGroups.has(group.baseGame.game.bgg_id) && group.expansions.length > 0 && (
-            <div className="ml-8 space-y-2">
+            <div className="ml-10 space-y-2">
               {group.expansions.map((expansion) => (
                 <div key={expansion.id}>
                   <GameCard
