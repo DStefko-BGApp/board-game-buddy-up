@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, Users, Clock, Calendar, MessageCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Profile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +18,7 @@ interface FriendProfileDialogProps {
 export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfileDialogProps) => {
   const { userGames } = useUserGames();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   if (!friend) return null;
 
@@ -242,8 +244,10 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                   variant="gaming" 
                   className="flex-1"
                   onClick={() => {
-                    // TODO: Implement messaging functionality
-                    onOpenChange(false);
+                    toast({
+                      title: "Coming Soon!",
+                      description: "Direct messaging feature is being developed.",
+                    });
                   }}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
@@ -253,8 +257,10 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                   <Button 
                     variant="outline" 
                     onClick={() => {
-                      // TODO: Navigate to friend's public library
-                      onOpenChange(false);
+                      toast({
+                        title: "Coming Soon!",
+                        description: "Friend library viewing is being developed.",
+                      });
                     }}
                   >
                     View Library
