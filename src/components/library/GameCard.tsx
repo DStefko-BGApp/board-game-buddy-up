@@ -158,7 +158,7 @@ export const GameCard = ({
             )}
             {userGame.game.rating && (
               <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                <Star className="h-3 w-3 text-gaming-yellow fill-current" />
                 <span>{userGame.game.rating.toFixed(1)}</span>
               </div>
             )}

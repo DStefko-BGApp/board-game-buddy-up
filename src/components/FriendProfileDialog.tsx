@@ -90,12 +90,12 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                       variant={friend.status === "online" ? "default" : "outline"} 
                       className={`text-sm font-medium px-3 py-1 rounded-full ${
                         friend.status === "online" 
-                          ? "bg-green-100 text-green-800 border-green-200" 
+                          ? "bg-gaming-green/20 text-gaming-green border-gaming-green/30" 
                           : friend.status === "away" 
-                          ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                          ? "bg-gaming-yellow/20 text-gaming-yellow border-gaming-yellow/30"
                           : friend.status === "busy"
-                          ? "bg-red-100 text-red-800 border-red-200"
-                          : "bg-gray-100 text-gray-600 border-gray-200"
+                          ? "bg-gaming-red/20 text-gaming-red border-gaming-red/30"
+                          : "bg-muted text-muted-foreground border-border"
                       }`}
                     >
                       {getStatusText(friend.status)}
