@@ -28,6 +28,7 @@ interface EditProfileDialogProps {
 }
 
 export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDialogProps) => {
+  // Force cache invalidation
   const [displayName, setDisplayName] = useState(profile.display_name);
   const [bio, setBio] = useState(profile.bio || "");
   const [status, setStatus] = useState(profile.status);
