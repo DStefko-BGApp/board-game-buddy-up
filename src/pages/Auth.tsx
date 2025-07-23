@@ -23,10 +23,15 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect authenticated users to home
+  // Get the tab from URL params
+  const searchParams = new URLSearchParams(location.search);
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl === 'signup' ? 'signup' : 'signin');
+
+  // Redirect authenticated users to library instead of home
   useEffect(() => {
     if (user) {
-      const from = (location.state as any)?.from?.pathname || "/";
+      const from = (location.state as any)?.from?.pathname || "/library";
       navigate(from, { replace: true });
     }
   }, [user, navigate, location]);
@@ -80,7 +85,7 @@ const Auth = () => {
             <CardTitle className="text-center text-2xl">Welcome Back</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin" className="flex items-center gap-2">
                   <LogIn className="h-4 w-4" />

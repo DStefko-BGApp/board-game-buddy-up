@@ -69,7 +69,7 @@ const Index = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale shadow-xl">
-              <Link to="/auth">
+              <Link to="/auth?tab=signup">
                 Get Started Now
                 <ArrowRight className="h-5 w-5" />
               </Link>
@@ -131,7 +131,7 @@ const Index = () => {
               Connect with board game enthusiasts and level up your game nights
             </p>
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale shadow-xl">
-              <Link to="/auth">
+              <Link to="/auth?tab=signup">
                 Join the Community
                 <ArrowRight className="h-5 w-5" />
               </Link>
@@ -150,7 +150,7 @@ const Index = () => {
             Start organizing your collection and planning amazing game sessions today.
           </p>
           <Button asChild variant="secondary" size="lg" className="text-lg px-8 py-3">
-            <Link to="/auth">
+            <Link to="/auth?tab=signup">
               Get Started Now
               <ArrowRight className="h-5 w-5" />
             </Link>
