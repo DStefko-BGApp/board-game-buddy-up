@@ -10,10 +10,12 @@ import {
   Trash2, 
   Edit,
   CheckSquare,
-  Square
+  Square,
+  ChevronDown
 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { decodeHtmlEntities } from "@/lib/utils";
-import { gameStatusOptions } from "./GameStatusSelector";
+import { gameStatusOptions, GameStatus } from "./GameStatusSelector";
 
 interface GameCardProps {
   userGame: any;
@@ -23,6 +25,7 @@ interface GameCardProps {
   onEdit: (userGame: any) => void;
   onRemove: (gameId: string) => void;
   onSelect: (gameId: string) => void;
+  onStatusChange: (userGameId: string, newStatus: GameStatus) => void;
   getDisplayTitle: (game: any) => string;
   isRemoving: boolean;
 }
@@ -35,6 +38,7 @@ export const GameCard = ({
   onEdit,
   onRemove,
   onSelect,
+  onStatusChange,
   getDisplayTitle,
   isRemoving
 }: GameCardProps) => {
@@ -98,19 +102,39 @@ export const GameCard = ({
             
             <div className="flex gap-1 ml-2 flex-shrink-0">
               {userGame.status && (
-                <Badge 
-                  variant="secondary" 
-                  className={`text-white text-xs px-1.5 py-0.5 ${
-                    userGame.status === 'owned' ? 'bg-gaming-green' :
-                    userGame.status === 'wishlist' ? 'bg-gaming-purple' :
-                    userGame.status === 'played_unowned' ? 'bg-blue-600' :
-                    userGame.status === 'want_trade_sell' ? 'bg-orange-600' :
-                    userGame.status === 'on_order' ? 'bg-yellow-600' :
-                    'bg-gray-600'
-                  }`}
-                >
-                  {gameStatusOptions.find(opt => opt.value === userGame.status)?.label || userGame.status}
-                </Badge>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`h-6 px-2 text-xs gap-1 text-white border-0 ${
+                        userGame.status === 'owned' ? 'bg-gaming-green hover:bg-gaming-green/80' :
+                        userGame.status === 'wishlist' ? 'bg-gaming-purple hover:bg-gaming-purple/80' :
+                        userGame.status === 'played_unowned' ? 'bg-gaming-blue hover:bg-gaming-blue/80' :
+                        userGame.status === 'want_trade_sell' ? 'bg-gaming-orange hover:bg-gaming-orange/80' :
+                        userGame.status === 'on_order' ? 'bg-gaming-yellow hover:bg-gaming-yellow/80 text-foreground' :
+                        'bg-gaming-slate hover:bg-gaming-slate/80'
+                      }`}
+                    >
+                      {gameStatusOptions.find(opt => opt.value === userGame.status)?.label || userGame.status}
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="z-50">
+                    {gameStatusOptions.map((option) => (
+                      <DropdownMenuItem 
+                        key={option.value}
+                        onClick={() => onStatusChange(userGame.id, option.value)}
+                        className="text-xs"
+                      >
+                        <div>
+                          <div className="font-medium">{option.label}</div>
+                          <div className="text-xs text-muted-foreground">{option.description}</div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               {userGame.game.is_expansion && (
                 <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs px-1.5 py-0.5">

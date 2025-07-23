@@ -58,7 +58,10 @@ export default {
 					yellow: 'hsl(var(--gaming-yellow))',
 					orange: 'hsl(var(--gaming-orange))',
 					purple: 'hsl(var(--gaming-purple))',
-					blue: 'hsl(var(--gaming-blue))'
+					blue: 'hsl(var(--gaming-blue))',
+					red: 'hsl(var(--gaming-red))',
+					green: 'hsl(var(--gaming-green))',
+					slate: 'hsl(var(--gaming-slate))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

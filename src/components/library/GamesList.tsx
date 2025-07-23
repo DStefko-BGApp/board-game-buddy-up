@@ -11,6 +11,7 @@ interface GamesListProps {
   onEditGame: (userGame: any) => void;
   onRemoveGame: (gameId: string) => void;
   onSelectGame: (gameId: string) => void;
+  onStatusChange: (userGameId: string, newStatus: any) => void;
   onSearchClick: () => void;
   onSyncClick: () => void;
   getDisplayTitle: (game: any) => string;
@@ -25,6 +26,7 @@ export const GamesList = ({
   onEditGame,
   onRemoveGame,
   onSelectGame,
+  onStatusChange,
   onSearchClick,
   onSyncClick,
   getDisplayTitle,
@@ -113,6 +115,7 @@ export const GamesList = ({
                 onEdit={onEditGame}
                 onRemove={onRemoveGame}
                 onSelect={onSelectGame}
+                onStatusChange={onStatusChange}
                 getDisplayTitle={getDisplayTitle}
                 isRemoving={isRemoving}
               />
@@ -131,6 +134,7 @@ export const GamesList = ({
                     onEdit={onEditGame}
                     onRemove={onRemoveGame}
                     onSelect={onSelectGame}
+                    onStatusChange={onStatusChange}
                     getDisplayTitle={getDisplayTitle}
                     isRemoving={isRemoving}
                   />

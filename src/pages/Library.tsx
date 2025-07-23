@@ -184,6 +184,25 @@ const Library = () => {
     }
   };
 
+  const handleStatusChange = async (userGameId: string, newStatus: any) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_games')
+        .update({ status: newStatus })
+        .eq('id', userGameId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error updating game status:', error);
+        return;
+      }
+    } catch (error) {
+      console.error('Error updating game status:', error);
+    }
+  };
+
   if (!user) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -229,6 +248,7 @@ const Library = () => {
         onEditGame={handleEditGame}
         onRemoveGame={(gameId) => removeGameMutation.mutate(gameId)}
         onSelectGame={handleGameSelection}
+        onStatusChange={handleStatusChange}
         onSearchClick={() => setSearchDialogOpen(true)}
         onSyncClick={() => setSyncDialogOpen(true)}
         getDisplayTitle={getDisplayTitle}
