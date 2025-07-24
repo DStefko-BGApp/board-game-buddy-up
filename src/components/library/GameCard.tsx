@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,7 @@ interface GameCardProps {
   onStatusChange: (userGameId: string, newStatus: GameStatus) => void;
   getDisplayTitle: (game: any) => string;
   isRemoving: boolean;
+  onGroupGames?: (draggedGameId: string, targetGameId: string) => void;
 }
 
 export const GameCard = ({
@@ -41,8 +43,10 @@ export const GameCard = ({
   onSelect,
   onStatusChange,
   getDisplayTitle,
-  isRemoving
+  isRemoving,
+  onGroupGames
 }: GameCardProps) => {
+  const [isDragOver, setIsDragOver] = useState(false);
   const formatPlayerCount = (min?: number, max?: number) => {
     if (!min && !max) return 'Unknown';
     if (min === max) return `${min}`;
@@ -51,12 +55,57 @@ export const GameCard = ({
     return `${min}-${max}`;
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    if (isSelectionMode) return; // Disable drag during selection mode
+    e.dataTransfer.setData('text/plain', userGame.id);
+    e.dataTransfer.effectAllowed = 'move';
+    (e.currentTarget as HTMLElement).style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    (e.currentTarget as HTMLElement).style.opacity = '1';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isSelectionMode || !onGroupGames) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only trigger drag leave if actually leaving the card (not just child elements)
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (isSelectionMode || !onGroupGames) return;
+    e.preventDefault();
+    setIsDragOver(false);
+    const draggedGameId = e.dataTransfer.getData('text/plain');
+    if (draggedGameId && draggedGameId !== userGame.id) {
+      onGroupGames(draggedGameId, userGame.id);
+    }
+  };
+
   const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 ${
-    isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''
-  } ${isSelectionMode && isSelected ? 'ring-2 ring-primary' : ''}`;
+    !isSelectionMode ? 'cursor-grab active:cursor-grabbing' : ''
+  } ${isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''} ${
+    isSelectionMode && isSelected ? 'ring-2 ring-primary' : ''
+  } ${isDragOver ? 'ring-2 ring-gaming-purple bg-gaming-purple/10' : ''}`;
 
   return (
-    <Card className={cardClasses}>
+    <Card 
+      className={cardClasses}
+      draggable={!isSelectionMode}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="flex gap-3 p-3">
         {/* Selection Checkbox */}
         {isSelectionMode && (

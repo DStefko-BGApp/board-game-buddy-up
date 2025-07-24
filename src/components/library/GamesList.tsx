@@ -17,6 +17,7 @@ interface GamesListProps {
   getDisplayTitle: (game: any) => string;
   isRemoving: boolean;
   isLoading: boolean;
+  onGroupGames: (draggedGameId: string, targetGameId: string) => void;
 }
 
 export const GamesList = ({
@@ -31,7 +32,8 @@ export const GamesList = ({
   onSyncClick,
   getDisplayTitle,
   isRemoving,
-  isLoading
+  isLoading,
+  onGroupGames
 }: GamesListProps) => {
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
 
@@ -118,6 +120,7 @@ export const GamesList = ({
                 onStatusChange={onStatusChange}
                 getDisplayTitle={getDisplayTitle}
                 isRemoving={isRemoving}
+                onGroupGames={onGroupGames}
               />
             </div>
           </div>
@@ -137,6 +140,7 @@ export const GamesList = ({
                     onStatusChange={onStatusChange}
                     getDisplayTitle={getDisplayTitle}
                     isRemoving={isRemoving}
+                    onGroupGames={onGroupGames}
                   />
                 </div>
               ))}
