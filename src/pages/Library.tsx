@@ -219,14 +219,14 @@ const Library = () => {
       // If target is already an expansion, group with its base game instead
       if (targetGame.game.is_expansion && targetGame.game.base_game_bgg_id) {
         await updateExpansionMutation.mutateAsync({
-          gameId: draggedGame.game.id,
+          gameId: draggedGame.game.bgg_id,
           isExpansion: true,
           baseGameBggId: targetGame.game.base_game_bgg_id.toString()
         });
       } else {
         // Make dragged game an expansion of the target game
         await updateExpansionMutation.mutateAsync({
-          gameId: draggedGame.game.id,
+          gameId: draggedGame.game.bgg_id,
           isExpansion: true,
           baseGameBggId: targetGame.game.bgg_id.toString()
         });
