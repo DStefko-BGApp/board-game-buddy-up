@@ -2,56 +2,39 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { 
-  BookOpen, 
-  Dice6, 
-  Calendar, 
-  Users, 
-  Crown,
-  ArrowRight,
-  Star
-} from "lucide-react";
+import { BookOpen, Dice6, Calendar, Users, Crown, ArrowRight, Star } from "lucide-react";
 import heroImage from "@/assets/hero-gaming.jpg";
-
 const Index = () => {
-  const features = [
-    {
-      icon: BookOpen,
-      title: "Game Library",
-      description: "Organize and manage your personal board game collection",
-      link: "/library",
-      color: "text-primary",
-    },
-    {
-      icon: Dice6,
-      title: "Dice & Tools",
-      description: "Roll dice, flip coins, and make random decisions",
-      link: "/randomizer",
-      color: "text-gaming-blue",
-    },
-    {
-      icon: Calendar,
-      title: "Game Nights",
-      description: "Plan and organize gaming sessions with friends",
-      link: "/game-nights",
-      color: "text-gaming-slate",
-    },
-    {
-      icon: Users,
-      title: "Friends",
-      description: "Connect with other board game enthusiasts",
-      link: "/friends",
-      color: "text-gaming-green",
-    },
-  ];
-
-  return (
-    <div className="min-h-screen page-background">
+  const features = [{
+    icon: BookOpen,
+    title: "Game Library",
+    description: "Organize and manage your personal board game collection",
+    link: "/library",
+    color: "text-primary"
+  }, {
+    icon: Dice6,
+    title: "Dice & Tools",
+    description: "Roll dice, flip coins, and make random decisions",
+    link: "/randomizer",
+    color: "text-gaming-blue"
+  }, {
+    icon: Calendar,
+    title: "Game Nights",
+    description: "Plan and organize gaming sessions with friends",
+    link: "/game-nights",
+    color: "text-gaming-slate"
+  }, {
+    icon: Users,
+    title: "Friends",
+    description: "Connect with other board game enthusiasts",
+    link: "/friends",
+    color: "text-gaming-green"
+  }];
+  return <div className="min-h-screen page-background">
       {/* Hero Section */}
-      <section 
-        className="relative h-[70vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
+      <section className="relative h-[70vh] flex items-center justify-center bg-cover bg-center" style={{
+      backgroundImage: `url(${heroImage})`
+    }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/70" />
         <div className="relative z-10 text-center text-white max-w-4xl mx-auto px-4 py-8">
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -63,10 +46,7 @@ const Index = () => {
               GameNight
             </h1>
           </div>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">
-            Your all-in-one social board game companion. Manage your collection, 
-            plan game nights, and connect with friends.
-          </p>
+          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">Your all-in-one social board game app. Manage your collection, plan game nights, and connect with friends.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale">
               <Link to="/randomizer">
@@ -90,8 +70,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Link key={index} to={feature.link} className="group">
+            {features.map((feature, index) => <Link key={index} to={feature.link} className="group">
                 <Card className="h-full hover:shadow-gaming transition-all duration-300 hover:-translate-y-2 cursor-pointer relative overflow-hidden bg-gradient-to-br from-card to-card/50 border-white/10 backdrop-blur-sm">
                   <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-gaming opacity-10 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-20 transition-opacity"></div>
                   <CardHeader className="relative">
@@ -110,8 +89,7 @@ const Index = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              </Link>)}
           </div>
         </div>
       </section>
@@ -139,8 +117,6 @@ const Index = () => {
           </p>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
