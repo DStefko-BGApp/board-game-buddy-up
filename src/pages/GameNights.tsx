@@ -509,8 +509,8 @@ const GameNights = () => {
                   <div>
                     <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
-                      {event.attendees.map((attendee, index) => (
-                        <Badge key={index} variant="secondary">
+                      {event.attendees.map((attendee) => (
+                        <Badge key={`${event.id}-attendee-${attendee}`} variant="secondary">
                           {attendee}
                         </Badge>
                       ))}
@@ -519,8 +519,8 @@ const GameNights = () => {
                   <div>
                     <p className="text-sm font-medium mb-2">Games to Play</p>
                     <div className="flex flex-wrap gap-2">
-                      {event.games.map((game, index) => (
-                        <Badge key={index} className="bg-primary/10 text-primary">
+                      {event.games.map((game) => (
+                        <Badge key={`${event.id}-game-${game}`} className="bg-primary/10 text-primary">
                           {game}
                         </Badge>
                       ))}
@@ -574,8 +574,8 @@ const GameNights = () => {
                   <div>
                     <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
-                      {event.attendees.map((attendee, index) => (
-                        <Badge key={index} variant="secondary">
+                      {event.attendees.map((attendee) => (
+                        <Badge key={`${event.id}-past-attendee-${attendee}`} variant="secondary">
                           {attendee}
                         </Badge>
                       ))}
@@ -584,8 +584,8 @@ const GameNights = () => {
                   <div>
                     <p className="text-sm font-medium mb-2">Games Played</p>
                     <div className="flex flex-wrap gap-2">
-                      {event.games.map((game, index) => (
-                        <Badge key={index} className="bg-primary/10 text-primary">
+                      {event.games.map((game) => (
+                        <Badge key={`${event.id}-past-game-${game}`} className="bg-primary/10 text-primary">
                           {game}
                         </Badge>
                       ))}

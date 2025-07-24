@@ -1,0 +1,252 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import BGGService, { type UserGame } from "@/services/BGGService";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
+export const useAddGameToLibrary = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ bggId, status }: { bggId: number; status: string }) => {
+      if (!user) throw new Error('User not authenticated');
+      return BGGService.addGameToLibrary(bggId, user.id, status);
+    },
+    onSuccess: (game) => {
+      toast({
+        title: "Game added! 🎲",
+        description: `${game.name} has joined your collection. Your shelf space is running out!`,
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to add game",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useRemoveGameFromLibrary = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userGameId: string) => BGGService.removeGameFromLibrary(userGameId),
+    onSuccess: () => {
+      toast({
+        title: "Game removed 📦",
+        description: "One less game to dust off. Your shelf thanks you!",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to remove game",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useUpdateUserGame = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ userGameId, updates }: { 
+      userGameId: string; 
+      updates: Partial<Pick<UserGame, 'personal_rating' | 'notes' | 'is_owned' | 'is_wishlist'>>
+    }) => BGGService.updateUserGame(userGameId, updates),
+    onSuccess: () => {
+      toast({
+        title: "Game updated ✨",
+        description: "Your tweaks have been saved. The game approves!",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update game",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useUpdateGameExpansionRelationship = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, isExpansion, baseGameBggId }: { 
+      gameId: number; 
+      isExpansion: boolean; 
+      baseGameBggId?: string;
+    }) => BGGService.updateGameExpansionRelationship(gameId, isExpansion, baseGameBggId),
+    onSuccess: () => {
+      toast({
+        title: "Expansion relationship updated 🔗",
+        description: "The games are now properly connected. Family reunion complete!",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update expansion relationship",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useUpdateGameMechanics = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const updateCoreMechanic = useMutation({
+    mutationFn: ({ gameId, coreMechanic }: { 
+      gameId: number; 
+      coreMechanic: string | null;
+    }) => BGGService.updateGameCoreMechanic(gameId, coreMechanic),
+    onSuccess: () => {
+      toast({
+        title: "Core mechanic updated ⚙️",
+        description: "The engine of fun has been fine-tuned!",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update core mechanic",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+
+  const updateAdditionalMechanic1 = useMutation({
+    mutationFn: ({ gameId, additionalMechanic1 }: { 
+      gameId: number; 
+      additionalMechanic1: string | null;
+    }) => BGGService.updateGameAdditionalMechanic1(gameId, additionalMechanic1),
+    onSuccess: () => {
+      toast({
+        title: "Additional mechanic updated 🔧",
+        description: "More complexity added! Your brain will thank you later.",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update additional mechanic",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+
+  const updateAdditionalMechanic2 = useMutation({
+    mutationFn: ({ gameId, additionalMechanic2 }: { 
+      gameId: number; 
+      additionalMechanic2: string | null;
+    }) => BGGService.updateGameAdditionalMechanic2(gameId, additionalMechanic2),
+    onSuccess: () => {
+      toast({
+        title: "Additional mechanic updated 🛠️",
+        description: "Even more gears in the machine! Complexity level: Expert.",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update additional mechanic",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+
+  return {
+    updateCoreMechanic,
+    updateAdditionalMechanic1,
+    updateAdditionalMechanic2
+  };
+};
+
+export const useUpdateGameCustomTitle = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ gameId, customTitle }: { 
+      gameId: number; 
+      customTitle: string | null;
+    }) => BGGService.updateGameCustomTitle(gameId, customTitle),
+    onSuccess: () => {
+      toast({
+        title: "Game title updated 📝",
+        description: "A rose by any other name would still take up shelf space.",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update title",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useSyncBGGCollection = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (bggUsername: string) => {
+      if (!user) throw new Error('User not authenticated');
+      return BGGService.syncBGGCollection(bggUsername, user.id);
+    },
+    onSuccess: (result) => {
+      toast({
+        title: "Collection synced! 🔄",
+        description: result.message + " BoardGameGeek says hi!",
+        duration: 4000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user-library'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to sync collection",
+        description: error.message,
+        variant: "destructive",
+        duration: 4000,
+      });
+    },
+  });
+};

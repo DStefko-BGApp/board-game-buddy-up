@@ -180,7 +180,7 @@ const Randomizer = () => {
               <div className="mt-6">
                 <div className="flex flex-wrap justify-center gap-4 mb-4">
                   {diceResult.map((result, index) => (
-                    <div key={index} className="text-gaming-purple">
+                    <div key={`dice-${index}-${result}`} className="text-gaming-purple">
                       {getDiceDisplay(result)}
                     </div>
                   ))}
@@ -321,7 +321,7 @@ const Randomizer = () => {
               <div className="space-y-2">
                 <p className="font-medium">Turn Order:</p>
                 {playerOrder.map((player, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
+                  <div key={`player-${player}-${index}`} className="flex items-center gap-2 p-2 bg-muted rounded">
                     <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold">
                       {index + 1}
                     </span>
