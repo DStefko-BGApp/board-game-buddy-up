@@ -429,45 +429,6 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
         await new Promise(resolve => setTimeout(resolve, 1000))
       }
     }
-                .from('games')
-                .select('id')
-                .eq('bgg_id', gameInfo.bgg_id)
-                .single()
-            )?.data?.id || 'nonexistent')
-            .single()
-          
-          if (existingUserGame) {
-            skipped++
-            console.log(`Game ${gameInfo.name} already in library, skipping`)
-            return
-          }
-          
-          // Get detailed game info from BGG
-          const gameDetails = await getGameDetails(gameInfo.bgg_id)
-          if (!gameDetails) {
-            console.log(`Could not fetch details for ${gameInfo.name}`)
-            errors++
-            return
-          }
-          
-          // Add game to database and user library
-          const game = await upsertGame(supabase, gameDetails)
-          await addToUserLibrary(supabase, userId, game.id, 'owned')
-          
-          imported++
-          console.log(`Imported game: ${gameDetails.name}`)
-          
-        } catch (error) {
-          console.error(`Error importing game ${gameInfo.name}:`, error)
-          errors++
-        }
-      }))
-      
-      // Small delay between batches to be nice to BGG's API
-      if (i + 5 < games.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-    }
     
     return {
       total: games.length,
