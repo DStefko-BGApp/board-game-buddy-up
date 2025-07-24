@@ -294,6 +294,109 @@ function extractExpansionLinks(xmlText: string): { expands: number[], expandedBy
   return { expands, expandedBy }
 }
 
+// Smart expansion detection heuristics
+function applyExpansionHeuristics(gameDetails: BGGGameData, allGameDetails: BGGGameData[] = []): { isExpansion: boolean, baseGameBggId: number | null } {
+  // If BGG already correctly identified it as not an expansion, trust that
+  if (!gameDetails.is_expansion) {
+    return { isExpansion: false, baseGameBggId: null };
+  }
+  
+  // If BGG says it's an expansion but points to a non-existent base game, try to fix it
+  if (gameDetails.is_expansion && gameDetails.base_game_bgg_id) {
+    // Check if the supposed base game exists in our collection
+    const supposedBaseGame = allGameDetails.find(g => g.bgg_id === gameDetails.base_game_bgg_id);
+    
+    if (supposedBaseGame) {
+      // Apply smart detection to verify this relationship makes sense
+      const isValidExpansion = isLikelyExpansion(gameDetails, supposedBaseGame);
+      
+      if (isValidExpansion) {
+        return { isExpansion: true, baseGameBggId: gameDetails.base_game_bgg_id };
+      } else {
+        console.log(`Smart detection: ${gameDetails.name} is likely NOT an expansion of ${supposedBaseGame.name}`);
+        return { isExpansion: false, baseGameBggId: null };
+      }
+    }
+  }
+  
+  // Try to find a potential base game using heuristics
+  for (const potentialBase of allGameDetails) {
+    if (potentialBase.bgg_id !== gameDetails.bgg_id && isLikelyExpansion(gameDetails, potentialBase)) {
+      console.log(`Smart detection: Found potential base game ${potentialBase.name} for ${gameDetails.name}`);
+      return { isExpansion: true, baseGameBggId: potentialBase.bgg_id };
+    }
+  }
+  
+  // If no clear base game found and BGG marked it as expansion, check if it should be standalone
+  if (gameDetails.is_expansion && !hasExpansionIndicators(gameDetails)) {
+    console.log(`Smart detection: ${gameDetails.name} marked as expansion but appears to be standalone`);
+    return { isExpansion: false, baseGameBggId: null };
+  }
+  
+  return { isExpansion: gameDetails.is_expansion, baseGameBggId: gameDetails.base_game_bgg_id };
+}
+
+function isLikelyExpansion(game: BGGGameData, potentialBaseGame: BGGGameData): boolean {
+  const gameName = game.name.toLowerCase();
+  const baseName = potentialBaseGame.name.toLowerCase();
+  
+  // Name-based detection (most reliable)
+  if (gameName.includes(':') && gameName.startsWith(baseName)) {
+    return true;
+  }
+  
+  // Look for common expansion patterns
+  const expansionKeywords = ['expansion', 'extension', 'add-on', 'supplement', 'module', 'scenario', 'campaign'];
+  if (expansionKeywords.some(keyword => gameName.includes(keyword))) {
+    // Must also share publisher or designer for this heuristic
+    const sharedPublisher = game.publishers?.some(p => potentialBaseGame.publishers?.includes(p));
+    const sharedDesigner = game.designers?.some(d => potentialBaseGame.designers?.includes(d));
+    
+    if ((sharedPublisher || sharedDesigner) && game.year_published >= potentialBaseGame.year_published) {
+      return true;
+    }
+  }
+  
+  // Publication date logic - expansions usually come after base games
+  if (game.year_published && potentialBaseGame.year_published) {
+    const yearDiff = game.year_published - potentialBaseGame.year_published;
+    
+    // If published significantly before the "base" game, likely not an expansion
+    if (yearDiff < -1) {
+      return false;
+    }
+    
+    // If same year or 1-2 years later, check other indicators
+    if (yearDiff >= 0 && yearDiff <= 3) {
+      const sharedPublisher = game.publishers?.some(p => potentialBaseGame.publishers?.includes(p));
+      const sharedDesigner = game.designers?.some(d => potentialBaseGame.designers?.includes(d));
+      const similarName = gameName.includes(baseName.split(' ')[0]) || baseName.includes(gameName.split(' ')[0]);
+      
+      return (sharedPublisher || sharedDesigner) && similarName;
+    }
+  }
+  
+  return false;
+}
+
+function hasExpansionIndicators(game: BGGGameData): boolean {
+  const name = game.name.toLowerCase();
+  
+  // Strong indicators this should be an expansion
+  const strongIndicators = [
+    name.includes(':') && !name.includes('edition'),
+    name.includes('expansion'),
+    name.includes('extension'), 
+    name.includes('add-on'),
+    name.includes('supplement'),
+    name.includes('module'),
+    name.includes('scenario pack'),
+    name.includes('campaign')
+  ];
+  
+  return strongIndicators.some(indicator => indicator);
+}
+
 async function syncBGGCollection(supabase: any, bggUsername: string, userId: string) {
   try {
     console.log(`Fetching BGG collection for user: ${bggUsername}`)
@@ -397,6 +500,16 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
               console.log(`Could not fetch details for game ${gameInfo.name}`)
               errors++
               break
+            }
+            
+            // Apply smart expansion detection heuristics
+            // Note: We'll enhance this later when we have access to other games in the collection
+            const correctedRelationship = applyExpansionHeuristics(gameDetails, [])
+            if (correctedRelationship.isExpansion !== gameDetails.is_expansion || 
+                correctedRelationship.baseGameBggId !== gameDetails.base_game_bgg_id) {
+              console.log(`Smart detection corrected: ${gameDetails.name} - was ${gameDetails.is_expansion ? 'expansion' : 'base'}, now ${correctedRelationship.isExpansion ? 'expansion' : 'base'}`)
+              gameDetails.is_expansion = correctedRelationship.isExpansion
+              gameDetails.base_game_bgg_id = correctedRelationship.baseGameBggId
             }
             
             // Upsert the game to the database
