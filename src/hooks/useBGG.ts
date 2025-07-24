@@ -121,8 +121,9 @@ export const useAddGameToLibrary = () => {
     },
     onSuccess: (game) => {
       toast({
-        title: "Game added!",
-        description: `${game.name} has been added to your library.`,
+        title: "Game added! 🎲",
+        description: `${game.name} has joined your collection. Your shelf space is running out!`,
+        duration: 4000,
       });
       // Invalidate and refetch user library
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
@@ -132,6 +133,7 @@ export const useAddGameToLibrary = () => {
         title: "Failed to add game",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -145,8 +147,9 @@ export const useRemoveGameFromLibrary = () => {
     mutationFn: (userGameId: string) => BGGService.removeGameFromLibrary(userGameId),
     onSuccess: () => {
       toast({
-        title: "Game removed",
-        description: "Game has been removed from your library.",
+        title: "Game removed 📦",
+        description: "One less game to dust off. Your shelf thanks you!",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -155,6 +158,7 @@ export const useRemoveGameFromLibrary = () => {
         title: "Failed to remove game",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -171,8 +175,9 @@ export const useUpdateUserGame = () => {
     }) => BGGService.updateUserGame(userGameId, updates),
     onSuccess: () => {
       toast({
-        title: "Game updated",
-        description: "Your game details have been updated.",
+        title: "Game updated ✨",
+        description: "Your tweaks have been saved. The game approves!",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -181,6 +186,7 @@ export const useUpdateUserGame = () => {
         title: "Failed to update game",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -198,8 +204,9 @@ export const useUpdateGameExpansionRelationship = () => {
     }) => BGGService.updateGameExpansionRelationship(gameId, isExpansion, baseGameBggId),
     onSuccess: () => {
       toast({
-        title: "Expansion relationship updated",
-        description: "The game's expansion relationship has been updated.",
+        title: "Expansion relationship updated 🔗",
+        description: "The games are now properly connected. Family reunion complete!",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -208,6 +215,7 @@ export const useUpdateGameExpansionRelationship = () => {
         title: "Failed to update expansion relationship",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -224,8 +232,9 @@ export const useUpdateGameCoreMechanic = () => {
     }) => BGGService.updateGameCoreMechanic(gameId, coreMechanic),
     onSuccess: () => {
       toast({
-        title: "Core mechanic updated",
-        description: "The game's core mechanic has been updated.",
+        title: "Core mechanic updated ⚙️",
+        description: "The engine of fun has been fine-tuned!",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -234,6 +243,7 @@ export const useUpdateGameCoreMechanic = () => {
         title: "Failed to update core mechanic",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -250,8 +260,9 @@ export const useUpdateGameAdditionalMechanic1 = () => {
     }) => BGGService.updateGameAdditionalMechanic1(gameId, additionalMechanic1),
     onSuccess: () => {
       toast({
-        title: "Additional mechanic updated",
-        description: "The game's additional mechanic has been updated.",
+        title: "Additional mechanic updated 🔧",
+        description: "More complexity added! Your brain will thank you later.",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -260,6 +271,7 @@ export const useUpdateGameAdditionalMechanic1 = () => {
         title: "Failed to update additional mechanic",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -276,8 +288,9 @@ export const useUpdateGameAdditionalMechanic2 = () => {
     }) => BGGService.updateGameAdditionalMechanic2(gameId, additionalMechanic2),
     onSuccess: () => {
       toast({
-        title: "Additional mechanic updated",
-        description: "The game's additional mechanic has been updated.",
+        title: "Additional mechanic updated 🛠️",
+        description: "Even more gears in the machine! Complexity level: Expert.",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -286,6 +299,7 @@ export const useUpdateGameAdditionalMechanic2 = () => {
         title: "Failed to update additional mechanic",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -302,8 +316,9 @@ export const useUpdateGameCustomTitle = () => {
     }) => BGGService.updateGameCustomTitle(gameId, customTitle),
     onSuccess: () => {
       toast({
-        title: "Game title updated",
-        description: "The game's custom title has been updated.",
+        title: "Game title updated 📝",
+        description: "A rose by any other name would still take up shelf space.",
+        duration: 4000,
       });
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
@@ -312,6 +327,7 @@ export const useUpdateGameCustomTitle = () => {
         title: "Failed to update title",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
@@ -329,8 +345,9 @@ export const useSyncBGGCollection = () => {
     },
     onSuccess: (result) => {
       toast({
-        title: "Collection synced!",
-        description: result.message,
+        title: "Collection synced! 🔄",
+        description: result.message + " BoardGameGeek says hi!",
+        duration: 4000,
       });
       // Invalidate and refetch user library
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
@@ -340,6 +357,7 @@ export const useSyncBGGCollection = () => {
         title: "Failed to sync collection",
         description: error.message,
         variant: "destructive",
+        duration: 4000,
       });
     },
   });
