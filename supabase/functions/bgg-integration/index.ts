@@ -119,11 +119,25 @@ Deno.serve(async (req) => {
 
 async function searchBGG(searchTerm: string) {
   try {
-    const searchUrl = `https://boardgamegeek.com/xmlapi2/search?query=${encodeURIComponent(searchTerm)}&type=boardgame`
+    const searchUrl = `https://boardgamegeek.com/xmlapi2/search?query=${encodeURIComponent(searchTerm)}&type=boardgame&exact=0`
     console.log(`Calling BGG search API: ${searchUrl}`)
     
-    const response = await fetch(searchUrl)
+    const response = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`BGG API responded with status ${response.status}`)
+    }
+    
     const xmlText = await response.text()
+    
+    // Check for BGG error responses
+    if (xmlText.includes('Rate limit exceeded')) {
+      throw new Error('BGG API rate limit exceeded. Please try again later.')
+    }
     
     // Parse XML manually (simple approach for BGG API)
     const games = []
@@ -162,13 +176,32 @@ async function searchBGG(searchTerm: string) {
 
 async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
   try {
-    const detailUrl = `https://boardgamegeek.com/xmlapi2/thing?id=${bggId}&stats=1`
+    const detailUrl = `https://boardgamegeek.com/xmlapi2/thing?id=${bggId}&stats=1&versions=1`
     console.log(`Calling BGG details API: ${detailUrl}`)
     
-    const response = await fetch(detailUrl)
+    const response = await fetch(detailUrl, {
+      headers: {
+        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`BGG API responded with status ${response.status}`)
+    }
+    
     const xmlText = await response.text()
     
-    // Extract game details from XML
+    // Check for BGG error responses
+    if (xmlText.includes('Rate limit exceeded')) {
+      throw new Error('BGG API rate limit exceeded. Please try again later.')
+    }
+    
+    if (xmlText.includes('This item could not be found')) {
+      console.log(`Game with BGG ID ${bggId} not found`)
+      return null
+    }
+    
+    // Extract game details from XML with improved parsing
     const nameMatch = xmlText.match(/<name[^>]*type="primary"[^>]*value="([^"]*)"/)
     const yearMatch = xmlText.match(/<yearpublished[^>]*value="(\d+)"/)
     const minPlayersMatch = xmlText.match(/<minplayers[^>]*value="(\d+)"/)
@@ -264,20 +297,40 @@ function extractExpansionLinks(xmlText: string): { expands: number[], expandedBy
 async function syncBGGCollection(supabase: any, bggUsername: string, userId: string) {
   try {
     console.log(`Fetching BGG collection for user: ${bggUsername}`)
-    const collectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1&stats=1`
     
-    const response = await fetch(collectionUrl)
+    // Enhanced collection URL with better parameters
+    const collectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1&stats=1&excludesubtype=boardgameexpansion`
+    
+    const response = await fetch(collectionUrl, {
+      headers: {
+        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`BGG API responded with status ${response.status}`)
+    }
+    
     const xmlText = await response.text()
     
+    // Enhanced error handling for BGG collection responses
     if (xmlText.includes('Your request for this collection has been accepted')) {
       throw new Error('BGG collection is queued for processing. Please try again in a few moments.')
     }
     
-    if (xmlText.includes('Invalid username specified')) {
+    if (xmlText.includes('Invalid username specified') || xmlText.includes('User not found')) {
       throw new Error('Invalid BGG username specified')
     }
     
-    // Parse collection XML
+    if (xmlText.includes('Rate limit exceeded')) {
+      throw new Error('BGG API rate limit exceeded. Please try again later.')
+    }
+    
+    if (xmlText.includes('<items total="0"') || !xmlText.includes('<items')) {
+      throw new Error('No owned games found in BGG collection')
+    }
+    
+    // Parse collection XML with improved error handling
     const games = []
     const itemRegex = /<item[^>]*objectid="(\d+)"[^>]*>/g
     let match
@@ -293,7 +346,7 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
       if (nameMatch) {
         games.push({
           bgg_id: bggId,
-          name: nameMatch[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"'),
+          name: nameMatch[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'),
           year_published: yearMatch ? parseInt(yearMatch[1]) : null
         })
       }
@@ -305,19 +358,77 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
     let skipped = 0
     let errors = 0
     
-    // Process games in batches to avoid overwhelming the API
-    for (let i = 0; i < games.length; i += 5) {
-      const batch = games.slice(i, i + 5)
+    // Process games in optimized batches with retry logic
+    for (let i = 0; i < games.length; i += 3) {
+      const batch = games.slice(i, i + 3)
       
       await Promise.all(batch.map(async (gameInfo) => {
-        try {
-          // Check if game already exists in user's library
-          const { data: existingUserGame } = await supabase
-            .from('user_games')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('game_id', (
-              await supabase
+        let retries = 0
+        const maxRetries = 3
+        
+        while (retries < maxRetries) {
+          try {
+            // Check if game already exists in user's library
+            const { data: existingUserGame } = await supabase
+              .from('user_games')
+              .select('id')
+              .eq('user_id', userId)
+              .eq('game_id', (
+                await supabase
+                  .from('games')
+                  .select('id')
+                  .eq('bgg_id', gameInfo.bgg_id)
+                  .single()
+              )?.data?.id || 'none')
+              .single()
+            
+            if (existingUserGame) {
+              console.log(`Game ${gameInfo.name} already in user's library`)
+              skipped++
+              break
+            }
+            
+            // Add delay between API calls to respect rate limits
+            await new Promise(resolve => setTimeout(resolve, 200 + Math.random() * 300))
+            
+            // Fetch detailed game information from BGG
+            const gameDetails = await getGameDetails(gameInfo.bgg_id)
+            if (!gameDetails) {
+              console.log(`Could not fetch details for game ${gameInfo.name}`)
+              errors++
+              break
+            }
+            
+            // Upsert the game to the database
+            const gameRecord = await upsertGame(supabase, gameDetails)
+            
+            // Add to user's library
+            await addToUserLibrary(supabase, userId, gameRecord.id)
+            
+            console.log(`Successfully imported ${gameDetails.name}`)
+            imported++
+            break
+            
+          } catch (error) {
+            retries++
+            console.error(`Error importing game ${gameInfo.name} (attempt ${retries}):`, error)
+            
+            if (retries >= maxRetries) {
+              errors++
+              break
+            }
+            
+            // Exponential backoff for retries
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000))
+          }
+        }
+      }))
+      
+      // Longer delay between batches to be respectful to BGG
+      if (i + 3 < games.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+    }
                 .from('games')
                 .select('id')
                 .eq('bgg_id', gameInfo.bgg_id)
