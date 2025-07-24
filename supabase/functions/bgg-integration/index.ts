@@ -401,6 +401,31 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
   try {
     console.log(`Fetching BGG collection for user: ${bggUsername}`)
     
+    // First, get the user's current library to enable smart discrepancy detection
+    const { data: existingUserGames } = await supabase
+      .from('user_games')
+      .select(`
+        id,
+        game_id,
+        games (
+          id,
+          bgg_id,
+          name,
+          is_expansion,
+          base_game_bgg_id,
+          expands_games,
+          year_published,
+          publishers,
+          designers,
+          categories,
+          mechanics
+        )
+      `)
+      .eq('user_id', userId)
+    
+    const currentLibraryGames = existingUserGames?.map(ug => ug.games).filter(Boolean) || []
+    console.log(`Found ${currentLibraryGames.length} existing games in user's library`)
+    
     // Enhanced collection URL with better parameters
     const collectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1&stats=1&excludesubtype=boardgameexpansion`
     
@@ -460,6 +485,10 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
     let imported = 0
     let skipped = 0
     let errors = 0
+    let discrepanciesFixed = 0
+    
+    // Collect all game details for smart heuristics
+    const allGameDetails: BGGGameData[] = []
     
     // Process games in optimized batches with retry logic
     for (let i = 0; i < games.length; i += 3) {
@@ -472,21 +501,12 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
         while (retries < maxRetries) {
           try {
             // Check if game already exists in user's library
-            const { data: existingUserGame } = await supabase
-              .from('user_games')
-              .select('id')
-              .eq('user_id', userId)
-              .eq('game_id', (
-                await supabase
-                  .from('games')
-                  .select('id')
-                  .eq('bgg_id', gameInfo.bgg_id)
-                  .single()
-              )?.data?.id || 'none')
-              .single()
+            const existingGame = currentLibraryGames.find(g => g.bgg_id === gameInfo.bgg_id)
             
-            if (existingUserGame) {
+            if (existingGame) {
               console.log(`Game ${gameInfo.name} already in user's library`)
+              // Add existing game details for heuristics
+              allGameDetails.push(existingGame as BGGGameData)
               skipped++
               break
             }
@@ -502,9 +522,11 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
               break
             }
             
-            // Apply smart expansion detection heuristics
-            // Note: We'll enhance this later when we have access to other games in the collection
-            const correctedRelationship = applyExpansionHeuristics(gameDetails, [])
+            // Add to collection for heuristics
+            allGameDetails.push(gameDetails)
+            
+            // Apply smart expansion detection heuristics with all known games
+            const correctedRelationship = applyExpansionHeuristics(gameDetails, [...currentLibraryGames, ...allGameDetails])
             if (correctedRelationship.isExpansion !== gameDetails.is_expansion || 
                 correctedRelationship.baseGameBggId !== gameDetails.base_game_bgg_id) {
               console.log(`Smart detection corrected: ${gameDetails.name} - was ${gameDetails.is_expansion ? 'expansion' : 'base'}, now ${correctedRelationship.isExpansion ? 'expansion' : 'base'}`)
@@ -543,12 +565,43 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
       }
     }
     
+    // After processing all games, run discrepancy detection on existing library
+    console.log('Running discrepancy detection on existing library...')
+    const allKnownGames = [...currentLibraryGames, ...allGameDetails]
+    
+    for (const existingGame of currentLibraryGames) {
+      const correctedRelationship = applyExpansionHeuristics(existingGame as BGGGameData, allKnownGames)
+      
+      if (correctedRelationship.isExpansion !== existingGame.is_expansion || 
+          correctedRelationship.baseGameBggId !== existingGame.base_game_bgg_id) {
+        
+        console.log(`Discrepancy found: ${existingGame.name} - correcting expansion relationship`)
+        
+        // Update the game record with corrected relationship
+        const { error } = await supabase
+          .from('games')
+          .update({
+            is_expansion: correctedRelationship.isExpansion,
+            base_game_bgg_id: correctedRelationship.baseGameBggId
+          })
+          .eq('bgg_id', existingGame.bgg_id)
+        
+        if (error) {
+          console.error(`Error updating game ${existingGame.name}:`, error)
+        } else {
+          discrepanciesFixed++
+          console.log(`Fixed discrepancy for ${existingGame.name}`)
+        }
+      }
+    }
+    
     return {
       total: games.length,
       imported,
       skipped,
       errors,
-      message: `Collection sync complete: ${imported} imported, ${skipped} skipped, ${errors} errors`
+      discrepanciesFixed,
+      message: `Collection sync complete: ${imported} imported, ${skipped} skipped, ${errors} errors, ${discrepanciesFixed} discrepancies fixed`
     }
     
   } catch (error) {
