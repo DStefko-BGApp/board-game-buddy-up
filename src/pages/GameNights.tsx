@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { generateICalFile, generateGoogleCalendarUrl } from "@/utils/calendarUtils";
+import { AttendeeLink } from "@/components/gamenight/AttendeeLink";
+import { RsvpSection } from "@/components/gamenight/RsvpSection";
 
 const GameNights = () => {
   const { user } = useAuth();
@@ -510,12 +512,16 @@ const GameNights = () => {
                     <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
                       {event.attendees.map((attendee) => (
-                        <Badge key={`${event.id}-attendee-${attendee}`} variant="secondary">
-                          {attendee}
-                        </Badge>
+                        <AttendeeLink 
+                          key={`${event.id}-attendee-${attendee}`}
+                          attendeeName={attendee}
+                        />
                       ))}
                     </div>
                   </div>
+                  
+                  {/* RSVP Section */}
+                  <RsvpSection gameNightId={event.id} />
                   <div>
                     <p className="text-sm font-medium mb-2">Games to Play</p>
                     <div className="flex flex-wrap gap-2">
@@ -575,9 +581,10 @@ const GameNights = () => {
                     <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
                       {event.attendees.map((attendee) => (
-                        <Badge key={`${event.id}-past-attendee-${attendee}`} variant="secondary">
-                          {attendee}
-                        </Badge>
+                        <AttendeeLink 
+                          key={`${event.id}-past-attendee-${attendee}`}
+                          attendeeName={attendee}
+                        />
                       ))}
                     </div>
                   </div>

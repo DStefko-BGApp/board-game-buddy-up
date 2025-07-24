@@ -171,6 +171,41 @@ export type Database = {
           },
         ]
       }
+      game_night_rsvps: {
+        Row: {
+          created_at: string
+          game_night_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_night_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_night_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_night_rsvps_game_night_id_fkey"
+            columns: ["game_night_id"]
+            isOneToOne: false
+            referencedRelation: "game_nights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_nights: {
         Row: {
           attendees: string[] | null
