@@ -44,6 +44,7 @@ import { useGroupedLibrary } from "@/hooks/useBGGLibrary";
 import { useFriends } from "@/hooks/useFriends";
 import { usePlayReports } from "@/hooks/usePlayReports";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 
 const createPlayReportSchema = z.object({
   game_id: z.string().min(1, "Please select a game"),
@@ -90,11 +91,23 @@ export function CreatePlayReportDialog({ children }: CreatePlayReportDialogProps
     name: "participants",
   });
 
-  const availableUsers = friends?.map(friend => ({
-    id: friend.user_id,
-    name: friend.display_name,
-    avatar_url: friend.avatar_url,
-  })) || [];
+  // Include the current user in available participants
+  const { profile } = useProfile();
+  
+  const availableUsers = [
+    // Add current user first if they have a profile
+    ...(user && profile ? [{
+      id: user.id,
+      name: profile.display_name,
+      avatar_url: profile.avatar_url,
+    }] : []),
+    // Then add friends
+    ...(friends?.map(friend => ({
+      id: friend.user_id,
+      name: friend.display_name,
+      avatar_url: friend.avatar_url,
+    })) || [])
+  ];
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -106,7 +119,13 @@ export function CreatePlayReportDialog({ children }: CreatePlayReportDialogProps
   };
 
   const onSubmit = async (data: CreatePlayReportForm) => {
+    if (!user) {
+      console.error('No authenticated user');
+      return;
+    }
+    
     try {
+      console.log('Creating play report with user ID:', user.id);
       await createPlayReport.mutateAsync({
         game_id: data.game_id,
         title: data.title,
@@ -282,7 +301,7 @@ export function CreatePlayReportDialog({ children }: CreatePlayReportDialogProps
                 <FormLabel>Participants</FormLabel>
                 <Select onValueChange={addParticipant}>
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Add friend" />
+                    <SelectValue placeholder="Add participant" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableUsers.map((friend) => (
