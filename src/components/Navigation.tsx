@@ -6,6 +6,7 @@ import {
   Dice6, 
   Calendar, 
   Users,
+  FileText,
   HelpCircle,
   Menu,
   X,
@@ -27,6 +28,7 @@ const Navigation = () => {
     { to: "/randomizer", icon: Dice6, label: "Dice & Tools" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
     { to: "/friends", icon: Users, label: "Friends" },
+    { to: "/play-reports", icon: FileText, label: "Play Reports" },
     { to: "/faq", icon: HelpCircle, label: "FAQ" },
   ];
 

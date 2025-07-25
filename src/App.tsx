@@ -9,6 +9,7 @@ import Library from "./pages/Library";
 import Randomizer from "./pages/Randomizer";
 import GameNights from "./pages/GameNights";
 import Friends from "./pages/Friends";
+import PlayReports from "./pages/PlayReports";
 import Auth from "./pages/Auth";
 import FAQ from "./pages/FAQ";
 import Settings from "./pages/Settings";
@@ -50,6 +51,11 @@ const AppContent = () => {
             <Route path="/friends" element={
               <ProtectedRoute>
                 <Friends />
+              </ProtectedRoute>
+            } />
+            <Route path="/play-reports" element={
+              <ProtectedRoute>
+                <PlayReports />
               </ProtectedRoute>
             } />
             <Route path="/faq" element={<FAQ />} />

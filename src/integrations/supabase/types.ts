@@ -499,6 +499,100 @@ export type Database = {
         }
         Relationships: []
       }
+      play_report_participants: {
+        Row: {
+          created_at: string
+          id: string
+          placement: number | null
+          play_report_id: string
+          player_notes: string | null
+          player_rating: number | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          placement?: number | null
+          play_report_id: string
+          player_notes?: string | null
+          player_rating?: number | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          placement?: number | null
+          play_report_id?: string
+          player_notes?: string | null
+          player_rating?: number | null
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "play_report_participants_play_report_id_fkey"
+            columns: ["play_report_id"]
+            isOneToOne: false
+            referencedRelation: "play_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      play_reports: {
+        Row: {
+          created_at: string
+          date_played: string
+          duration_minutes: number | null
+          game_id: string
+          id: string
+          location: string | null
+          notes: string | null
+          photos: string[] | null
+          reporter_id: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_played: string
+          duration_minutes?: number | null
+          game_id: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          photos?: string[] | null
+          reporter_id: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_played?: string
+          duration_minutes?: number | null
+          game_id?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          photos?: string[] | null
+          reporter_id?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "play_reports_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           availability: string | null
