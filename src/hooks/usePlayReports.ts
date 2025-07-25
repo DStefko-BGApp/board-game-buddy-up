@@ -101,6 +101,12 @@ export const usePlayReports = () => {
       console.log('Auth user from session:', session.user.id);
       console.log('Auth user from context:', user.id);
       
+      // Try with explicit session setting
+      await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token
+      });
+
       const { data: playReport, error: reportError } = await supabase
         .from('play_reports')
         .insert(reportData)
