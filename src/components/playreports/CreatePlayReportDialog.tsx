@@ -298,10 +298,10 @@ export function CreatePlayReportDialog({ children }: CreatePlayReportDialogProps
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <FormLabel>Participants</FormLabel>
+                <FormLabel>Players</FormLabel>
                 <Select onValueChange={addParticipant}>
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Add participant" />
+                    <SelectValue placeholder="Add player" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableUsers.map((friend) => (

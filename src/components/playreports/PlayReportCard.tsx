@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, Trophy, Star, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Trophy, Star, MoreHorizontal, Edit, Trash2, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import {
   Card,
@@ -63,12 +64,12 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className="w-full max-w-2xl">
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-xl">{playReport.title}</CardTitle>
+          <div className="space-y-1 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <CardTitle className="text-lg">{playReport.title}</CardTitle>
               {averageRating > 0 && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Star className="h-3 w-3 fill-current" />
@@ -76,9 +77,15 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
                 </Badge>
               )}
             </div>
-            <CardDescription className="text-lg font-medium">
-              {playReport.game.custom_title || playReport.game.name}
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <Link 
+                to="/library" 
+                className="text-base font-medium text-primary hover:underline flex items-center gap-1"
+              >
+                {playReport.game.custom_title || playReport.game.name}
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            </div>
           </div>
           
           {isOwner && (
@@ -105,29 +112,29 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
           )}
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            {format(new Date(playReport.date_played), 'PPP')}
+            <Calendar className="h-3 w-3" />
+            {format(new Date(playReport.date_played), 'MMM d, yyyy')}
           </div>
           
           {playReport.duration_minutes && (
             <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
+              <Clock className="h-3 w-3" />
               {playReport.duration_minutes}m
             </div>
           )}
           
           {playReport.location && (
             <div className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-3 w-3" />
               {playReport.location}
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2 text-sm">
-          <span>Reported by</span>
+          <span className="text-muted-foreground">Reported by</span>
           <UserAvatar
             displayName={playReport.reporter_profile.display_name}
             avatarUrl={playReport.reporter_profile.avatar_url}
@@ -137,55 +144,44 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 pt-0">
         {playReport.summary && (
-          <p className="text-muted-foreground">{playReport.summary}</p>
+          <p className="text-muted-foreground text-sm">{playReport.summary}</p>
         )}
 
-        {/* Participants */}
+        {/* Players */}
         <div className="space-y-3">
-          <h4 className="font-semibold">Participants</h4>
-          <div className="grid gap-3">
-            {sortedParticipants.map((participant) => (
+          <h4 className="font-semibold text-sm">Players</h4>
+          <div className="space-y-2">
+            {sortedParticipants.map((participant, index) => (
               <div
                 key={participant.id}
-                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
+                className="flex items-center justify-between p-2 bg-muted/30 rounded-md"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {participant.placement && (
+                      <span className="text-xs font-medium text-muted-foreground w-6">
+                        {participant.placement}{getPlacementSuffix(participant.placement)}
+                      </span>
+                    )}
+                    {getPlacementIcon(participant.placement)}
+                  </div>
                   <UserAvatar
                     displayName={participant.profile.display_name}
                     avatarUrl={participant.profile.avatar_url}
                     size="sm"
                   />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {participant.profile.display_name}
-                      </span>
-                      {getPlacementIcon(participant.placement)}
-                    </div>
-                    {participant.player_notes && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {participant.player_notes}
-                      </p>
-                    )}
-                  </div>
+                  <span className="font-medium text-sm">
+                    {participant.profile.display_name}
+                  </span>
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-3 text-xs">
                   {participant.score !== null && participant.score !== undefined && (
                     <div className="text-center">
                       <div className="font-semibold">{participant.score}</div>
                       <div className="text-muted-foreground">score</div>
-                    </div>
-                  )}
-                  
-                  {participant.placement && (
-                    <div className="text-center">
-                      <div className="font-semibold">
-                        {participant.placement}{getPlacementSuffix(participant.placement)}
-                      </div>
-                      <div className="text-muted-foreground">place</div>
                     </div>
                   )}
                   
@@ -206,9 +202,9 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
 
         {/* Winner highlight */}
         {winner && (
-          <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
-              <Trophy className="h-4 w-4" />
+          <div className="p-2 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+            <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300 text-sm">
+              <Trophy className="h-3 w-3" />
               <span className="font-medium">
                 🎉 {winner.profile.display_name} won this game!
               </span>
@@ -218,26 +214,26 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
 
         {/* Photos */}
         {playReport.photos && playReport.photos.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="font-semibold">Photos</h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {playReport.photos.slice(0, showAllPhotos ? undefined : 6).map((photo, index) => (
+          <div className="space-y-2">
+            <h4 className="font-semibold text-sm">Photos</h4>
+            <div className="grid grid-cols-3 gap-2">
+              {playReport.photos.slice(0, showAllPhotos ? undefined : 3).map((photo, index) => (
                 <img
                   key={index}
                   src={photo}
                   alt={`Game photo ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                  className="w-full h-20 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={() => window.open(photo, '_blank')}
                 />
               ))}
             </div>
-            {playReport.photos.length > 6 && !showAllPhotos && (
+            {playReport.photos.length > 3 && !showAllPhotos && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAllPhotos(true)}
               >
-                Show {playReport.photos.length - 6} more photos
+                Show {playReport.photos.length - 3} more photos
               </Button>
             )}
           </div>
@@ -245,9 +241,9 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
 
         {/* Notes */}
         {playReport.notes && (
-          <div className="space-y-2">
-            <h4 className="font-semibold">Notes</h4>
-            <p className="text-muted-foreground">{playReport.notes}</p>
+          <div className="space-y-1">
+            <h4 className="font-semibold text-sm">Notes</h4>
+            <p className="text-muted-foreground text-sm">{playReport.notes}</p>
           </div>
         )}
       </CardContent>
