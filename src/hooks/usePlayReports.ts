@@ -48,6 +48,12 @@ export const usePlayReports = () => {
     mutationFn: async (data: CreatePlayReportData) => {
       if (!user) throw new Error('User not authenticated');
 
+      // Verify authentication session before proceeding
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        throw new Error('Authentication session invalid');
+      }
+
       // Upload photos first if any
       let photoUrls: string[] = [];
       if (data.photos && data.photos.length > 0) {
@@ -71,12 +77,12 @@ export const usePlayReports = () => {
         photoUrls = await Promise.all(uploadPromises);
       }
 
-      // Create the play report
+      // Create the play report with explicit session context
       const { data: playReport, error: reportError } = await supabase
         .from('play_reports')
         .insert({
           game_id: data.game_id,
-          reporter_id: user.id,
+          reporter_id: session.user.id, // Use session.user.id instead of user.id
           title: data.title,
           summary: data.summary,
           date_played: data.date_played,
