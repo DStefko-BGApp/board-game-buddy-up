@@ -538,6 +538,13 @@ export type Database = {
             referencedRelation: "play_reports"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "play_report_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       play_reports: {
@@ -590,6 +597,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "games"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "play_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -747,6 +761,14 @@ export type Database = {
           p_data?: Json
         }
         Returns: string
+      }
+      user_can_view_play_report: {
+        Args: { report_id: string; user_id: string }
+        Returns: boolean
+      }
+      user_is_report_owner: {
+        Args: { report_id: string; user_id: string }
+        Returns: boolean
       }
     }
     Enums: {

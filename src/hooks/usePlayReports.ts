@@ -26,12 +26,12 @@ export const usePlayReports = () => {
           game:games(id, name, thumbnail_url, custom_title),
           participants:play_report_participants(
             *,
-            profile:profiles(
+            profile:profiles!play_report_participants_user_id_fkey(
               display_name,
               avatar_url
             )
           ),
-          reporter_profile:profiles(
+          reporter_profile:profiles!play_reports_reporter_id_fkey(
             display_name,
             avatar_url
           )
@@ -39,7 +39,7 @@ export const usePlayReports = () => {
         .order('date_played', { ascending: false });
 
       if (error) throw error;
-      return data as any;
+      return data as PlayReportWithDetails[];
     },
     enabled: !!user,
   });
