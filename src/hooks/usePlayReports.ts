@@ -50,8 +50,15 @@ export const usePlayReports = () => {
 
       // Verify authentication session before proceeding
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('Session check:', { session: session?.user?.id, sessionError, userFromContext: user.id });
       if (sessionError || !session) {
         throw new Error('Authentication session invalid');
+      }
+
+      // Ensure session is fresh and valid
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError || !refreshedSession) {
+        console.warn('Session refresh failed, using original session');
       }
 
       // Upload photos first if any
@@ -78,19 +85,25 @@ export const usePlayReports = () => {
       }
 
       // Create the play report with explicit session context
+      const reportData = {
+        game_id: data.game_id,
+        reporter_id: session.user.id, // Use session.user.id instead of user.id
+        title: data.title,
+        summary: data.summary,
+        date_played: data.date_played,
+        location: data.location,
+        notes: data.notes,
+        duration_minutes: data.duration_minutes,
+        photos: photoUrls
+      };
+      
+      console.log('Creating play report with data:', reportData);
+      console.log('Auth user from session:', session.user.id);
+      console.log('Auth user from context:', user.id);
+      
       const { data: playReport, error: reportError } = await supabase
         .from('play_reports')
-        .insert({
-          game_id: data.game_id,
-          reporter_id: session.user.id, // Use session.user.id instead of user.id
-          title: data.title,
-          summary: data.summary,
-          date_played: data.date_played,
-          duration_minutes: data.duration_minutes,
-          location: data.location,
-          notes: data.notes,
-          photos: photoUrls.length > 0 ? photoUrls : null,
-        })
+        .insert(reportData)
         .select()
         .single();
 
