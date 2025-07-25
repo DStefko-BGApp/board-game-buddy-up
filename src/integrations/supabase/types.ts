@@ -762,6 +762,20 @@ export type Database = {
         }
         Returns: string
       }
+      create_play_report_secure: {
+        Args: {
+          p_game_id: string
+          p_reporter_id: string
+          p_title: string
+          p_date_played: string
+          p_summary?: string
+          p_location?: string
+          p_notes?: string
+          p_duration_minutes?: number
+          p_photos?: string[]
+        }
+        Returns: string
+      }
       user_can_view_play_report: {
         Args: { report_id: string; user_id: string }
         Returns: boolean

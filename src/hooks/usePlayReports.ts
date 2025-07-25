@@ -101,19 +101,30 @@ export const usePlayReports = () => {
       console.log('Auth user from session:', session.user.id);
       console.log('Auth user from context:', user.id);
       
-      // Try with explicit session setting
-      await supabase.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token
-      });
-
-      const { data: playReport, error: reportError } = await supabase
-        .from('play_reports')
-        .insert(reportData)
-        .select()
-        .single();
+      // Use the secure function to create the play report
+      const { data: reportId, error: reportError } = await supabase
+        .rpc('create_play_report_secure', {
+          p_game_id: reportData.game_id,
+          p_reporter_id: reportData.reporter_id,
+          p_title: reportData.title,
+          p_date_played: reportData.date_played,
+          p_summary: reportData.summary,
+          p_location: reportData.location,
+          p_notes: reportData.notes,
+          p_duration_minutes: reportData.duration_minutes,
+          p_photos: reportData.photos
+        });
 
       if (reportError) throw reportError;
+
+      // Get the created play report
+      const { data: playReport, error: fetchError } = await supabase
+        .from('play_reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (fetchError) throw fetchError;
 
       // Add participants
       if (data.participants.length > 0) {
