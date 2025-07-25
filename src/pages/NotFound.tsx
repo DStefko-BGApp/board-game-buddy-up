@@ -31,7 +31,7 @@ const NotFound = () => {
               </p>
             </div>
             <Button asChild variant="gaming" size="lg" className="w-full hover-scale shadow-lg">
-              <Link to="/">
+              <Link to="/" aria-label="Navigate to home page">
                 <Home className="h-5 w-5 mr-2" />
                 Return to Home
               </Link>
