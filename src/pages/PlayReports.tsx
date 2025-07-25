@@ -6,15 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { CreatePlayReportDialog } from "@/components/playreports/CreatePlayReportDialog";
+import { EditPlayReportDialog } from "@/components/playreports/EditPlayReportDialog";
 import { PlayReportCard } from "@/components/playreports/PlayReportCard";
 import { usePlayReports, usePlayerStats } from "@/hooks/usePlayReports";
 import { useAuth } from "@/contexts/AuthContext";
+import type { PlayReportWithDetails } from "@/types/playReports";
 
 export default function PlayReports() {
   const { user } = useAuth();
   const { playReports, isLoading, deletePlayReport } = usePlayReports();
   const { data: playerStats } = usePlayerStats();
   const [selectedTab, setSelectedTab] = useState("recent");
+  const [editingReport, setEditingReport] = useState<PlayReportWithDetails | null>(null);
 
   if (isLoading) {
     return (
@@ -40,6 +43,10 @@ export default function PlayReports() {
     if (confirm('Are you sure you want to delete this play report? This action cannot be undone.')) {
       await deletePlayReport.mutateAsync(id);
     }
+  };
+
+  const handleEditPlayReport = (report: PlayReportWithDetails) => {
+    setEditingReport(report);
   };
 
   const recentReports = playReports.slice(0, 10);
@@ -146,6 +153,7 @@ export default function PlayReports() {
                 <PlayReportCard
                   key={report.id}
                   playReport={report}
+                  onEdit={handleEditPlayReport}
                   onDelete={handleDeletePlayReport}
                 />
               ))}
@@ -176,6 +184,7 @@ export default function PlayReports() {
                 <PlayReportCard
                   key={report.id}
                   playReport={report}
+                  onEdit={handleEditPlayReport}
                   onDelete={handleDeletePlayReport}
                 />
               ))}
@@ -183,6 +192,12 @@ export default function PlayReports() {
           )}
         </TabsContent>
       </Tabs>
+
+      <EditPlayReportDialog
+        playReport={editingReport}
+        open={!!editingReport}
+        onOpenChange={(open) => !open && setEditingReport(null)}
+      />
     </div>
   );
 }

@@ -159,13 +159,55 @@ export const usePlayReports = () => {
   });
 
   const updatePlayReport = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<PlayReportWithDetails> & { id: string }) => {
-      const { error } = await supabase
+    mutationFn: async (updateData: { 
+      id: string;
+      title?: string;
+      summary?: string;
+      date_played?: string;
+      location?: string;
+      notes?: string;
+      duration_minutes?: number;
+      participants?: {
+        user_id: string;
+        score?: number;
+        placement?: number;
+        player_rating?: number;
+        player_notes?: string;
+      }[];
+    }) => {
+      const { id, participants, ...updates } = updateData;
+      // Update the main play report
+      const { error: reportError } = await supabase
         .from('play_reports')
         .update(updates)
         .eq('id', id);
 
-      if (error) throw error;
+      if (reportError) throw reportError;
+
+      // If participants are provided, update them
+      if (participants) {
+        // Delete existing participants
+        const { error: deleteError } = await supabase
+          .from('play_report_participants')
+          .delete()
+          .eq('play_report_id', id);
+
+        if (deleteError) throw deleteError;
+
+        // Insert new participants
+        if (participants.length > 0) {
+          const { error: insertError } = await supabase
+            .from('play_report_participants')
+            .insert(
+              participants.map(participant => ({
+                play_report_id: id,
+                ...participant,
+              }))
+            );
+
+          if (insertError) throw insertError;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['play-reports'] });

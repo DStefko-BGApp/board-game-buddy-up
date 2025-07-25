@@ -35,6 +35,15 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
   
   const isOwner = user?.id === playReport.reporter_id;
   const sortedParticipants = [...playReport.participants].sort((a, b) => {
+    // Sort by score (highest first) if both have scores
+    if (a.score !== null && a.score !== undefined && b.score !== null && b.score !== undefined) {
+      return b.score - a.score;
+    }
+    // If only one has a score, prioritize it
+    if (a.score !== null && a.score !== undefined) return -1;
+    if (b.score !== null && b.score !== undefined) return 1;
+    
+    // Fall back to placement if scores are not available
     if (a.placement && b.placement) {
       return a.placement - b.placement;
     }
@@ -43,7 +52,19 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
     return 0;
   });
 
-  const winner = sortedParticipants.find(p => p.placement === 1);
+  // Winner is determined by highest score, or best placement if no scores
+  const winner = sortedParticipants.find(p => {
+    // If we have scores, the highest score wins
+    const hasScores = sortedParticipants.some(sp => sp.score !== null && sp.score !== undefined);
+    if (hasScores) {
+      return p.score !== null && p.score !== undefined && 
+             p.score === Math.max(...sortedParticipants
+               .filter(sp => sp.score !== null && sp.score !== undefined)
+               .map(sp => sp.score!));
+    }
+    // Otherwise fall back to placement
+    return p.placement === 1;
+  });
   const averageRating = playReport.participants
     .filter(p => p.player_rating)
     .reduce((sum, p) => sum + (p.player_rating || 0), 0) / 
