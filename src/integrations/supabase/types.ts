@@ -171,6 +171,78 @@ export type Database = {
           },
         ]
       }
+      game_list_items: {
+        Row: {
+          created_at: string
+          game_id: string
+          game_list_id: string
+          id: string
+          notes: string | null
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          game_list_id: string
+          id?: string
+          notes?: string | null
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          game_list_id?: string
+          id?: string
+          notes?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_list_items_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_list_items_game_list_id_fkey"
+            columns: ["game_list_id"]
+            isOneToOne: false
+            referencedRelation: "game_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_night_rsvps: {
         Row: {
           created_at: string
@@ -213,6 +285,7 @@ export type Database = {
           date: string
           games: string[] | null
           id: string
+          is_public: boolean
           location: string | null
           notes: string | null
           status: string
@@ -227,6 +300,7 @@ export type Database = {
           date: string
           games?: string[] | null
           id?: string
+          is_public?: boolean
           location?: string | null
           notes?: string | null
           status?: string
@@ -241,6 +315,7 @@ export type Database = {
           date?: string
           games?: string[] | null
           id?: string
+          is_public?: boolean
           location?: string | null
           notes?: string | null
           status?: string
@@ -415,6 +490,44 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      group_invitations: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          invited_by_user_id: string
+          invited_user_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          invited_by_user_id: string
+          invited_user_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          invited_by_user_id?: string
+          invited_user_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_invitations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "gaming_groups"
+            referencedColumns: ["id"]
           },
         ]
       }
