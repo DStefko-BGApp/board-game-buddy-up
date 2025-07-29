@@ -72,10 +72,14 @@ const GameNights = () => {
     }
   };
 
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+  
   const upcomingEvents = gameNights
-    .filter(event => event.status === "upcoming")
+    .filter(event => event.date >= today)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const pastEvents = gameNights.filter(event => event.status === "completed");
+  const pastEvents = gameNights
+    .filter(event => event.date < today)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
 
   // Reload when view filter changes
   useEffect(() => {
@@ -84,15 +88,13 @@ const GameNights = () => {
     }
   }, [viewFilter, user]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "upcoming":
-        return <Badge className="bg-gradient-gaming text-white">Upcoming</Badge>;
-      case "completed":
-        return <Badge variant="secondary">Completed</Badge>;
-      default:
-        return <Badge variant="outline">Unknown</Badge>;
-    }
+  const getStatusBadge = (eventDate: string) => {
+    const isUpcoming = eventDate >= today;
+    return isUpcoming ? (
+      <Badge className="bg-gradient-gaming text-white">Upcoming</Badge>
+    ) : (
+      <Badge variant="secondary">Past</Badge>
+    );
   };
 
   const getPrivacyBadge = (isPublic: boolean) => {
@@ -552,7 +554,7 @@ const GameNights = () => {
                     </div>
                   </div>
                    <div className="flex items-center gap-2">
-                     {getStatusBadge(event.status)}
+                     {getStatusBadge(event.date)}
                      {getPrivacyBadge(event.is_public)}
                      {viewFilter === 'public' && event.profiles && (
                        <Badge variant="outline" className="flex items-center gap-1">
@@ -654,7 +656,7 @@ const GameNights = () => {
                     </div>
                    </div>
                    <div className="flex items-center gap-2">
-                     {getStatusBadge(event.status)}
+                     {getStatusBadge(event.date)}
                      {getPrivacyBadge(event.is_public)}
                      {viewFilter === 'public' && event.profiles && (
                        <Badge variant="outline" className="flex items-center gap-1">
