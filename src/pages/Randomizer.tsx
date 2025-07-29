@@ -162,69 +162,120 @@ const Randomizer = () => {
     const selectedDie = dieTypes.find(d => d.value === dieType);
     const dieLabel = selectedDie ? selectedDie.label : "D6";
     
-    // For D6, use dice icons
+    // Consistent styling for all dice
+    const baseClasses = `transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`;
+    const valueClasses = "text-white font-bold text-sm drop-shadow-sm";
+    const labelClasses = "text-xs text-muted-foreground font-medium mt-1";
+    
+    // For D6, use dice icons but make them consistent with other dice
     if (dieType === "6" && value <= 6) {
       const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
       const DiceIcon = diceIcons[value - 1];
       return (
-        <div className={`transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`}>
-          <DiceIcon className="h-12 w-12 text-primary" />
+        <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+          <div className="h-12 w-12 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center border-2 border-white/20 shadow-lg">
+            <DiceIcon className="h-8 w-8 text-white" />
+          </div>
+          <span className={labelClasses}>{dieLabel}</span>
         </div>
       );
     }
     
-    // Create distinct die shapes based on actual die geometry
-    const getDieProps = () => {
+    // Create accurate die shapes with consistent styling
+    const getDieComponent = () => {
       switch (dieType) {
-        case "4": // Tetrahedron (triangular pyramid)
-          return {
-            shape: "clip-path-triangle",
-            gradient: "bg-gradient-to-br from-gaming-pink to-gaming-purple",
-            size: "h-12 w-12"
-          };
-        case "8": // Octahedron (diamond-like)
-          return {
-            shape: "clip-path-octagon",
-            gradient: "bg-gradient-to-br from-gaming-yellow to-gaming-orange", 
-            size: "h-12 w-12"
-          };
-        case "10": // Pentagonal trapezohedron (kite-like)
-          return {
-            shape: "transform rotate-45",
-            gradient: "bg-gradient-to-br from-gaming-purple to-gaming-pink",
-            size: "h-11 w-11"
-          };
-        case "12": // Dodecahedron (pentagonal faces)
-          return {
-            shape: "rounded-full",
-            gradient: "bg-gradient-to-br from-gaming-orange to-gaming-yellow",
-            size: "h-12 w-12"
-          };
-        case "20": // Icosahedron (triangular faces, most complex)
-          return {
-            shape: "clip-path-triangle transform rotate-180",
-            gradient: "bg-gradient-to-br from-gaming-red to-gaming-purple",
-            size: "h-12 w-12"
-          };
+        case "4": // D4 - Tetrahedron (pyramid)
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="relative h-12 w-12 flex items-center justify-center">
+                {/* Triangle using borders to create pyramid effect */}
+                <div className="relative">
+                  <div className="w-0 h-0 border-l-[24px] border-r-[24px] border-b-[20px] border-l-transparent border-r-transparent border-b-gradient-to-br from-primary to-primary/80"></div>
+                  <div className="w-0 h-0 border-l-[22px] border-r-[22px] border-b-[18px] border-l-transparent border-r-transparent border-b-primary/90 absolute top-1 left-1"></div>
+                  <span className={`absolute top-2 left-1/2 transform -translate-x-1/2 ${valueClasses} text-xs`}>{value}</span>
+                </div>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
+          
+        case "8": // D8 - Octahedron (diamond)
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="relative h-12 w-12 flex items-center justify-center">
+                {/* Diamond shape using transform */}
+                <div className="h-8 w-8 bg-gradient-to-br from-primary to-primary/80 transform rotate-45 border-2 border-white/20 shadow-lg flex items-center justify-center">
+                  <span className={`transform -rotate-45 ${valueClasses}`}>{value}</span>
+                </div>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
+          
+        case "10": // D10 - Pentagonal trapezohedron (kite)
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="relative h-12 w-12 flex items-center justify-center">
+                {/* Kite shape using clip-path */}
+                <div 
+                  className="h-10 w-6 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
+                  style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}
+                >
+                  <span className={valueClasses}>{value}</span>
+                </div>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
+          
+        case "12": // D12 - Dodecahedron (pentagonal)
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="relative h-12 w-12 flex items-center justify-center">
+                {/* Pentagon shape */}
+                <div 
+                  className="h-10 w-10 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
+                  style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}
+                >
+                  <span className={valueClasses}>{value}</span>
+                </div>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
+          
+        case "20": // D20 - Icosahedron (complex triangular)
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="relative h-12 w-12 flex items-center justify-center">
+                {/* Complex shape resembling D20 */}
+                <div className="relative">
+                  {/* Multiple triangular facets to simulate D20 */}
+                  <div className="w-0 h-0 border-l-[20px] border-r-[20px] border-b-[17px] border-l-transparent border-r-transparent border-b-primary absolute top-0"></div>
+                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[15px] border-l-transparent border-r-transparent border-t-primary/80 absolute top-3 left-1"></div>
+                  <div className="h-6 w-10 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center absolute top-1 left-1" 
+                       style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)' }}>
+                    <span className={`${valueClasses} text-xs`}>{value}</span>
+                  </div>
+                </div>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
+          
         default:
-          return {
-            shape: "rounded-lg",
-            gradient: "bg-primary",
-            size: "h-12 w-12"
-          };
+          return (
+            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
+              <div className="h-12 w-12 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center border-2 border-white/20 shadow-lg">
+                <span className={valueClasses}>{value}</span>
+              </div>
+              <span className={labelClasses}>{dieLabel}</span>
+            </div>
+          );
       }
     };
     
-    const dieProps = getDieProps();
-    
-    return (
-      <div className={`flex flex-col items-center gap-1 transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`}>
-        <div className={`${dieProps.size} ${dieProps.shape} ${dieProps.gradient} text-white flex items-center justify-center font-bold text-sm border-2 border-white/20 shadow-lg relative`}>
-          <span className={dieType === "10" ? "transform -rotate-45" : ""}>{value}</span>
-        </div>
-        <span className="text-xs text-muted-foreground font-medium">{dieLabel}</span>
-      </div>
-    );
+    return getDieComponent();
   };
 
   return (
