@@ -513,7 +513,9 @@ const GameNights = () => {
             <div className="absolute top-0 right-0 w-20 h-20 bg-gaming-red/20 rounded-full -translate-y-10 translate-x-10 group-hover:opacity-30 transition-opacity"></div>
             <div className="flex items-center justify-between relative">
               <div>
-                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">12</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
+                  {gameNights.reduce((total, event) => total + (event.attendees?.length || 0), 0)}
+                </p>
                 <p className="text-foreground/70 text-sm font-medium">Total Attendees</p>
               </div>
               <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
