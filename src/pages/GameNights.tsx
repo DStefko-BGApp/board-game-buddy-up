@@ -514,12 +514,12 @@ const GameNights = () => {
             <div className="flex items-center justify-between relative">
               <div>
                 <p className="text-3xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent">
-                  {gameNights.reduce((total, event) => total + (event.attendees?.length || 0), 0)}
+                  {viewFilter === 'public' ? gameNights.length : gameNights.filter(event => event.is_public).length}
                 </p>
-                <p className="text-foreground/70 text-sm font-medium">Total Attendees</p>
+                <p className="text-foreground/70 text-sm font-medium">Public Events Near Me</p>
               </div>
               <div className="h-14 w-14 bg-gradient-gaming rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Users className="h-7 w-7 text-white" />
+                <MapPin className="h-7 w-7 text-white" />
               </div>
             </div>
           </CardContent>
