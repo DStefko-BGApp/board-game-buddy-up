@@ -168,33 +168,59 @@ const Randomizer = () => {
       const DiceIcon = diceIcons[value - 1];
       return (
         <div className={`transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`}>
-          <DiceIcon className="h-16 w-16 text-primary" />
+          <DiceIcon className="h-12 w-12 text-primary" />
         </div>
       );
     }
     
-    // For other die types, create distinct visual representations
-    const getDieShape = () => {
+    // Create distinct die shapes based on actual die geometry
+    const getDieProps = () => {
       switch (dieType) {
-        case "4":
-          return "bg-gradient-to-br from-gaming-pink to-gaming-purple text-white";
-        case "8":
-          return "bg-gradient-to-br from-gaming-yellow to-gaming-orange text-white";
-        case "10":
-          return "bg-gradient-to-br from-gaming-purple to-gaming-pink text-white";
-        case "12":
-          return "bg-gradient-to-br from-gaming-orange to-gaming-yellow text-white";
-        case "20":
-          return "bg-gradient-to-br from-gaming-purple to-gaming-pink text-white";
+        case "4": // Tetrahedron (triangular pyramid)
+          return {
+            shape: "clip-path-triangle",
+            gradient: "bg-gradient-to-br from-gaming-pink to-gaming-purple",
+            size: "h-12 w-12"
+          };
+        case "8": // Octahedron (diamond-like)
+          return {
+            shape: "clip-path-octagon",
+            gradient: "bg-gradient-to-br from-gaming-yellow to-gaming-orange", 
+            size: "h-12 w-12"
+          };
+        case "10": // Pentagonal trapezohedron (kite-like)
+          return {
+            shape: "transform rotate-45",
+            gradient: "bg-gradient-to-br from-gaming-purple to-gaming-pink",
+            size: "h-11 w-11"
+          };
+        case "12": // Dodecahedron (pentagonal faces)
+          return {
+            shape: "rounded-full",
+            gradient: "bg-gradient-to-br from-gaming-orange to-gaming-yellow",
+            size: "h-12 w-12"
+          };
+        case "20": // Icosahedron (triangular faces, most complex)
+          return {
+            shape: "clip-path-triangle transform rotate-180",
+            gradient: "bg-gradient-to-br from-gaming-red to-gaming-purple",
+            size: "h-12 w-12"
+          };
         default:
-          return "bg-primary text-primary-foreground";
+          return {
+            shape: "rounded-lg",
+            gradient: "bg-primary",
+            size: "h-12 w-12"
+          };
       }
     };
     
+    const dieProps = getDieProps();
+    
     return (
       <div className={`flex flex-col items-center gap-1 transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`}>
-        <div className={`h-16 w-16 rounded-lg flex items-center justify-center font-bold text-lg border-2 border-white/20 shadow-lg ${getDieShape()}`}>
-          {value}
+        <div className={`${dieProps.size} ${dieProps.shape} ${dieProps.gradient} text-white flex items-center justify-center font-bold text-sm border-2 border-white/20 shadow-lg relative`}>
+          <span className={dieType === "10" ? "transform -rotate-45" : ""}>{value}</span>
         </div>
         <span className="text-xs text-muted-foreground font-medium">{dieLabel}</span>
       </div>
@@ -216,10 +242,10 @@ const Randomizer = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Enhanced Multi-Dice Roller */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Enhanced Multi-Dice Roller - More Compact */}
         <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
-          <CardHeader>
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Dice6 className="h-5 w-5 text-primary" />
@@ -238,84 +264,86 @@ const Randomizer = () => {
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Dice Configuration */}
-            <div className="space-y-4">
+          <CardContent className="space-y-4">
+            {/* Compact Dice Configuration */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">Dice Configuration</h3>
-                <Button variant="outline" size="sm" onClick={addDiceGroup} className="flex items-center gap-1">
-                  <Plus className="h-4 w-4" />
-                  Add Dice
+                <h3 className="text-sm font-medium">Configuration</h3>
+                <Button variant="outline" size="sm" onClick={addDiceGroup} className="flex items-center gap-1 h-8">
+                  <Plus className="h-3 w-3" />
+                  Add
                 </Button>
               </div>
               
-              {diceConfig.map((config, index) => (
-                <div key={index} className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={config.count}
-                      onChange={(e) => updateDiceGroup(index, 'count', parseInt(e.target.value) || 1)}
-                      className="w-16"
-                    />
-                    <span className="text-sm text-muted-foreground">×</span>
+              <div className="space-y-2">
+                {diceConfig.map((config, index) => (
+                  <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={config.count}
+                        onChange={(e) => updateDiceGroup(index, 'count', parseInt(e.target.value) || 1)}
+                        className="w-12 h-8 text-sm"
+                      />
+                      <span className="text-xs text-muted-foreground">×</span>
+                    </div>
+                    
+                    <Select value={config.type} onValueChange={(value) => updateDiceGroup(index, 'type', value)}>
+                      <SelectTrigger className="w-16 h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dieTypes.map((die) => (
+                          <SelectItem key={die.value} value={die.value}>
+                            {die.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {diceConfig.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeDiceGroup(index)}
+                        className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
-                  
-                  <Select value={config.type} onValueChange={(value) => updateDiceGroup(index, 'type', value)}>
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dieTypes.map((die) => (
-                        <SelectItem key={die.value} value={die.value}>
-                          {die.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {diceConfig.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDiceGroup(index)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             <Button 
               onClick={rollDice} 
               variant="gaming" 
-              className="w-full"
+              className="w-full h-10"
               disabled={isRolling}
             >
               {isRolling ? "Rolling..." : "Roll All Dice"}
             </Button>
 
-            {/* Results Display */}
+            {/* Compact Results Display */}
             {diceResult.length > 0 && (
-              <div className="mt-6">
-                <div className="flex flex-wrap justify-center gap-4 mb-4">
+              <div className="space-y-3">
+                <div className="flex flex-wrap justify-center gap-3">
                   {diceResult.map((result, index) => (
-                    <div key={`dice-${index}-${result}-${isRolling}`} className="text-gaming-purple">
+                    <div key={`dice-${index}-${result}-${isRolling}`}>
                       {getDiceDisplay(result, index)}
                     </div>
                   ))}
                 </div>
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-2 bg-muted/30 rounded-lg p-3">
                   <p className="text-lg font-semibold">
                     Total: {diceResult.reduce((sum, value) => sum + value, 0)}
                   </p>
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-wrap justify-center gap-1">
                     {diceConfig.map((config, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
+                      <Badge key={index} variant="secondary" className="text-xs h-5">
                         {config.count}d{config.type}
                       </Badge>
                     ))}
@@ -324,28 +352,28 @@ const Randomizer = () => {
               </div>
             )}
 
-            {/* History Panel */}
+            {/* Compact History Panel */}
             {showHistory && user && (
-              <div className="border-t pt-4 mt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium">Roll History</h3>
+              <div className="border-t pt-3">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium">Roll History</h3>
                   {history.length > 0 && (
-                    <Button variant="outline" size="sm" onClick={clearHistory}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button variant="outline" size="sm" onClick={clearHistory} className="h-7">
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   )}
                 </div>
                 
-                <ScrollArea className="h-64">
+                <ScrollArea className="h-48">
                   {history.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">No rolls yet</p>
+                    <p className="text-muted-foreground text-center py-6 text-sm">No rolls yet</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       {history.map((roll) => (
-                        <div key={roll.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <Badge variant="outline">{roll.dice_type}</Badge>
-                            <span className="text-sm">
+                        <div key={roll.id} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs h-5">{roll.dice_type}</Badge>
+                            <span className="text-xs">
                               {roll.results.join(', ')} = <strong>{roll.total}</strong>
                             </span>
                           </div>
