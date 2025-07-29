@@ -47,10 +47,7 @@ const GameNights = () => {
     try {
       let query = supabase
         .from('game_nights')
-        .select(`
-          *,
-          profiles!game_nights_user_id_fkey(display_name, avatar_url)
-        `);
+        .select('*');
 
       // Filter based on view type
       if (viewFilter === 'my') {
