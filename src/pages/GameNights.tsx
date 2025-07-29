@@ -6,7 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Clock, Users, MapPin, Plus, Edit, Download, ExternalLink } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar, Clock, Users, MapPin, Plus, Edit, Download, ExternalLink, Globe, Lock, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -30,7 +32,9 @@ const GameNights = () => {
     attendees: "",
     games: "",
     notes: "",
+    is_public: false,
   });
+  const [viewFilter, setViewFilter] = useState<'my' | 'public'>('my');
 
   // Load game nights from database
   useEffect(() => {
@@ -41,10 +45,21 @@ const GameNights = () => {
 
   const loadGameNights = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('game_nights')
-        .select('*')
-        .order('date', { ascending: true });
+        .select(`
+          *,
+          profiles!game_nights_user_id_fkey(display_name, avatar_url)
+        `);
+
+      // Filter based on view type
+      if (viewFilter === 'my') {
+        query = query.eq('user_id', user?.id);
+      } else {
+        query = query.eq('is_public', true);
+      }
+
+      const { data, error } = await query.order('date', { ascending: true });
 
       if (error) throw error;
       setGameNights(data || []);
@@ -65,6 +80,13 @@ const GameNights = () => {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const pastEvents = gameNights.filter(event => event.status === "completed");
 
+  // Reload when view filter changes
+  useEffect(() => {
+    if (user) {
+      loadGameNights();
+    }
+  }, [viewFilter, user]);
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -74,6 +96,20 @@ const GameNights = () => {
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
+  };
+
+  const getPrivacyBadge = (isPublic: boolean) => {
+    return isPublic ? (
+      <Badge variant="outline" className="flex items-center gap-1">
+        <Globe className="h-3 w-3" />
+        Public
+      </Badge>
+    ) : (
+      <Badge variant="secondary" className="flex items-center gap-1">
+        <Lock className="h-3 w-3" />
+        Private
+      </Badge>
+    );
   };
 
   const formatTime = (time24: string) => {
@@ -100,6 +136,7 @@ const GameNights = () => {
           games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
           notes: formData.notes || "",
           status: "upcoming",
+          is_public: formData.is_public,
         }])
         .select()
         .single();
@@ -107,7 +144,7 @@ const GameNights = () => {
       if (error) throw error;
 
       setGameNights([...gameNights, data]);
-      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
+      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
       setIsCreateDialogOpen(false);
       
       toast({
@@ -134,6 +171,7 @@ const GameNights = () => {
       attendees: gameNight.attendees.join(", "),
       games: gameNight.games.join(", "),
       notes: gameNight.notes || "",
+      is_public: gameNight.is_public || false,
     });
     setIsEditDialogOpen(true);
   };
@@ -152,6 +190,7 @@ const GameNights = () => {
           attendees: formData.attendees ? formData.attendees.split(",").map(a => a.trim()) : [],
           games: formData.games ? formData.games.split(",").map(g => g.trim()) : [],
           notes: formData.notes || "",
+          is_public: formData.is_public,
         })
         .eq('id', editingGameNight.id)
         .select()
@@ -160,7 +199,7 @@ const GameNights = () => {
       if (error) throw error;
 
       setGameNights(gameNights.map(gn => gn.id === editingGameNight.id ? data : gn));
-      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
+      setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
       setEditingGameNight(null);
       setIsEditDialogOpen(false);
       
@@ -271,22 +310,32 @@ const GameNights = () => {
                       rows={3}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Notes</Label>
-                    <Textarea
-                      id="notes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Additional details, rules to remember, snacks to bring, etc."
-                      rows={3}
-                    />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="notes">Notes</Label>
+                     <Textarea
+                       id="notes"
+                       value={formData.notes}
+                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                       placeholder="Additional details, rules to remember, snacks to bring, etc."
+                       rows={3}
+                     />
+                   </div>
+                   <div className="flex items-center space-x-2 pt-2">
+                     <Switch
+                       id="is_public"
+                       checked={formData.is_public}
+                       onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+                     />
+                     <Label htmlFor="is_public" className="text-sm">
+                       Make this event public (discoverable by all users)
+                     </Label>
+                   </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <Button 
                       variant="outline" 
                       onClick={() => {
                         setIsCreateDialogOpen(false);
-                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
                       }}
                     >
                       Cancel
@@ -368,23 +417,33 @@ const GameNights = () => {
                       rows={3}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-notes">Notes</Label>
-                    <Textarea
-                      id="edit-notes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Additional details, rules to remember, snacks to bring, etc."
-                      rows={3}
-                    />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="edit-notes">Notes</Label>
+                     <Textarea
+                       id="edit-notes"
+                       value={formData.notes}
+                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                       placeholder="Additional details, rules to remember, snacks to bring, etc."
+                       rows={3}
+                     />
+                   </div>
+                   <div className="flex items-center space-x-2 pt-2">
+                     <Switch
+                       id="edit_is_public"
+                       checked={formData.is_public}
+                       onCheckedChange={(checked) => setFormData({ ...formData, is_public: checked })}
+                     />
+                     <Label htmlFor="edit_is_public" className="text-sm">
+                       Make this event public (discoverable by all users)
+                     </Label>
+                   </div>
                   <div className="flex justify-end gap-2 pt-4">
                     <Button 
                       variant="outline" 
                       onClick={() => {
                         setIsEditDialogOpen(false);
                         setEditingGameNight(null);
-                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "" });
+                        setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
                       }}
                     >
                       Cancel
@@ -402,6 +461,22 @@ const GameNights = () => {
             </Dialog>
           </div>
         </div>
+      </div>
+
+      {/* View Filter */}
+      <div className="mb-6">
+        <Tabs value={viewFilter} onValueChange={(value: 'my' | 'public') => setViewFilter(value)}>
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="my" className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              My Events
+            </TabsTrigger>
+            <TabsTrigger value="public" className="flex items-center gap-2">
+              <Globe className="h-4 w-4" />
+              Public Events
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Stats with enhanced styling */}
@@ -477,9 +552,16 @@ const GameNights = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(event.status)}
-                    <Button 
+                   <div className="flex items-center gap-2">
+                     {getStatusBadge(event.status)}
+                     {getPrivacyBadge(event.is_public)}
+                     {viewFilter === 'public' && event.profiles && (
+                       <Badge variant="outline" className="flex items-center gap-1">
+                         <Users className="h-3 w-3" />
+                         by {event.profiles.display_name}
+                       </Badge>
+                     )}
+                     <Button
                       variant="ghost" 
                       size="icon"
                       onClick={() => generateICalFile(event)}
@@ -571,8 +653,17 @@ const GameNights = () => {
                         {event.location}
                       </div>
                     </div>
-                  </div>
-                  {getStatusBadge(event.status)}
+                   </div>
+                   <div className="flex items-center gap-2">
+                     {getStatusBadge(event.status)}
+                     {getPrivacyBadge(event.is_public)}
+                     {viewFilter === 'public' && event.profiles && (
+                       <Badge variant="outline" className="flex items-center gap-1">
+                         <Users className="h-3 w-3" />
+                         by {event.profiles.display_name}
+                       </Badge>
+                     )}
+                   </div>
                 </div>
               </CardHeader>
               <CardContent>

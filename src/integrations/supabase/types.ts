@@ -129,6 +129,36 @@ export type Database = {
           },
         ]
       }
+      dice_roll_history: {
+        Row: {
+          created_at: string
+          dice_count: number
+          dice_type: string
+          id: string
+          results: number[]
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dice_count: number
+          dice_type: string
+          id?: string
+          results: number[]
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dice_count?: number
+          dice_type?: string
+          id?: string
+          results?: number[]
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           addressee_id: string
