@@ -244,19 +244,45 @@ const Randomizer = () => {
             </div>
           );
           
-        case "20": // D20 - Icosahedron (complex triangular)
+        case "20": // D20 - Icosahedron (20 triangular faces)
           return (
             <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
               <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Complex shape resembling D20 */}
+                {/* Icosahedron - multiple triangular faces */}
                 <div className="relative">
-                  {/* Multiple triangular facets to simulate D20 */}
-                  <div className="w-0 h-0 border-l-[20px] border-r-[20px] border-b-[17px] border-l-transparent border-r-transparent border-b-primary absolute top-0"></div>
-                  <div className="w-0 h-0 border-l-[18px] border-r-[18px] border-t-[15px] border-l-transparent border-r-transparent border-t-primary/80 absolute top-3 left-1"></div>
-                  <div className="h-6 w-10 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center absolute top-1 left-1" 
-                       style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)' }}>
+                  {/* Main central triangular face */}
+                  <div 
+                    className="h-8 w-8 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
+                    style={{ 
+                      clipPath: 'polygon(50% 10%, 10% 80%, 90% 80%)',
+                      transform: 'translateY(2px)'
+                    }}
+                  >
                     <span className={`${valueClasses} text-xs`}>{value}</span>
                   </div>
+                  {/* Top triangular faces */}
+                  <div 
+                    className="absolute top-0 left-2 h-3 w-6 bg-primary/60 border border-white/20"
+                    style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
+                  />
+                  <div 
+                    className="absolute top-0 right-2 h-3 w-6 bg-primary/60 border border-white/20"
+                    style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
+                  />
+                  {/* Side triangular faces */}
+                  <div 
+                    className="absolute top-2 left-0 h-4 w-3 bg-primary/70 border border-white/20"
+                    style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)' }}
+                  />
+                  <div 
+                    className="absolute top-2 right-0 h-4 w-3 bg-primary/70 border border-white/20"
+                    style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)' }}
+                  />
+                  {/* Bottom triangular faces */}
+                  <div 
+                    className="absolute bottom-0 left-2 h-2 w-6 bg-primary/50 border border-white/20"
+                    style={{ clipPath: 'polygon(0% 0%, 100% 0%, 50% 100%)' }}
+                  />
                 </div>
               </div>
               <span className={labelClasses}>{dieLabel}</span>
