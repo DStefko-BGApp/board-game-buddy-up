@@ -10,14 +10,6 @@ import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Shuffle, Users, History, Tras
 import { useDiceHistory } from "@/hooks/useDiceHistory";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Import dice images
-import diceD4 from "@/assets/dice-d4.png";
-import diceD6 from "@/assets/dice-d6.png";
-import diceD8 from "@/assets/dice-d8.png";
-import diceD10 from "@/assets/dice-d10.png";
-import diceD12 from "@/assets/dice-d12.png";
-import diceD20 from "@/assets/dice-d20.png";
-
 const Randomizer = () => {
   const [diceResult, setDiceResult] = useState<number[]>([]);
   const [isRolling, setIsRolling] = useState(false);
@@ -173,32 +165,96 @@ const Randomizer = () => {
     // Consistent styling for all dice
     const baseClasses = `transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`;
     const labelClasses = "text-xs text-muted-foreground font-medium mt-1";
-    
-    // Get the appropriate dice image based on type
-    const getDiceImage = () => {
-      switch (dieType) {
-        case "4": return diceD4;
-        case "6": return diceD6;
-        case "8": return diceD8;
-        case "10": return diceD10;
-        case "12": return diceD12;
-        case "20": return diceD20;
-        default: return diceD6;
-      }
-    };
 
+    // D6 gets special treatment with dots
+    if (dieType === "6") {
+      const getDots = () => {
+        const dotClasses = "w-2 h-2 bg-white rounded-full";
+        const emptyDot = <div className="w-2 h-2"></div>;
+        
+        switch (value) {
+          case 1:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                {emptyDot}{emptyDot}{emptyDot}
+                {emptyDot}<div className={dotClasses}></div>{emptyDot}
+                {emptyDot}{emptyDot}{emptyDot}
+              </div>
+            );
+          case 2:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                <div className={dotClasses}></div>{emptyDot}{emptyDot}
+                {emptyDot}{emptyDot}{emptyDot}
+                {emptyDot}{emptyDot}<div className={dotClasses}></div>
+              </div>
+            );
+          case 3:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                <div className={dotClasses}></div>{emptyDot}{emptyDot}
+                {emptyDot}<div className={dotClasses}></div>{emptyDot}
+                {emptyDot}{emptyDot}<div className={dotClasses}></div>
+              </div>
+            );
+          case 4:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+                {emptyDot}{emptyDot}{emptyDot}
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+              </div>
+            );
+          case 5:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+                {emptyDot}<div className={dotClasses}></div>{emptyDot}
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+              </div>
+            );
+          case 6:
+            return (
+              <div className="grid grid-cols-3 gap-1 p-2">
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
+              </div>
+            );
+          default:
+            return <span className="text-white font-bold text-lg">{value}</span>;
+        }
+      };
+
+      return (
+        <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
+          <div className="w-16 h-16 bg-gradient-to-br from-primary via-primary to-primary/80 rounded-lg shadow-lg border-2 border-white/20 flex items-center justify-center">
+            {getDots()}
+          </div>
+          <span className={labelClasses}>{dieLabel}</span>
+        </div>
+      );
+    }
+
+    // All other dice types get clean geometric shapes with numbers
     return (
       <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
-        <div className="relative flex items-center gap-3">
-          {/* Realistic dice image without overlay */}
-          <img 
-            src={getDiceImage()} 
-            alt={`${dieLabel} showing ${value}`}
-            className="h-14 w-14 object-contain drop-shadow-lg"
-          />
-          {/* Value displayed next to dice */}
-          <div className="bg-card/90 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 shadow-lg">
-            <span className="text-xl font-bold text-foreground">
+        <div className="relative w-16 h-16 flex items-center justify-center">
+          {/* Simple geometric shape based on die type */}
+          <div 
+            className={`
+              bg-gradient-to-br from-primary via-primary to-primary/80 
+              shadow-lg border-2 border-white/20 
+              flex items-center justify-center
+              ${dieType === "4" ? "w-12 h-12 rotate-45" : ""}
+              ${dieType === "8" ? "w-12 h-12 rotate-45" : ""}
+              ${dieType === "10" ? "w-10 h-14 rounded-lg" : ""}
+              ${dieType === "12" ? "w-14 h-14 rounded-lg" : ""}
+              ${dieType === "20" ? "w-14 h-14 rounded-full" : ""}
+              ${!["4", "8", "10", "12", "20"].includes(dieType) ? "w-14 h-14 rounded-lg" : ""}
+            `}
+          >
+            <span className={`text-white font-bold text-lg ${["4", "8"].includes(dieType) ? "-rotate-45" : ""}`}>
               {value}
             </span>
           </div>
