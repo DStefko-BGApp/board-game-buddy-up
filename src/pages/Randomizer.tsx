@@ -10,6 +10,14 @@ import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Shuffle, Users, History, Tras
 import { useDiceHistory } from "@/hooks/useDiceHistory";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Import dice images
+import diceD4 from "@/assets/dice-d4.png";
+import diceD6 from "@/assets/dice-d6.png";
+import diceD8 from "@/assets/dice-d8.png";
+import diceD10 from "@/assets/dice-d10.png";
+import diceD12 from "@/assets/dice-d12.png";
+import diceD20 from "@/assets/dice-d20.png";
+
 const Randomizer = () => {
   const [diceResult, setDiceResult] = useState<number[]>([]);
   const [isRolling, setIsRolling] = useState(false);
@@ -164,144 +172,40 @@ const Randomizer = () => {
     
     // Consistent styling for all dice
     const baseClasses = `transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`;
-    const valueClasses = "text-white font-bold text-sm drop-shadow-sm";
     const labelClasses = "text-xs text-muted-foreground font-medium mt-1";
     
-    // For D6, use dice icons but make them consistent with other dice
-    if (dieType === "6" && value <= 6) {
-      const diceIcons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
-      const DiceIcon = diceIcons[value - 1];
-      return (
-        <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-          <div className="h-12 w-12 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center border-2 border-white/20 shadow-lg">
-            <DiceIcon className="h-8 w-8 text-white" />
-          </div>
-          <span className={labelClasses}>{dieLabel}</span>
-        </div>
-      );
-    }
-    
-    // Create accurate die shapes with consistent styling
-    const getDieComponent = () => {
+    // Get the appropriate dice image based on type
+    const getDiceImage = () => {
       switch (dieType) {
-        case "4": // D4 - Tetrahedron (pyramid)
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Triangle using borders to create pyramid effect */}
-                <div className="relative">
-                  <div className="w-0 h-0 border-l-[24px] border-r-[24px] border-b-[20px] border-l-transparent border-r-transparent border-b-gradient-to-br from-primary to-primary/80"></div>
-                  <div className="w-0 h-0 border-l-[22px] border-r-[22px] border-b-[18px] border-l-transparent border-r-transparent border-b-primary/90 absolute top-1 left-1"></div>
-                  <span className={`absolute top-2 left-1/2 transform -translate-x-1/2 ${valueClasses} text-xs`}>{value}</span>
-                </div>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
-          
-        case "8": // D8 - Octahedron (diamond)
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Diamond shape using transform */}
-                <div className="h-8 w-8 bg-gradient-to-br from-primary to-primary/80 transform rotate-45 border-2 border-white/20 shadow-lg flex items-center justify-center">
-                  <span className={`transform -rotate-45 ${valueClasses}`}>{value}</span>
-                </div>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
-          
-        case "10": // D10 - Pentagonal trapezohedron (kite)
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Kite shape using clip-path */}
-                <div 
-                  className="h-10 w-6 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
-                  style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}
-                >
-                  <span className={valueClasses}>{value}</span>
-                </div>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
-          
-        case "12": // D12 - Dodecahedron (pentagonal)
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Pentagon shape */}
-                <div 
-                  className="h-10 w-10 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
-                  style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}
-                >
-                  <span className={valueClasses}>{value}</span>
-                </div>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
-          
-        case "20": // D20 - Icosahedron (20 triangular faces)
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                {/* Icosahedron - multiple triangular faces */}
-                <div className="relative">
-                  {/* Main central triangular face */}
-                  <div 
-                    className="h-8 w-8 bg-gradient-to-br from-primary to-primary/80 border-2 border-white/20 shadow-lg flex items-center justify-center"
-                    style={{ 
-                      clipPath: 'polygon(50% 10%, 10% 80%, 90% 80%)',
-                      transform: 'translateY(2px)'
-                    }}
-                  >
-                    <span className={`${valueClasses} text-xs`}>{value}</span>
-                  </div>
-                  {/* Top triangular faces */}
-                  <div 
-                    className="absolute top-0 left-2 h-3 w-6 bg-primary/60 border border-white/20"
-                    style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
-                  />
-                  <div 
-                    className="absolute top-0 right-2 h-3 w-6 bg-primary/60 border border-white/20"
-                    style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
-                  />
-                  {/* Side triangular faces */}
-                  <div 
-                    className="absolute top-2 left-0 h-4 w-3 bg-primary/70 border border-white/20"
-                    style={{ clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)' }}
-                  />
-                  <div 
-                    className="absolute top-2 right-0 h-4 w-3 bg-primary/70 border border-white/20"
-                    style={{ clipPath: 'polygon(100% 0%, 0% 50%, 100% 100%)' }}
-                  />
-                  {/* Bottom triangular faces */}
-                  <div 
-                    className="absolute bottom-0 left-2 h-2 w-6 bg-primary/50 border border-white/20"
-                    style={{ clipPath: 'polygon(0% 0%, 100% 0%, 50% 100%)' }}
-                  />
-                </div>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
-          
-        default:
-          return (
-            <div className={`flex flex-col items-center gap-1 ${baseClasses}`}>
-              <div className="h-12 w-12 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center border-2 border-white/20 shadow-lg">
-                <span className={valueClasses}>{value}</span>
-              </div>
-              <span className={labelClasses}>{dieLabel}</span>
-            </div>
-          );
+        case "4": return diceD4;
+        case "6": return diceD6;
+        case "8": return diceD8;
+        case "10": return diceD10;
+        case "12": return diceD12;
+        case "20": return diceD20;
+        default: return diceD6;
       }
     };
-    
-    return getDieComponent();
+
+    return (
+      <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
+        <div className="relative h-16 w-16 flex items-center justify-center">
+          {/* Realistic dice image */}
+          <img 
+            src={getDiceImage()} 
+            alt={`${dieLabel} showing ${value}`}
+            className="h-16 w-16 object-contain drop-shadow-lg"
+          />
+          {/* Value overlay */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] stroke-2 stroke-black">
+              {value}
+            </span>
+          </div>
+        </div>
+        <span className={labelClasses}>{dieLabel}</span>
+      </div>
+    );
   };
 
   return (
