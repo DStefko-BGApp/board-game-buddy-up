@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Shuffle, Users, History, Trash2, Plus, Minus } from "lucide-react";
 import { useDiceHistory } from "@/hooks/useDiceHistory";
 import { useAuth } from "@/contexts/AuthContext";
+import DiceRoller from "@/utils/DiceRoller";
 
 const Randomizer = () => {
   const [diceResult, setDiceResult] = useState<number[]>([]);
@@ -26,6 +27,7 @@ const Randomizer = () => {
   
   const { user } = useAuth();
   const { history, addRoll, clearHistory } = useDiceHistory();
+  const diceRoller = new DiceRoller();
 
   const dieTypes = [
     { value: "4", label: "D4", sides: 4 },
@@ -66,12 +68,9 @@ const Randomizer = () => {
     const rollInterval = setInterval(() => {
       const tempResults: number[] = [];
       diceConfig.forEach(config => {
-        const selectedDie = dieTypes.find(d => d.value === config.type);
-        const sides = selectedDie ? selectedDie.sides : 6;
-        
-        for (let i = 0; i < config.count; i++) {
-          tempResults.push(Math.floor(Math.random() * sides) + 1);
-        }
+        const sides = parseInt(config.type);
+        const results = diceRoller.rollMultiple(sides, config.count);
+        tempResults.push(...results);
       });
       setDiceResult(tempResults);
       rollCount++;
@@ -82,16 +81,11 @@ const Randomizer = () => {
         // Final roll
         setTimeout(() => {
           const finalResults: number[] = [];
-          let diceIndex = 0;
           
           diceConfig.forEach(config => {
-            const selectedDie = dieTypes.find(d => d.value === config.type);
-            const sides = selectedDie ? selectedDie.sides : 6;
-            
-            for (let i = 0; i < config.count; i++) {
-              finalResults.push(Math.floor(Math.random() * sides) + 1);
-              diceIndex++;
-            }
+            const sides = parseInt(config.type);
+            const results = diceRoller.rollMultiple(sides, config.count);
+            finalResults.push(...results);
           });
           
           setDiceResult(finalResults);
