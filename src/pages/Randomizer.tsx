@@ -189,16 +189,16 @@ const Randomizer = () => {
 
     return (
       <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
-        <div className="relative h-16 w-16 flex items-center justify-center">
-          {/* Realistic dice image */}
+        <div className="relative flex items-center gap-3">
+          {/* Realistic dice image without overlay */}
           <img 
             src={getDiceImage()} 
             alt={`${dieLabel} showing ${value}`}
-            className="h-16 w-16 object-contain drop-shadow-lg"
+            className="h-14 w-14 object-contain drop-shadow-lg"
           />
-          {/* Value overlay */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-white font-bold text-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] stroke-2 stroke-black">
+          {/* Value displayed next to dice */}
+          <div className="bg-card/90 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 shadow-lg">
+            <span className="text-xl font-bold text-foreground">
               {value}
             </span>
           </div>
