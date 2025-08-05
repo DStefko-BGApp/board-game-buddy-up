@@ -115,7 +115,7 @@ const Randomizer = () => {
           <div className="text-center">
             <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent mb-2">Game Randomizers</h1>
             <p className="text-muted-foreground text-lg">
-              Simple tools to add randomness to your games
+              Fun tools to add randomness to your games
             </p>
           </div>
         </div>
