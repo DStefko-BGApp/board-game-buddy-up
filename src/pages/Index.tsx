@@ -12,11 +12,11 @@ const Index = () => {
     link: "/library",
     color: "text-primary"
   }, {
-    icon: Shuffle,
-    title: "Randomizers",
-    description: "Flip coins, generate numbers, and make random decisions",
-    link: "/randomizer",
-    color: "text-gaming-blue"
+    icon: Users,
+    title: "Friends",
+    description: "Connect with other board game enthusiasts",
+    link: "/friends",
+    color: "text-gaming-green"
   }, {
     icon: Calendar,
     title: "Game Nights",
@@ -24,11 +24,11 @@ const Index = () => {
     link: "/game-nights",
     color: "text-gaming-slate"
   }, {
-    icon: Users,
-    title: "Friends",
-    description: "Connect with other board game enthusiasts",
-    link: "/friends",
-    color: "text-gaming-green"
+    icon: Shuffle,
+    title: "Randomizers",
+    description: "Flip coins, generate numbers, and make random decisions",
+    link: "/randomizer",
+    color: "text-gaming-blue"
   }];
   return <div className="min-h-screen page-background">
       {/* Hero Section */}
