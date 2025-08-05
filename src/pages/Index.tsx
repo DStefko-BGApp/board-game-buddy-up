@@ -49,9 +49,9 @@ const Index = () => {
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed">Your all-in-one social board game app. Manage your collection, plan game nights, and connect with friends.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale">
-              <Link to="/randomizer">
-                Get Random
-                <Shuffle className="h-5 w-5" />
+              <Link to="/game-nights">
+                Plan Game Night
+                <Calendar className="h-5 w-5" />
               </Link>
             </Button>
           </div>
