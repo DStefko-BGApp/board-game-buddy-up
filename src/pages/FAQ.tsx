@@ -20,6 +20,10 @@ const FAQ = () => {
       answer: "For large BGG collections (200+ games), you may need to run the sync 2-4 times to import your entire collection. This is normal! Each sync attempt will import additional games. Simply click 'Sync BGG Collection' again until all your games are imported. The process works incrementally, so you won't get duplicates."
     },
     {
+      question: "BGG import mixed up my expansions and base games - how do I fix this?",
+      answer: "Sometimes BoardGameGeek imports mix up expansions and base games during the sync process. This is a known issue with BGG data. You can easily fix this by dragging and dropping the misplaced expansion onto the correct base game in your library. The drag-and-drop feature will automatically group them properly."
+    },
+    {
       question: "How do I organize game nights with friends?",
       answer: "Navigate to the Game Nights page where you can create events, invite friends, and select games from your library. Friends can RSVP and see what games will be played."
     },
