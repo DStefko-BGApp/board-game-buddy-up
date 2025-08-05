@@ -90,8 +90,8 @@ export const GameCard = ({
     }
   };
 
-  const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 ${
-    !isSelectionMode ? 'cursor-grab active:cursor-grabbing' : ''
+  const cardClasses = `overflow-hidden hover:shadow-gaming transition-all duration-300 cursor-pointer ${
+    !isSelectionMode ? 'hover:scale-[1.02]' : ''
   } ${isExpansion ? 'ml-6 border-l-4 border-l-gaming-purple' : ''} ${
     isSelectionMode && isSelected ? 'ring-2 ring-primary' : ''
   } ${isDragOver ? 'ring-2 ring-gaming-purple bg-gaming-purple/10' : ''}`;
@@ -105,6 +105,7 @@ export const GameCard = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={() => !isSelectionMode && onEdit(userGame)}
     >
       <div className="flex gap-3 p-3">
         {/* Selection Checkbox */}
@@ -113,7 +114,10 @@ export const GameCard = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onSelect(userGame.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(userGame.id);
+              }}
               className="h-5 w-5 p-0"
             >
               {isSelected ? (
@@ -157,6 +161,7 @@ export const GameCard = ({
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={(e) => e.stopPropagation()}
                       className={`h-6 px-2 text-xs gap-1 text-white border-0 ${
                         userGame.status === 'owned' ? 'bg-gaming-green hover:bg-gaming-green/80' :
                         userGame.status === 'wishlist' ? 'bg-gaming-purple hover:bg-gaming-purple/80' :
@@ -242,7 +247,10 @@ export const GameCard = ({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onEdit(userGame)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(userGame);
+              }}
               className="h-7 px-2 text-xs"
             >
               <Edit className="h-3 w-3 mr-1" />
@@ -266,7 +274,10 @@ export const GameCard = ({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onRemove(userGame.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(userGame.id);
+              }}
               disabled={isRemoving}
               className="text-destructive hover:text-destructive h-7 px-2"
             >
