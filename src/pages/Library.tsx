@@ -23,6 +23,7 @@ import { GamesList } from "@/components/library/GamesList";
 import { EditGameDialog } from "@/components/library/EditGameDialog";
 import { SearchGameDialog } from "@/components/library/SearchGameDialog";
 import { SyncDialog } from "@/components/library/SyncDialog";
+import { BGGImportWarning } from "@/components/library/BGGImportWarning";
 
 import { useLibraryFilters } from "@/hooks/useLibraryFilters";
 import { useGameSelection } from "@/hooks/useGameSelection";
@@ -254,6 +255,8 @@ const Library = () => {
       />
 
       <LibraryStats userLibrary={userLibrary} />
+
+      {userLibrary && userLibrary.length > 0 && <BGGImportWarning />}
 
       {userLibrary && userLibrary.length > 0 && (
         <LibraryFilters
