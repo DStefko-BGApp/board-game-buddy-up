@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { BookOpen, Dice6, Calendar, Users, Crown, ArrowRight, Star } from "lucide-react";
+import { BookOpen, Shuffle, Calendar, Users, Crown, ArrowRight, Star } from "lucide-react";
 import heroImage from "@/assets/hero-gaming.jpg";
 const Index = () => {
   const features = [{
@@ -12,9 +12,9 @@ const Index = () => {
     link: "/library",
     color: "text-primary"
   }, {
-    icon: Dice6,
-    title: "Dice & Tools",
-    description: "Roll dice, flip coins, and make random decisions",
+    icon: Shuffle,
+    title: "Randomizers",
+    description: "Flip coins, generate numbers, and make random decisions",
     link: "/randomizer",
     color: "text-gaming-blue"
   }, {
@@ -50,8 +50,8 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="gaming" size="lg" className="text-lg px-8 py-4 hover-scale">
               <Link to="/randomizer">
-                Roll Some Dice
-                <Dice6 className="h-5 w-5" />
+                Try Randomizers
+                <Shuffle className="h-5 w-5" />
               </Link>
             </Button>
           </div>

@@ -25,7 +25,7 @@ const FAQ = () => {
     },
     {
       question: "What gaming tools are available?",
-      answer: "The Dice & Tools page includes a dice roller (supporting D4, D6, D8, D10, D12, D20), coin flipper, random choice selector, and player order shuffler - everything you need for game night."
+      answer: "The Randomizers page includes coin flipper, random number generator, random choice selector, and player order shuffler - everything you need for game night randomization."
     },
     {
       question: "Can I track my game ratings and plays?",

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Crown, 
   BookOpen, 
-  Dice6, 
+  Shuffle, 
   Calendar, 
   Users,
   FileText,
@@ -25,7 +25,7 @@ const Navigation = () => {
   const navItems = [
     { to: "/", icon: Crown, label: "Home" },
     { to: "/library", icon: BookOpen, label: "My Games" },
-    { to: "/randomizer", icon: Dice6, label: "Dice & Tools" },
+    { to: "/randomizer", icon: Shuffle, label: "Randomizers" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
     { to: "/friends", icon: Users, label: "Friends" },
     { to: "/play-reports", icon: FileText, label: "Play Reports" },
