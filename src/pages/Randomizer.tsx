@@ -3,103 +3,88 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Shuffle, Users, History, Trash2, Plus, Minus } from "lucide-react";
-import { useDiceHistory } from "@/hooks/useDiceHistory";
-import { useAuth } from "@/contexts/AuthContext";
-import DiceRoller from "@/utils/DiceRoller";
+import { Coins, Shuffle, Users, Hash, Target, Timer } from "lucide-react";
 
 const Randomizer = () => {
-  const [diceResult, setDiceResult] = useState<number[]>([]);
-  const [isRolling, setIsRolling] = useState(false);
   const [coinResult, setCoinResult] = useState<string>("");
   const [isFlipping, setIsFlipping] = useState(false);
   const [customList, setCustomList] = useState("");
   const [randomChoice, setRandomChoice] = useState("");
   const [playerOrder, setPlayerOrder] = useState<string[]>([]);
   const [playerNames, setPlayerNames] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
-  
-  // Multi-dice state - each dice can be a different type
-  const [diceConfig, setDiceConfig] = useState([{ type: "6", count: 1 }]);
-  
-  const { user } = useAuth();
-  const { history, addRoll, clearHistory } = useDiceHistory();
-  const diceRoller = new DiceRoller();
+  const [numberResult, setNumberResult] = useState<number | null>(null);
+  const [numberMin, setNumberMin] = useState(1);
+  const [numberMax, setNumberMax] = useState(100);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [teams, setTeams] = useState<string[][]>([]);
+  const [teamNames, setTeamNames] = useState("");
+  const [teamsPerGroup, setTeamsPerGroup] = useState(2);
+  const [percentResult, setPercentResult] = useState<number | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
-  const dieTypes = [
-    { value: "4", label: "D4", sides: 4 },
-    { value: "6", label: "D6", sides: 6 },
-    { value: "8", label: "D8", sides: 8 },
-    { value: "10", label: "D10", sides: 10 },
-    { value: "12", label: "D12", sides: 12 },
-    { value: "20", label: "D20", sides: 20 }
-  ];
-
-  const addDiceGroup = () => {
-    setDiceConfig([...diceConfig, { type: "6", count: 1 }]);
-  };
-
-  const removeDiceGroup = (index: number) => {
-    if (diceConfig.length > 1) {
-      setDiceConfig(diceConfig.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateDiceGroup = (index: number, field: 'type' | 'count', value: string | number) => {
-    const updated = [...diceConfig];
-    if (field === 'type') {
-      updated[index].type = value as string;
-    } else {
-      updated[index].count = Math.max(1, Math.min(10, value as number));
-    }
-    setDiceConfig(updated);
-  };
-
-  const rollDice = async () => {
-    setIsRolling(true);
+  const generateRandomNumber = () => {
+    setIsGenerating(true);
+    setNumberResult(null);
     
-    // Simulate rolling animation
-    let rollCount = 0;
-    const maxRolls = 8;
+    // Animation effect
+    let count = 0;
+    const maxCount = 10;
     
-    const rollInterval = setInterval(() => {
-      const tempResults: number[] = [];
-      diceConfig.forEach(config => {
-        const sides = parseInt(config.type);
-        const results = diceRoller.rollMultiple(sides, config.count);
-        tempResults.push(...results);
-      });
-      setDiceResult(tempResults);
-      rollCount++;
+    const interval = setInterval(() => {
+      const tempNumber = Math.floor(Math.random() * (numberMax - numberMin + 1)) + numberMin;
+      setNumberResult(tempNumber);
+      count++;
       
-      if (rollCount >= maxRolls) {
-        clearInterval(rollInterval);
-        
-        // Final roll
+      if (count >= maxCount) {
+        clearInterval(interval);
         setTimeout(() => {
-          const finalResults: number[] = [];
-          
-          diceConfig.forEach(config => {
-            const sides = parseInt(config.type);
-            const results = diceRoller.rollMultiple(sides, config.count);
-            finalResults.push(...results);
-          });
-          
-          setDiceResult(finalResults);
-          setIsRolling(false);
-          
-          // Save to history if user is logged in
-          if (user && finalResults.length > 0) {
-            const total = finalResults.reduce((sum, val) => sum + val, 0);
-            const diceDescription = diceConfig.map(config => `${config.count}d${config.type}`).join(', ');
-            addRoll(diceDescription, finalResults.length, finalResults, total);
-          }
-        }, 200);
+          const finalNumber = Math.floor(Math.random() * (numberMax - numberMin + 1)) + numberMin;
+          setNumberResult(finalNumber);
+          setIsGenerating(false);
+        }, 150);
+      }
+    }, 80);
+  };
+
+  const generatePercentage = () => {
+    setIsCalculating(true);
+    setPercentResult(null);
+    
+    // Animation effect
+    let count = 0;
+    const maxCount = 8;
+    
+    const interval = setInterval(() => {
+      const tempPercent = Math.floor(Math.random() * 101);
+      setPercentResult(tempPercent);
+      count++;
+      
+      if (count >= maxCount) {
+        clearInterval(interval);
+        setTimeout(() => {
+          const finalPercent = Math.floor(Math.random() * 101);
+          setPercentResult(finalPercent);
+          setIsCalculating(false);
+        }, 150);
       }
     }, 100);
+  };
+
+  const createTeams = () => {
+    const players = teamNames.split('\n').filter(name => name.trim() !== '');
+    if (players.length < 2) return;
+    
+    // Shuffle players
+    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    
+    // Create teams
+    const newTeams: string[][] = [];
+    for (let i = 0; i < shuffledPlayers.length; i += teamsPerGroup) {
+      newTeams.push(shuffledPlayers.slice(i, i + teamsPerGroup));
+    }
+    
+    setTeams(newTeams);
   };
 
   const flipCoin = () => {
@@ -108,7 +93,7 @@ const Randomizer = () => {
     
     // Simulate coin flipping animation
     let flipCount = 0;
-    const maxFlips = 8; // Number of flips to show
+    const maxFlips = 12;
     
     const flipInterval = setInterval(() => {
       setCoinResult(flipCount % 2 === 0 ? "Heads" : "Tails");
@@ -116,14 +101,13 @@ const Randomizer = () => {
       
       if (flipCount >= maxFlips) {
         clearInterval(flipInterval);
-        // Final result after animation
         setTimeout(() => {
           const finalResult = Math.random() < 0.5 ? "Heads" : "Tails";
           setCoinResult(finalResult);
           setIsFlipping(false);
-        }, 150);
+        }, 200);
       }
-    }, 120); // 120ms between flips for smooth animation
+    }, 100);
   };
 
   const getRandomChoice = () => {
@@ -140,422 +124,343 @@ const Randomizer = () => {
     setPlayerOrder(shuffled);
   };
 
-  const getDiceDisplay = (value: number, diceIndex: number) => {
-    // Determine which dice group this die belongs to
-    let currentIndex = 0;
-    let dieType = "6";
-    
-    for (const config of diceConfig) {
-      if (diceIndex >= currentIndex && diceIndex < currentIndex + config.count) {
-        dieType = config.type;
-        break;
-      }
-      currentIndex += config.count;
-    }
-    
-    const selectedDie = dieTypes.find(d => d.value === dieType);
-    const dieLabel = selectedDie ? selectedDie.label : "D6";
-    
-    // Consistent styling for all dice
-    const baseClasses = `transition-all duration-200 ${isRolling ? 'animate-pulse scale-110' : 'hover:scale-105'}`;
-    const labelClasses = "text-xs text-muted-foreground font-medium mt-1";
+  const getCoinVisual = () => {
+    const coinSize = "w-32 h-32";
+    const coinClasses = `${coinSize} rounded-full border-4 border-yellow-400 shadow-2xl transition-all duration-300 ${
+      isFlipping ? 'animate-spin scale-110' : 'hover:scale-105'
+    }`;
 
-    // D6 gets special treatment with dots
-    if (dieType === "6") {
-      const getDots = () => {
-        const dotClasses = "w-2 h-2 bg-white rounded-full";
-        const emptyDot = <div className="w-2 h-2"></div>;
-        
-        switch (value) {
-          case 1:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                {emptyDot}{emptyDot}{emptyDot}
-                {emptyDot}<div className={dotClasses}></div>{emptyDot}
-                {emptyDot}{emptyDot}{emptyDot}
-              </div>
-            );
-          case 2:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                <div className={dotClasses}></div>{emptyDot}{emptyDot}
-                {emptyDot}{emptyDot}{emptyDot}
-                {emptyDot}{emptyDot}<div className={dotClasses}></div>
-              </div>
-            );
-          case 3:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                <div className={dotClasses}></div>{emptyDot}{emptyDot}
-                {emptyDot}<div className={dotClasses}></div>{emptyDot}
-                {emptyDot}{emptyDot}<div className={dotClasses}></div>
-              </div>
-            );
-          case 4:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-                {emptyDot}{emptyDot}{emptyDot}
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-              </div>
-            );
-          case 5:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-                {emptyDot}<div className={dotClasses}></div>{emptyDot}
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-              </div>
-            );
-          case 6:
-            return (
-              <div className="grid grid-cols-3 gap-1 p-2">
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-                <div className={dotClasses}></div>{emptyDot}<div className={dotClasses}></div>
-              </div>
-            );
-          default:
-            return <span className="text-white font-bold text-lg">{value}</span>;
-        }
-      };
-
+    if (coinResult === "Heads") {
       return (
-        <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
-          <div className="w-16 h-16 bg-gradient-to-br from-primary via-primary to-primary/80 rounded-lg shadow-lg border-2 border-white/20 flex items-center justify-center">
-            {getDots()}
-          </div>
-          <span className={labelClasses}>{dieLabel}</span>
+        <div className={`${coinClasses} bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 flex items-center justify-center`}>
+          <div className="text-6xl">👑</div>
+        </div>
+      );
+    } else if (coinResult === "Tails") {
+      return (
+        <div className={`${coinClasses} bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 flex items-center justify-center`}>
+          <div className="text-6xl">🦅</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className={`${coinClasses} bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500 flex items-center justify-center`}>
+          <div className="text-4xl font-bold text-white">?</div>
         </div>
       );
     }
-
-    // All other dice types get clean geometric shapes with numbers
-    return (
-      <div className={`flex flex-col items-center gap-2 ${baseClasses}`}>
-        <div className="relative w-16 h-16 flex items-center justify-center">
-          {/* Simple geometric shape based on die type */}
-          <div 
-            className={`
-              bg-gradient-to-br from-primary via-primary to-primary/80 
-              shadow-lg border-2 border-white/20 
-              flex items-center justify-center
-              ${dieType === "4" ? "w-12 h-12 rotate-45" : ""}
-              ${dieType === "8" ? "w-12 h-12 rotate-45" : ""}
-              ${dieType === "10" ? "w-10 h-14 rounded-lg" : ""}
-              ${dieType === "12" ? "w-14 h-14 rounded-lg" : ""}
-              ${dieType === "20" ? "w-14 h-14 rounded-full" : ""}
-              ${!["4", "8", "10", "12", "20"].includes(dieType) ? "w-14 h-14 rounded-lg" : ""}
-            `}
-          >
-            <span className={`text-white font-bold text-lg ${["4", "8"].includes(dieType) ? "-rotate-45" : ""}`}>
-              {value}
-            </span>
-          </div>
-        </div>
-        <span className={labelClasses}>{dieLabel}</span>
-      </div>
-    );
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
-      {/* Enhanced header with Friends page aesthetic */}
+      {/* Header */}
       <div className="relative mb-8">
         <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
         <div className="relative bg-card/90 backdrop-blur-sm border border-white/20 rounded-2xl p-8 cozy-section">
           <div className="text-center">
-            <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent mb-2">Gaming Tools & Randomizers</h1>
+            <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent mb-2">Game Randomizers</h1>
             <p className="text-muted-foreground text-lg">
-              Roll dice, flip coins, and make random decisions for your games
+              Simple tools to add randomness to your games
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Enhanced Multi-Dice Roller - More Compact */}
-        <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Dice6 className="h-5 w-5 text-primary" />
-                Multi-Dice Roller
-              </CardTitle>
-              {user && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="flex items-center gap-2"
-                >
-                  <History className="h-4 w-4" />
-                  {showHistory ? "Hide" : "Show"} History
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Compact Dice Configuration */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Configuration</h3>
-                <Button variant="outline" size="sm" onClick={addDiceGroup} className="flex items-center gap-1 h-8">
-                  <Plus className="h-3 w-3" />
-                  Add
-                </Button>
-              </div>
-              
-              <div className="space-y-2">
-                {diceConfig.map((config, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={config.count}
-                        onChange={(e) => updateDiceGroup(index, 'count', parseInt(e.target.value) || 1)}
-                        className="w-12 h-8 text-sm"
-                      />
-                      <span className="text-xs text-muted-foreground">×</span>
-                    </div>
-                    
-                    <Select value={config.type} onValueChange={(value) => updateDiceGroup(index, 'type', value)}>
-                      <SelectTrigger className="w-16 h-8 text-sm">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {dieTypes.map((die) => (
-                          <SelectItem key={die.value} value={die.value}>
-                            {die.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    {diceConfig.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeDiceGroup(index)}
-                        className="text-destructive hover:text-destructive h-8 w-8 p-0"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Button 
-              onClick={rollDice} 
-              variant="gaming" 
-              className="w-full h-10"
-              disabled={isRolling}
-            >
-              {isRolling ? "Rolling..." : "Roll All Dice"}
-            </Button>
-
-            {/* Compact Results Display */}
-            {diceResult.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex flex-wrap justify-center gap-3">
-                  {diceResult.map((result, index) => (
-                    <div key={`dice-${index}-${result}-${isRolling}`}>
-                      {getDiceDisplay(result, index)}
-                    </div>
-                  ))}
-                </div>
-                <div className="text-center space-y-2 bg-muted/30 rounded-lg p-3">
-                  <p className="text-lg font-semibold">
-                    Total: {diceResult.reduce((sum, value) => sum + value, 0)}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-1">
-                    {diceConfig.map((config, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs h-5">
-                        {config.count}d{config.type}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Compact History Panel */}
-            {showHistory && user && (
-              <div className="border-t pt-3">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium">Roll History</h3>
-                  {history.length > 0 && (
-                    <Button variant="outline" size="sm" onClick={clearHistory} className="h-7">
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-                
-                <ScrollArea className="h-48">
-                  {history.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-6 text-sm">No rolls yet</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {history.map((roll) => (
-                        <div key={roll.id} className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs h-5">{roll.dice_type}</Badge>
-                            <span className="text-xs">
-                              {roll.results.join(', ')} = <strong>{roll.total}</strong>
-                            </span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(roll.created_at).toLocaleTimeString()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ScrollArea>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Coin Flip */}
+        {/* Enhanced Coin Flip */}
         <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shuffle className="h-5 w-5 text-secondary" />
+              <Coins className="h-5 w-5 text-gaming-yellow" />
               Coin Flip
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-center gap-4 mb-4">
-              <div className="text-center">
-                <div className="text-2xl mb-1">🦁</div>
-                <p className="text-sm font-medium">Heads</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl mb-1">🐾</div>
-                <p className="text-sm font-medium">Tails</p>
-              </div>
+          <CardContent className="space-y-6">
+            <div className="flex justify-center">
+              {getCoinVisual()}
             </div>
-            
-            {/* Add spacing to match dice roller button alignment */}
-            <div className="h-6"></div>
             
             <Button 
               onClick={flipCoin} 
               variant="gaming" 
-              className="w-full"
+              className="w-full h-12 text-lg"
               disabled={isFlipping}
             >
               {isFlipping ? "Flipping..." : "Flip Coin"}
             </Button>
 
-            {coinResult && (
-              <div className="text-center p-6">
-                <div className={`text-6xl mb-2 transition-transform duration-150 ${isFlipping ? 'animate-pulse scale-110' : ''}`}>
-                  {coinResult === "Heads" ? "🦁" : "🐾"}
-                </div>
-                <p className={`text-2xl font-bold bg-gradient-to-r from-gaming-red to-gaming-slate bg-clip-text text-transparent ${isFlipping ? 'opacity-70' : ''}`}>
-                  {coinResult}
+            {coinResult && !isFlipping && (
+              <div className="text-center p-4 bg-gradient-to-r from-gaming-yellow/20 to-gaming-red/20 rounded-lg border border-gaming-yellow/30">
+                <p className="text-2xl font-bold text-gaming-yellow">
+                  {coinResult}!
                 </p>
-                {!isFlipping && (
-                  <p className="text-sm text-muted-foreground mt-2 animate-fade-in">
-                    Result!
-                  </p>
-                )}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Random Choice */}
+        {/* Random Number Generator */}
         <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shuffle className="h-5 w-5 text-gaming-green" />
-              Random Choice
+              <Hash className="h-5 w-5 text-gaming-green" />
+              Random Number
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <label htmlFor="choices" className="text-sm font-medium mb-2 block">
-                Enter choices (one per line):
-              </label>
-              <Textarea
-                id="choices"
-                placeholder="Pizza&#10;Tacos&#10;Burgers&#10;Sushi"
-                value={customList}
-                onChange={(e) => setCustomList(e.target.value)}
-                rows={4}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Min:</label>
+                <Input
+                  type="number"
+                  value={numberMin}
+                  onChange={(e) => setNumberMin(parseInt(e.target.value) || 1)}
+                  className="h-10"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Max:</label>
+                <Input
+                  type="number"
+                  value={numberMax}
+                  onChange={(e) => setNumberMax(parseInt(e.target.value) || 100)}
+                  className="h-10"
+                />
+              </div>
             </div>
 
             <Button 
-              onClick={getRandomChoice} 
+              onClick={generateRandomNumber} 
               variant="accent" 
-              className="w-full"
-              disabled={!customList.trim()}
+              className="w-full h-12"
+              disabled={isGenerating || numberMin >= numberMax}
             >
-              Pick Random Choice
+              {isGenerating ? "Generating..." : "Generate Number"}
             </Button>
 
-            {randomChoice && (
-              <div className="text-center p-4 bg-gradient-hero rounded-lg">
-                <p className="text-lg font-semibold text-primary">
-                  Selected: {randomChoice}
+            {numberResult !== null && (
+              <div className="text-center p-6 bg-gradient-to-r from-gaming-green/20 to-primary/20 rounded-lg border border-gaming-green/30">
+                <div className={`text-5xl font-bold text-gaming-green mb-2 ${isGenerating ? 'animate-pulse' : 'animate-fade-in'}`}>
+                  {numberResult}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Random number between {numberMin} and {numberMax}
                 </p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Player Order */}
+        {/* Percentage Generator */}
         <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-gaming-red" />
-              Player Order
+              <Target className="h-5 w-5 text-gaming-red" />
+              Random Percentage
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-4">
+                Generate a random percentage from 0% to 100%
+              </p>
+            </div>
+
+            <Button 
+              onClick={generatePercentage} 
+              variant="score" 
+              className="w-full h-12"
+              disabled={isCalculating}
+            >
+              {isCalculating ? "Calculating..." : "Generate Percentage"}
+            </Button>
+
+            {percentResult !== null && (
+              <div className="text-center p-6 bg-gradient-to-r from-gaming-red/20 to-secondary/20 rounded-lg border border-gaming-red/30">
+                <div className={`text-5xl font-bold text-gaming-red mb-2 ${isCalculating ? 'animate-pulse' : 'animate-fade-in'}`}>
+                  {percentResult}%
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Random percentage
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Team Generator */}
+        <Card className="shadow-gaming section-background border-white/10 cozy-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-gaming-slate" />
+              Team Generator
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label htmlFor="players" className="text-sm font-medium mb-2 block">
+              <label htmlFor="team-players" className="text-sm font-medium mb-2 block">
                 Enter player names (one per line):
               </label>
               <Textarea
-                id="players"
-                placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana"
-                value={playerNames}
-                onChange={(e) => setPlayerNames(e.target.value)}
+                id="team-players"
+                placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
+                value={teamNames}
+                onChange={(e) => setTeamNames(e.target.value)}
                 rows={4}
               />
             </div>
 
+            <div>
+              <label className="text-sm font-medium mb-2 block">Players per team:</label>
+              <Input
+                type="number"
+                min="2"
+                max="10"
+                value={teamsPerGroup}
+                onChange={(e) => setTeamsPerGroup(parseInt(e.target.value) || 2)}
+                className="h-10"
+              />
+            </div>
+
             <Button 
-              onClick={shufflePlayers} 
-              variant="score" 
-              className="w-full"
-              disabled={!playerNames.trim()}
+              onClick={createTeams} 
+              variant="gaming" 
+              className="w-full h-12"
+              disabled={!teamNames.trim()}
             >
-              Shuffle Player Order
+              Create Random Teams
             </Button>
 
-            {playerOrder.length > 0 && (
-              <div className="space-y-2">
-                <p className="font-medium">Turn Order:</p>
-                {playerOrder.map((player, index) => (
-                  <div key={`player-${player}-${index}`} className="flex items-center gap-2 p-2 bg-muted rounded">
-                    <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold">
-                      {index + 1}
-                    </span>
-                    <span>{player}</span>
+            {teams.length > 0 && (
+              <div className="space-y-3">
+                <p className="font-medium text-center">Generated Teams:</p>
+                {teams.map((team, index) => (
+                  <div key={`team-${index}`} className="p-3 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </span>
+                      <span className="font-medium">Team {index + 1}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {team.map((player, playerIndex) => (
+                        <Badge key={playerIndex} variant="secondary" className="text-xs">
+                          {player}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+        {/* Random Choice */}
+        <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shuffle className="h-5 w-5 text-gaming-pink" />
+              Random Choice Picker
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="choices" className="text-sm font-medium mb-2 block">
+                  Enter choices (one per line):
+                </label>
+                <Textarea
+                  id="choices"
+                  placeholder="Pizza&#10;Tacos&#10;Burgers&#10;Sushi&#10;Chinese Food&#10;Italian"
+                  value={customList}
+                  onChange={(e) => setCustomList(e.target.value)}
+                  rows={6}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={getRandomChoice} 
+                  variant="accent" 
+                  className="w-full h-12"
+                  disabled={!customList.trim()}
+                >
+                  Pick Random Choice
+                </Button>
+
+                {randomChoice && (
+                  <div className="text-center p-6 bg-gradient-to-r from-gaming-pink/20 to-accent/20 rounded-lg border border-gaming-pink/30">
+                    <div className="text-3xl font-bold text-gaming-pink mb-2">
+                      🎯
+                    </div>
+                    <p className="text-xl font-semibold text-accent">
+                      {randomChoice}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Selected choice
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Player Order */}
+        <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Timer className="h-5 w-5 text-gaming-slate" />
+              Player Turn Order
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="players" className="text-sm font-medium mb-2 block">
+                  Enter player names (one per line):
+                </label>
+                <Textarea
+                  id="players"
+                  placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
+                  value={playerNames}
+                  onChange={(e) => setPlayerNames(e.target.value)}
+                  rows={6}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={shufflePlayers} 
+                  variant="score" 
+                  className="w-full h-12"
+                  disabled={!playerNames.trim()}
+                >
+                  Shuffle Turn Order
+                </Button>
+
+                {playerOrder.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-medium text-center text-gaming-slate">Turn Order:</p>
+                    <div className="space-y-1">
+                      {playerOrder.map((player, index) => (
+                        <div key={`player-${player}-${index}`} className="flex items-center gap-3 p-3 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg border">
+                          <span className="bg-gaming-slate text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </span>
+                          <span className="font-medium">{player}</span>
+                          {index === 0 && (
+                            <Badge variant="outline" className="ml-auto text-xs">
+                              First Player
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
