@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Coins, Shuffle, Users, Hash, Target, Timer } from "lucide-react";
+import { Coins, Shuffle, Hash, Timer } from "lucide-react";
 
 const Randomizer = () => {
   const [coinResult, setCoinResult] = useState<string>("");
@@ -17,11 +17,6 @@ const Randomizer = () => {
   const [numberMin, setNumberMin] = useState(1);
   const [numberMax, setNumberMax] = useState(100);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [teams, setTeams] = useState<string[][]>([]);
-  const [teamNames, setTeamNames] = useState("");
-  const [teamsPerGroup, setTeamsPerGroup] = useState(2);
-  const [percentResult, setPercentResult] = useState<number | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
 
   const generateRandomNumber = () => {
     setIsGenerating(true);
@@ -45,46 +40,6 @@ const Randomizer = () => {
         }, 150);
       }
     }, 80);
-  };
-
-  const generatePercentage = () => {
-    setIsCalculating(true);
-    setPercentResult(null);
-    
-    // Animation effect
-    let count = 0;
-    const maxCount = 8;
-    
-    const interval = setInterval(() => {
-      const tempPercent = Math.floor(Math.random() * 101);
-      setPercentResult(tempPercent);
-      count++;
-      
-      if (count >= maxCount) {
-        clearInterval(interval);
-        setTimeout(() => {
-          const finalPercent = Math.floor(Math.random() * 101);
-          setPercentResult(finalPercent);
-          setIsCalculating(false);
-        }, 150);
-      }
-    }, 100);
-  };
-
-  const createTeams = () => {
-    const players = teamNames.split('\n').filter(name => name.trim() !== '');
-    if (players.length < 2) return;
-    
-    // Shuffle players
-    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
-    
-    // Create teams
-    const newTeams: string[][] = [];
-    for (let i = 0; i < shuffledPlayers.length; i += teamsPerGroup) {
-      newTeams.push(shuffledPlayers.slice(i, i + teamsPerGroup));
-    }
-    
-    setTeams(newTeams);
   };
 
   const flipCoin = () => {
@@ -133,13 +88,13 @@ const Randomizer = () => {
     if (coinResult === "Heads") {
       return (
         <div className={`${coinClasses} bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-500 flex items-center justify-center`}>
-          <div className="text-6xl">👑</div>
+          <div className="text-6xl">🐲</div>
         </div>
       );
     } else if (coinResult === "Tails") {
       return (
         <div className={`${coinClasses} bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 flex items-center justify-center`}>
-          <div className="text-6xl">🦅</div>
+          <div className="text-6xl">🐉</div>
         </div>
       );
     } else {
@@ -167,6 +122,64 @@ const Randomizer = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Player Order - Moved to Top */}
+        <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Timer className="h-5 w-5 text-gaming-slate" />
+              Player Turn Order
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="players" className="text-sm font-medium mb-2 block">
+                  Enter player names (one per line):
+                </label>
+                <Textarea
+                  id="players"
+                  placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
+                  value={playerNames}
+                  onChange={(e) => setPlayerNames(e.target.value)}
+                  rows={6}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={shufflePlayers} 
+                  variant="score" 
+                  className="w-full h-12"
+                  disabled={!playerNames.trim()}
+                >
+                  Shuffle Turn Order
+                </Button>
+
+                {playerOrder.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="font-medium text-center text-gaming-slate">Turn Order:</p>
+                    <div className="space-y-1">
+                      {playerOrder.map((player, index) => (
+                        <div key={`player-${player}-${index}`} className="flex items-center gap-3 p-3 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg border">
+                          <span className="bg-gaming-slate text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </span>
+                          <span className="font-medium">{player}</span>
+                          {index === 0 && (
+                            <Badge variant="outline" className="ml-auto text-xs">
+                              First Player
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Enhanced Coin Flip */}
         <Card className="shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
@@ -251,110 +264,6 @@ const Randomizer = () => {
           </CardContent>
         </Card>
 
-        {/* Percentage Generator */}
-        <Card className="shadow-gaming section-background border-white/10 cozy-section">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-gaming-red" />
-              Random Percentage
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground mb-4">
-                Generate a random percentage from 0% to 100%
-              </p>
-            </div>
-
-            <Button 
-              onClick={generatePercentage} 
-              variant="score" 
-              className="w-full h-12"
-              disabled={isCalculating}
-            >
-              {isCalculating ? "Calculating..." : "Generate Percentage"}
-            </Button>
-
-            {percentResult !== null && (
-              <div className="text-center p-6 bg-gradient-to-r from-gaming-red/20 to-secondary/20 rounded-lg border border-gaming-red/30">
-                <div className={`text-5xl font-bold text-gaming-red mb-2 ${isCalculating ? 'animate-pulse' : 'animate-fade-in'}`}>
-                  {percentResult}%
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Random percentage
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Team Generator */}
-        <Card className="shadow-gaming section-background border-white/10 cozy-section">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-gaming-slate" />
-              Team Generator
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label htmlFor="team-players" className="text-sm font-medium mb-2 block">
-                Enter player names (one per line):
-              </label>
-              <Textarea
-                id="team-players"
-                placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
-                value={teamNames}
-                onChange={(e) => setTeamNames(e.target.value)}
-                rows={4}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Players per team:</label>
-              <Input
-                type="number"
-                min="2"
-                max="10"
-                value={teamsPerGroup}
-                onChange={(e) => setTeamsPerGroup(parseInt(e.target.value) || 2)}
-                className="h-10"
-              />
-            </div>
-
-            <Button 
-              onClick={createTeams} 
-              variant="gaming" 
-              className="w-full h-12"
-              disabled={!teamNames.trim()}
-            >
-              Create Random Teams
-            </Button>
-
-            {teams.length > 0 && (
-              <div className="space-y-3">
-                <p className="font-medium text-center">Generated Teams:</p>
-                {teams.map((team, index) => (
-                  <div key={`team-${index}`} className="p-3 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-bold">
-                        {index + 1}
-                      </span>
-                      <span className="font-medium">Team {index + 1}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {team.map((player, playerIndex) => (
-                        <Badge key={playerIndex} variant="secondary" className="text-xs">
-                          {player}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
         {/* Random Choice */}
         <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
           <CardHeader>
@@ -399,64 +308,6 @@ const Randomizer = () => {
                     <p className="text-sm text-muted-foreground mt-2">
                       Selected choice
                     </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Player Order */}
-        <Card className="lg:col-span-2 shadow-gaming section-background border-white/10 cozy-section">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Timer className="h-5 w-5 text-gaming-slate" />
-              Player Turn Order
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="players" className="text-sm font-medium mb-2 block">
-                  Enter player names (one per line):
-                </label>
-                <Textarea
-                  id="players"
-                  placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
-                  value={playerNames}
-                  onChange={(e) => setPlayerNames(e.target.value)}
-                  rows={6}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <Button 
-                  onClick={shufflePlayers} 
-                  variant="score" 
-                  className="w-full h-12"
-                  disabled={!playerNames.trim()}
-                >
-                  Shuffle Turn Order
-                </Button>
-
-                {playerOrder.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="font-medium text-center text-gaming-slate">Turn Order:</p>
-                    <div className="space-y-1">
-                      {playerOrder.map((player, index) => (
-                        <div key={`player-${player}-${index}`} className="flex items-center gap-3 p-3 bg-gradient-to-r from-muted/50 to-muted/30 rounded-lg border">
-                          <span className="bg-gaming-slate text-white rounded-full h-8 w-8 flex items-center justify-center text-sm font-bold">
-                            {index + 1}
-                          </span>
-                          <span className="font-medium">{player}</span>
-                          {index === 0 && (
-                            <Badge variant="outline" className="ml-auto text-xs">
-                              First Player
-                            </Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
