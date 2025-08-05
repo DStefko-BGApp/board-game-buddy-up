@@ -25,10 +25,10 @@ const Navigation = () => {
   const navItems = [
     { to: "/", icon: Crown, label: "Home" },
     { to: "/library", icon: BookOpen, label: "My Games" },
-    { to: "/randomizer", icon: Shuffle, label: "Randomizers" },
-    { to: "/game-nights", icon: Calendar, label: "Game Nights" },
     { to: "/friends", icon: Users, label: "Friends" },
-    { to: "/play-reports", icon: FileText, label: "Play Reports" },
+    { to: "/game-nights", icon: Calendar, label: "Game Nights" },
+    { to: "/play-reports", icon: FileText, label: "Play Stats" },
+    { to: "/randomizer", icon: Shuffle, label: "Randomizers" },
     { to: "/faq", icon: HelpCircle, label: "FAQ" },
   ];
 
