@@ -216,4 +216,15 @@
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground));
   }
+
+  /* Force scrollable behavior for select dropdowns */
+  [data-radix-select-content] {
+    max-height: 280px !important;
+    overflow-y: auto !important;
+  }
+  
+  [data-radix-select-viewport] {
+    max-height: 280px !important;
+    overflow-y: auto !important;
+  }
 }
