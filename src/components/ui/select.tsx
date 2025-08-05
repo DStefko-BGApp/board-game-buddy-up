@@ -80,11 +80,18 @@ const SelectContent = React.forwardRef<
       )}
       position={position}
       {...props}
+      onWheel={(e) => {
+        e.stopPropagation();
+        const viewport = e.currentTarget.querySelector('[data-radix-select-viewport]');
+        if (viewport) {
+          viewport.scrollTop += e.deltaY;
+        }
+      }}
     >
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1 max-h-[280px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
+          "p-1 max-h-[200px] overflow-y-auto",
           position === "popper" &&
             "w-full min-w-[var(--radix-select-trigger-width)]"
         )}
