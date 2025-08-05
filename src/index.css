@@ -185,8 +185,6 @@
     pointer-events: none;
     border-radius: inherit;
   }
-  }
-
   /* Custom scrollbar styles for better dropdown scrolling */
   .scrollbar-thin {
     scrollbar-width: thin;
