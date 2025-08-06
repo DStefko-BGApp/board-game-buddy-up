@@ -279,10 +279,9 @@ const Friends = () => {
         <div className="flex items-center">
           <Button 
             onClick={() => setShowAddFriend(true)}
-            className="bg-gradient-gaming text-white border-0 hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg h-full px-6"
-            size="lg"
+            className="bg-gradient-gaming text-white border-0 hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg px-4 py-2"
           >
-            <UserPlus className="h-5 w-5 mr-2" />
+            <UserPlus className="h-4 w-4 mr-2" />
             Add Friend
           </Button>
         </div>
