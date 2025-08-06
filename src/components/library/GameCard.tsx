@@ -251,7 +251,28 @@ export const GameCard = ({
           </div>
           
           <div className="flex justify-between items-center">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              {/* Expansion toggle button in bottom left */}
+              {hasExpansions && onToggleExpansion && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpansion();
+                  }}
+                  className="h-7 px-2 text-xs text-gaming-purple hover:text-gaming-purple hover:bg-gaming-purple/10"
+                  title={`${isExpanded ? 'Hide' : 'Show'} expansions`}
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3 mr-1" />
+                  )}
+                  Expansions
+                </Button>
+              )}
+              
               <Button
                 size="sm"
                 variant="outline"
@@ -279,38 +300,20 @@ export const GameCard = ({
                   BGG
                 </a>
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(userGame.id);
-                }}
-                disabled={isRemoving}
-                className="text-destructive hover:text-destructive h-7 px-2"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
             </div>
             
-            {/* Expansion toggle button in bottom right */}
-            {hasExpansions && onToggleExpansion && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleExpansion();
-                }}
-                className="h-7 w-7 p-0"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(userGame.id);
+              }}
+              disabled={isRemoving}
+              className="text-destructive hover:text-destructive h-7 px-2"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       </div>
