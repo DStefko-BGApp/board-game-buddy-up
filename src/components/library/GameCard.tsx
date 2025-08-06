@@ -115,27 +115,6 @@ export const GameCard = ({
       onClick={() => !isSelectionMode && onEdit(userGame)}
     >
       <div className="flex gap-3 p-3">
-        {/* Selection Checkbox */}
-        {isSelectionMode && (
-          <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(userGame.id);
-              }}
-              className="h-5 w-5 p-0"
-            >
-              {isSelected ? (
-                <CheckSquare className="h-3 w-3 text-primary" />
-              ) : (
-                <Square className="h-3 w-3" />
-              )}
-            </Button>
-          </div>
-        )}
-
         <div className="w-16 h-16 flex-shrink-0">
           {userGame.game.image_url ? (
             <img 
