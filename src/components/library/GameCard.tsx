@@ -114,8 +114,8 @@ export const GameCard = ({
       onDrop={handleDrop}
       onClick={() => !isSelectionMode && onEdit(userGame)}
     >
-      <div className="flex gap-3 p-3">
-        <div className="w-16 h-16 flex-shrink-0">
+      <div className="flex gap-3 p-2.5">
+        <div className="w-12 h-12 flex-shrink-0">
           {userGame.game.image_url ? (
             <img 
               src={userGame.game.thumbnail_url || userGame.game.image_url} 
@@ -124,7 +124,7 @@ export const GameCard = ({
             />
           ) : (
             <div className="w-full h-full bg-gradient-gaming flex items-center justify-center rounded">
-              <BookOpen className="h-6 w-6 text-white" />
+              <BookOpen className="h-5 w-5 text-white" />
             </div>
           )}
         </div>
@@ -132,7 +132,7 @@ export const GameCard = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-1">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base truncate leading-tight">
+              <h3 className="font-semibold text-sm truncate leading-tight">
                 {decodeHtmlEntities(getDisplayTitle(userGame.game))}
               </h3>
               {userGame.game.year_published && (
@@ -148,7 +148,7 @@ export const GameCard = ({
                       variant="ghost"
                       size="sm"
                       onClick={(e) => e.stopPropagation()}
-                      className={`h-6 px-2 text-xs gap-1 text-white border-0 ${
+                      className={`h-5 px-1.5 text-xs gap-1 text-white border-0 ${
                         userGame.status === 'owned' ? 'bg-gaming-green hover:bg-gaming-green/80' :
                         userGame.status === 'wishlist' ? 'bg-gaming-purple hover:bg-gaming-purple/80' :
                         userGame.status === 'played_unowned' ? 'bg-gaming-blue hover:bg-gaming-blue/80' :
@@ -158,7 +158,7 @@ export const GameCard = ({
                       }`}
                     >
                       {gameStatusOptions.find(opt => opt.value === userGame.status)?.label || userGame.status}
-                      <ChevronDown className="h-3 w-3" />
+                      <ChevronDown className="h-2.5 w-2.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="z-50">
@@ -178,14 +178,14 @@ export const GameCard = ({
                 </DropdownMenu>
               )}
               {userGame.game.is_expansion && (
-                <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs px-1.5 py-0.5">
+                <Badge variant="outline" className="text-gaming-purple border-gaming-purple text-xs px-1 py-0">
                   Exp
                 </Badge>
               )}
             </div>
           </div>
           
-          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground mb-1.5">
             <div className="flex items-center gap-1">
               <Users className="h-3 w-3" />
               <span>{formatPlayerCount(userGame.game.min_players, userGame.game.max_players)}</span>
@@ -210,28 +210,30 @@ export const GameCard = ({
             )}
           </div>
           
-          {/* Core and additional mechanics on same line */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {userGame.game.core_mechanic && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {userGame.game.core_mechanic}
-              </Badge>
-            )}
-            {userGame.game.additional_mechanic_1 && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                {userGame.game.additional_mechanic_1}
-              </Badge>
-            )}
-            {userGame.game.additional_mechanic_2 && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                {userGame.game.additional_mechanic_2}
-              </Badge>
-            )}
-          </div>
+          {/* Core and additional mechanics */}
+          {(userGame.game.core_mechanic || userGame.game.additional_mechanic_1 || userGame.game.additional_mechanic_2) && (
+            <div className="flex flex-wrap gap-1 mb-1.5">
+              {userGame.game.core_mechanic && (
+                <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                  {userGame.game.core_mechanic}
+                </Badge>
+              )}
+              {userGame.game.additional_mechanic_1 && (
+                <Badge variant="outline" className="text-xs px-1.5 py-0">
+                  {userGame.game.additional_mechanic_1}
+                </Badge>
+              )}
+              {userGame.game.additional_mechanic_2 && (
+                <Badge variant="outline" className="text-xs px-1.5 py-0">
+                  {userGame.game.additional_mechanic_2}
+                </Badge>
+              )}
+            </div>
+          )}
           
           <div className="flex justify-between items-center">
-            <div className="flex gap-2 items-center">
-              {/* Expansion toggle button in bottom left */}
+            <div className="flex gap-1.5 items-center">
+              {/* Expansion toggle button */}
               {hasExpansions && onToggleExpansion && (
                 <Button
                   variant="ghost"
@@ -240,7 +242,7 @@ export const GameCard = ({
                     e.stopPropagation();
                     onToggleExpansion();
                   }}
-                  className="h-7 px-2 text-xs text-gaming-purple hover:text-gaming-purple hover:bg-gaming-purple/10"
+                  className="h-6 px-1.5 text-xs text-gaming-purple hover:text-gaming-purple hover:bg-gaming-purple/10"
                   title={`${isExpanded ? 'Hide' : 'Show'} expansions`}
                 >
                   {isExpanded ? (
@@ -248,7 +250,7 @@ export const GameCard = ({
                   ) : (
                     <ChevronRight className="h-3 w-3 mr-1" />
                   )}
-                  Expansions
+                  Exp
                 </Button>
               )}
               
@@ -259,7 +261,7 @@ export const GameCard = ({
                   e.stopPropagation();
                   onEdit(userGame);
                 }}
-                className="h-7 px-2 text-xs"
+                className="h-6 px-1.5 text-xs"
               >
                 <Edit className="h-3 w-3 mr-1" />
                 Edit
@@ -268,7 +270,7 @@ export const GameCard = ({
                 size="sm"
                 variant="outline"
                 asChild
-                className="h-7 px-2 text-xs"
+                className="h-6 px-1.5 text-xs"
               >
                 <a 
                   href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
@@ -289,7 +291,7 @@ export const GameCard = ({
                 onRemove(userGame.id);
               }}
               disabled={isRemoving}
-              className="text-destructive hover:text-destructive h-7 px-2"
+              className="text-destructive hover:text-destructive h-6 px-1.5"
             >
               <Trash2 className="h-3 w-3" />
             </Button>
