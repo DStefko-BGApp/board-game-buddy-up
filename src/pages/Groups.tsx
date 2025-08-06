@@ -23,7 +23,7 @@ import InvitationsCard from '@/components/groups/InvitationsCard';
 import { Group } from '@/hooks/useGroups';
 
 const Groups = () => {
-  const { groups, invitations, loading } = useGroups();
+  const { groups, invitations, loading, refetch } = useGroups();
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
@@ -170,7 +170,15 @@ const Groups = () => {
       {selectedGroup && (
         <GroupDetailsDialog
           open={showGroupDetails}
-          onOpenChange={setShowGroupDetails}
+          onOpenChange={(open) => {
+            setShowGroupDetails(open);
+            // Refresh groups list when dialog closes to show updated data
+            if (!open) {
+              setTimeout(() => {
+                refetch();
+              }, 100);
+            }
+          }}
           group={selectedGroup}
         />
       )}
