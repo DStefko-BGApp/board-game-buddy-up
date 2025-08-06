@@ -247,49 +247,70 @@ const Library = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 page-background min-h-screen">
-      <LibraryHeader
-        onSearchClick={() => setSearchDialogOpen(true)}
-        onSyncClick={() => setSyncDialogOpen(true)}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-card/30">
+      {/* Hero Section with glassmorphism */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-gaming opacity-5 blur-3xl"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+          <LibraryHeader
+            onSearchClick={() => setSearchDialogOpen(true)}
+            onSyncClick={() => setSyncDialogOpen(true)}
+          />
+        </div>
+      </div>
 
-      <LibraryStats userLibrary={userLibrary} />
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 -mt-8">
+        {/* Stats Section with enhanced visual appeal */}
+        <div className="animate-fade-in">
+          <LibraryStats userLibrary={userLibrary} />
+        </div>
 
-      {userLibrary && userLibrary.length > 0 && (
-        <LibraryFilters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          isSelectionMode={isSelectionMode}
-          selectedGames={selectedGames}
-          onToggleSelectionMode={toggleSelectionMode}
-          onSelectAll={handleSelectAllGames}
-          onDeselectAll={deselectAllGames}
-          onBulkDelete={handleBulkDelete}
-          totalGames={userLibrary.length}
-          isDeleting={removeGameMutation.isPending}
-        />
-      )}
+        {/* Filters and Controls in a sticky section */}
+        {userLibrary && userLibrary.length > 0 && (
+          <div className="sticky top-4 z-40 mb-8">
+            <div className="bg-card/90 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-deep">
+              <LibraryFilters
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                isSelectionMode={isSelectionMode}
+                selectedGames={selectedGames}
+                onToggleSelectionMode={toggleSelectionMode}
+                onSelectAll={handleSelectAllGames}
+                onDeselectAll={deselectAllGames}
+                onBulkDelete={handleBulkDelete}
+                totalGames={userLibrary.length}
+                isDeleting={removeGameMutation.isPending}
+              />
+            </div>
+          </div>
+        )}
 
-      <GamesList
-        sortedFilteredLibrary={sortedFilteredLibrary}
-        isSelectionMode={isSelectionMode}
-        selectedGames={selectedGames}
-        onEditGame={handleEditGame}
-        onRemoveGame={(gameId) => removeGameMutation.mutate(gameId)}
-        onSelectGame={handleGameSelection}
-        onStatusChange={handleStatusChange}
-        onSearchClick={() => setSearchDialogOpen(true)}
-        onSyncClick={() => setSyncDialogOpen(true)}
-        getDisplayTitle={getDisplayTitle}
-        isRemoving={removeGameMutation.isPending}
-        isLoading={isLoadingLibrary}
-        onGroupGames={handleGroupGames}
-      />
+        {/* Games List in a beautiful container */}
+        <div className="animate-fade-in">
+          <GamesList
+            sortedFilteredLibrary={sortedFilteredLibrary}
+            isSelectionMode={isSelectionMode}
+            selectedGames={selectedGames}
+            onEditGame={handleEditGame}
+            onRemoveGame={(gameId) => removeGameMutation.mutate(gameId)}
+            onSelectGame={handleGameSelection}
+            onStatusChange={handleStatusChange}
+            onSearchClick={() => setSearchDialogOpen(true)}
+            onSyncClick={() => setSyncDialogOpen(true)}
+            getDisplayTitle={getDisplayTitle}
+            isRemoving={removeGameMutation.isPending}
+            isLoading={isLoadingLibrary}
+            onGroupGames={handleGroupGames}
+          />
+        </div>
+      </div>
 
+      {/* Dialogs */}
       <EditGameDialog
         editingGame={editingGame}
         onClose={() => setEditingGame(null)}

@@ -11,39 +11,57 @@ export const LibraryStats = ({ userLibrary }: LibraryStatsProps) => {
   const totalBaseGames = userLibrary?.filter(g => g.is_owned && !g.game?.is_expansion).length || 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-30">
+      {/* Total Owned Games Card */}
+      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+        <CardContent className="p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-primary opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Owned Games</p>
-              <p className="text-2xl font-bold">{totalOwnedGames}</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Total Owned Games</p>
+              <p className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                {totalOwnedGames}
+              </p>
             </div>
-            <BookOpen className="h-8 w-8 text-gaming-purple" />
+            <div className="bg-gradient-primary p-4 rounded-2xl shadow-gaming">
+              <BookOpen className="h-8 w-8 text-white" />
+            </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
+      {/* Total Expansions Card */}
+      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+        <CardContent className="p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-accent opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Expansions</p>
-              <p className="text-2xl font-bold text-gaming-green">{totalExpansions}</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Total Expansions</p>
+              <p className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">
+                {totalExpansions}
+              </p>
             </div>
-            <Puzzle className="h-8 w-8 text-gaming-green" />
+            <div className="bg-gradient-accent p-4 rounded-2xl shadow-gaming">
+              <Puzzle className="h-8 w-8 text-white" />
+            </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
+      {/* Total Base Games Card */}
+      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+        <CardContent className="p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-score opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Base Games</p>
-              <p className="text-2xl font-bold text-primary">{totalBaseGames}</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Total Base Games</p>
+              <p className="text-4xl font-bold bg-gradient-score bg-clip-text text-transparent">
+                {totalBaseGames}
+              </p>
             </div>
-            <Home className="h-8 w-8 text-primary" />
+            <div className="bg-gradient-score p-4 rounded-2xl shadow-gaming">
+              <Home className="h-8 w-8 text-white" />
+            </div>
           </div>
         </CardContent>
       </Card>
