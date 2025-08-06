@@ -297,7 +297,7 @@ export const GameCard = ({
                   rel="noopener noreferrer"
                 >
                   <ExternalLink className="h-3 w-3 mr-1" />
-                  BGG
+                  See game details
                 </a>
               </Button>
             </div>
