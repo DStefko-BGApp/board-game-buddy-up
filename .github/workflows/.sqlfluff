@@ -1,4 +1,2 @@
 [sqlfluff]
-dialect = postgres     # Change to your SQL type if needed (e.g., postgres, mysql, etc.)
-exclude_rules =
-templater = jinja  # Remove this line if you don't use Jinja templating
+dialect = postgres     
