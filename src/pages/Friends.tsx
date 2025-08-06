@@ -255,7 +255,7 @@ const Friends = () => {
                 </Badge>
                 
                 {/* Subtle Profile Completion Indicator */}
-                {profileCompletion < 100 && profile.show_completion_tracker !== false && (
+                {profileCompletion < 100 && (profile.show_completion_tracker ?? true) && (
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
                     <span className="text-xs text-muted-foreground/60">{profileCompletion}%</span>
