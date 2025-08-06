@@ -115,7 +115,7 @@ export const GameCard = ({
       onClick={() => !isSelectionMode && onEdit(userGame)}
     >
       <div className="flex gap-3 p-2.5">
-        <div className="w-12 h-12 flex-shrink-0">
+        <div className="w-14 h-14 flex-shrink-0">
           {userGame.game.image_url ? (
             <img 
               src={userGame.game.thumbnail_url || userGame.game.image_url} 
