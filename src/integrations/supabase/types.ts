@@ -559,6 +559,13 @@ export type Database = {
             referencedRelation: "gaming_groups"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "group_invitations_invited_by_user_id_fkey"
+            columns: ["invited_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       messages: {
