@@ -250,28 +250,42 @@ const Friends = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Stats - Simplified Headers */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-foreground">{friends.length}</div>
-            <div className="text-xs text-muted-foreground/70 font-medium">Friends</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-green-600">
-              {friends.filter(f => isUserOnline(f.user_id)).length}
-            </div>
-            <div className="text-xs text-muted-foreground/70 font-medium">Online</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-3xl font-bold text-orange-600">{friendRequests.length}</div>
-            <div className="text-xs text-muted-foreground/70 font-medium">Requests</div>
-          </CardContent>
-        </Card>
+      {/* Quick Stats with Add Friend Button */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 flex-1">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-foreground">{friends.length}</div>
+              <div className="text-xs text-muted-foreground/70 font-medium">Friends</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-green-600">
+                {friends.filter(f => isUserOnline(f.user_id)).length}
+              </div>
+              <div className="text-xs text-muted-foreground/70 font-medium">Online</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-3xl font-bold text-orange-600">{friendRequests.length}</div>
+              <div className="text-xs text-muted-foreground/70 font-medium">Requests</div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Prominent Add Friend Button */}
+        <div className="flex items-center">
+          <Button 
+            onClick={() => setShowAddFriend(true)}
+            className="bg-gradient-gaming text-white border-0 hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg h-full px-6"
+            size="lg"
+          >
+            <UserPlus className="h-5 w-5 mr-2" />
+            Add Friend
+          </Button>
+        </div>
       </div>
 
       {/* Friend Requests - Enhanced Typography */}
@@ -319,21 +333,30 @@ const Friends = () => {
         </div>
       )}
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Search friends..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
-
-      {/* Friends List - Enhanced Cards */}
+      {/* Friends List with Integrated Search */}
       <TooltipProvider>
         <div>
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Your Friends ({filteredFriends.length})</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+            <h2 className="text-2xl font-bold text-foreground">
+              Your Friends ({filteredFriends.length})
+            </h2>
+            
+            {/* Integrated Search Bar */}
+            <div className="relative sm:w-80">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+              <Input
+                placeholder="Search friends..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-11 h-12 text-base border-2 border-muted focus:border-primary transition-colors"
+              />
+              {searchTerm && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+                  {filteredFriends.length} result{filteredFriends.length !== 1 ? 's' : ''}
+                </div>
+              )}
+            </div>
+          </div>
           
           {filteredFriends.length === 0 ? (
             <div className="text-center py-12">
