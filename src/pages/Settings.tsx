@@ -13,11 +13,15 @@ import {
   Shield, 
   Palette,
   Save,
-  Trash2
+  Trash2,
+  Monitor,
+  Sun,
+  Moon
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 
@@ -31,6 +35,7 @@ const Settings = () => {
   const { user, signOut } = useAuth();
   const { profile, updateProfile } = useProfile();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   
   const [preferences, setPreferences] = useState<UserPreference[]>([]);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -224,6 +229,50 @@ const Settings = () => {
                   Member since {new Date(profile.created_at).toLocaleDateString()}
                 </span>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Appearance Settings */}
+        <Card className="section-background border-white/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5" />
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label className="text-base font-medium mb-3 block">Theme Preference</Label>
+              <div className="grid grid-cols-3 gap-3">
+                <Button
+                  variant={theme === "light" ? "default" : "outline"}
+                  onClick={() => setTheme("light")}
+                  className="flex flex-col items-center gap-2 h-16"
+                >
+                  <Sun className="h-4 w-4" />
+                  <span className="text-xs">Light</span>
+                </Button>
+                <Button
+                  variant={theme === "dark" ? "default" : "outline"}
+                  onClick={() => setTheme("dark")}
+                  className="flex flex-col items-center gap-2 h-16"
+                >
+                  <Moon className="h-4 w-4" />
+                  <span className="text-xs">Dark</span>
+                </Button>
+                <Button
+                  variant={theme === "system" ? "default" : "outline"}
+                  onClick={() => setTheme("system")}
+                  className="flex flex-col items-center gap-2 h-16"
+                >
+                  <Monitor className="h-4 w-4" />
+                  <span className="text-xs">System</span>
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Choose your preferred theme. System will automatically switch based on your device settings.
+              </p>
             </div>
           </CardContent>
         </Card>

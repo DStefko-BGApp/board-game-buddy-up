@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { 
   Crown, 
   BookOpen, 
@@ -63,8 +64,9 @@ const Navigation = () => {
               </NavLink>
             ))}
             
-            {/* Auth buttons */}
+            {/* Theme toggle and auth buttons */}
             <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+              <ThemeToggle />
               {user ? (
                 <>
                   <NavLink
@@ -138,8 +140,12 @@ const Navigation = () => {
                 </NavLink>
               ))}
               
-              {/* Mobile Auth */}
+              {/* Mobile theme toggle and auth */}
               <div className="pt-4 mt-4 border-t border-border">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-muted-foreground">Theme</span>
+                  <ThemeToggle />
+                </div>
                 {user ? (
                   <>
                     <NavLink
