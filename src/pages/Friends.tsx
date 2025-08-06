@@ -5,7 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock, MapPin, Settings, CalendarPlus, Info } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock, MapPin, Settings, CalendarPlus, Info, Bell, Award, Target, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
@@ -250,27 +251,88 @@ const Friends = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Stats with Add Friend Button */}
+      {/* Enhanced Stats with Icons and Progress */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="grid grid-cols-3 gap-4 flex-1">
-          <Card>
+          {/* Friends Count */}
+          <Card className="hover:shadow-lg transition-all duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold text-foreground">{friends.length}</div>
-              <div className="text-xs text-muted-foreground/70 font-medium">Friends</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold text-green-600">
-                {friends.filter(f => isUserOnline(f.user_id)).length}
+              <div className="flex items-center justify-center mb-2">
+                <Users className="h-5 w-5 text-primary mr-2" />
+                <div className="text-3xl font-bold text-foreground">{friends.length}</div>
               </div>
-              <div className="text-xs text-muted-foreground/70 font-medium">Online</div>
+              <div className="text-xs text-muted-foreground/70 font-medium mb-2">Friends</div>
+              
+              {/* Friend Milestone Progress */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Progress to next milestone</span>
+                  <span>{friends.length}/10</span>
+                </div>
+                <Progress value={(friends.length / 10) * 100} className="h-1" />
+                {friends.length >= 10 && (
+                  <div className="flex items-center justify-center text-xs text-primary font-medium">
+                    <Award className="h-3 w-3 mr-1" />
+                    Milestone achieved!
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-          <Card>
+
+          {/* Online Friends */}
+          <Card className="hover:shadow-lg transition-all duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-3xl font-bold text-orange-600">{friendRequests.length}</div>
-              <div className="text-xs text-muted-foreground/70 font-medium">Requests</div>
+              <div className="flex items-center justify-center mb-2">
+                <div className="relative">
+                  <Wifi className="h-5 w-5 text-green-600 mr-2" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+                <div className="text-3xl font-bold text-green-600">
+                  {friends.filter(f => isUserOnline(f.user_id)).length}
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground/70 font-medium mb-2">Online Now</div>
+              
+              {/* Activity Indicator */}
+              <div className="flex items-center justify-center text-xs text-green-600 font-medium">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Active community
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Friend Requests */}
+          <Card className={`hover:shadow-lg transition-all duration-300 ${
+            friendRequests.length === 0 ? 'opacity-50 border-dashed' : ''
+          }`}>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Bell className={`h-5 w-5 mr-2 ${
+                  friendRequests.length > 0 ? 'text-orange-600' : 'text-muted-foreground'
+                }`} />
+                <div className={`text-3xl font-bold ${
+                  friendRequests.length > 0 ? 'text-orange-600' : 'text-muted-foreground'
+                }`}>
+                  {friendRequests.length}
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground/70 font-medium mb-2">
+                {friendRequests.length === 1 ? 'Request' : 'Requests'}
+              </div>
+              
+              {/* Zero State Message */}
+              {friendRequests.length === 0 ? (
+                <div className="text-xs text-muted-foreground">
+                  <Target className="h-3 w-3 mx-auto mb-1" />
+                  <div>Invite friends to connect!</div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-xs text-orange-600 font-medium">
+                  <Bell className="h-3 w-3 mr-1 animate-bounce" />
+                  Needs attention
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
