@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock, MapPin, Settings } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UserPlus, Search, Users, Trophy, Calendar, MessageCircle, Loader2, User, Wifi, Clock, MapPin, Settings, CalendarPlus, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
@@ -38,11 +39,11 @@ const Friends = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "online":
-        return "bg-gaming-green";
+        return "bg-green-500";
       case "away":
-        return "bg-gaming-slate";
+        return "bg-yellow-500";
       case "busy":
-        return "bg-gaming-red";
+        return "bg-red-500";
       case "offline":
         return "bg-gray-400";
       default:
@@ -63,6 +64,30 @@ const Friends = () => {
       default:
         return "Unknown";
     }
+  };
+
+  const getSkillTooltip = (experience: string) => {
+    switch (experience) {
+      case "beginner":
+        return "New to board gaming, enjoys learning simple games";
+      case "intermediate":
+        return "Regular gamer who enjoys medium complexity games";
+      case "expert":
+        return "Experienced gamer who loves complex strategy games";
+      default:
+        return "Gaming experience not specified";
+    }
+  };
+
+  const getSharedGamesCount = (friend: any) => {
+    if (!userGames || !friend.favorite_games) return 0;
+    return friend.favorite_games.filter((game: string) => 
+      userGames.some(userGame => userGame.name?.toLowerCase() === game.toLowerCase())
+    ).length;
+  };
+
+  const handleGameTagClick = (gameName: string) => {
+    navigate(`/library?search=${encodeURIComponent(gameName)}`);
   };
 
   const handleFriendClick = (friend: any) => {
@@ -303,118 +328,216 @@ const Friends = () => {
         />
       </div>
 
-      {/* Friends List - Enhanced Typography */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4 text-foreground">Your Friends ({filteredFriends.length})</h2>
-        
-        {filteredFriends.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2 text-foreground">No friends yet</h3>
-            <p className="text-sm text-muted-foreground/70 mb-4">
-              {searchTerm ? "No friends match your search." : "Start by adding some friends to connect with other gamers."}
-            </p>
-            {!searchTerm && (
-              <Button onClick={() => setShowAddFriend(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add Friend
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredFriends.map((friend) => (
-              <Card key={friend.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <UserAvatar 
-                      displayName={friend.display_name}
-                      avatarUrl={friend.avatar_url}
-                      size="md"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-lg font-bold text-foreground truncate">{friend.display_name}</h4>
-                        <Badge 
-                          variant={friend.status === "online" ? "default" : "outline"}
-                          className="text-xs"
-                        >
-                          {getStatusText(friend.status)}
-                        </Badge>
+      {/* Friends List - Enhanced Cards */}
+      <TooltipProvider>
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Your Friends ({filteredFriends.length})</h2>
+          
+          {filteredFriends.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2 text-foreground">No friends yet</h3>
+              <p className="text-sm text-muted-foreground/70 mb-4">
+                {searchTerm ? "No friends match your search." : "Start by adding some friends to connect with other gamers."}
+              </p>
+              {!searchTerm && (
+                <Button onClick={() => setShowAddFriend(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Friend
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredFriends.map((friend) => {
+                const sharedGamesCount = getSharedGamesCount(friend);
+                return (
+                  <Card key={friend.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                    <CardContent className="p-5">
+                      {/* Header Section - Avatar, Name, Status */}
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="relative">
+                          <UserAvatar 
+                            displayName={friend.display_name}
+                            avatarUrl={friend.avatar_url}
+                            size="lg"
+                          />
+                          {/* Online Status Indicator */}
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${getStatusColor(friend.status)} border-2 border-white rounded-full`} />
+                          {/* Notification Dot - Mock for now */}
+                          {friend.status === "online" && (
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary border-2 border-white rounded-full animate-pulse" />
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-xl font-bold text-foreground truncate">{friend.display_name}</h4>
+                            <Badge 
+                              variant={friend.status === "online" ? "default" : "outline"}
+                              className={`text-xs font-medium px-2 py-1 ${
+                                friend.status === "online" 
+                                  ? "bg-green-100 text-green-800 border-green-200" 
+                                  : friend.status === "away"
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                  : friend.status === "busy"
+                                  ? "bg-red-100 text-red-800 border-red-200"
+                                  : "bg-gray-100 text-gray-600 border-gray-200"
+                              }`}
+                            >
+                              {getStatusText(friend.status)}
+                            </Badge>
+                          </div>
+                          
+                          {/* Skill Level with Tooltip */}
+                          {friend.gaming_experience && (
+                            <div className="flex items-center gap-1 mb-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center gap-1 cursor-help">
+                                    <Trophy className="h-3 w-3 text-primary" />
+                                    <span className="text-sm font-medium text-primary capitalize">
+                                      {friend.gaming_experience}
+                                    </span>
+                                    <Info className="h-3 w-3 text-muted-foreground" />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{getSkillTooltip(friend.gaming_experience)}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          )}
+                          
+                          {/* Bio */}
+                          {friend.bio && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                              {friend.bio}
+                            </p>
+                          )}
+                          
+                          {/* Location */}
+                          {friend.location && (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground/80">
+                              <MapPin className="h-3 w-3" />
+                              <span>{friend.location}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {friend.bio && (
-                        <p className="text-xs text-muted-foreground/70 line-clamp-2 mb-2 font-medium">
-                          {friend.bio}
-                        </p>
+
+                      {/* Favorite Games & Mechanics as Clickable Tags */}
+                      <div className="space-y-3 mb-4">
+                        {friend.favorite_games && friend.favorite_games.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold mb-2 text-gaming-green">🎲 Favorite Games</p>
+                            <div className="flex flex-wrap gap-1">
+                              {friend.favorite_games.slice(0, 3).map((game) => (
+                                <Badge 
+                                  key={game} 
+                                  variant="outline" 
+                                  className="text-xs font-medium cursor-pointer hover:bg-gaming-green/10 hover:border-gaming-green/30 transition-colors"
+                                  onClick={() => handleGameTagClick(game)}
+                                >
+                                  {game}
+                                </Badge>
+                              ))}
+                              {friend.favorite_games.length > 3 && (
+                                <Badge variant="outline" className="text-xs font-medium">
+                                  +{friend.favorite_games.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {friend.favorite_mechanics && friend.favorite_mechanics.length > 0 && (
+                          <div>
+                            <p className="text-xs font-semibold mb-2 text-gaming-purple">⚙️ Favorite Mechanics</p>
+                            <div className="flex flex-wrap gap-1">
+                              {friend.favorite_mechanics.slice(0, 2).map((mechanic) => (
+                                <Badge 
+                                  key={mechanic} 
+                                  variant="outline" 
+                                  className="text-xs font-medium cursor-pointer hover:bg-gaming-purple/10 hover:border-gaming-purple/30 transition-colors"
+                                >
+                                  {mechanic}
+                                </Badge>
+                              ))}
+                              {friend.favorite_mechanics.length > 2 && (
+                                <Badge variant="outline" className="text-xs font-medium">
+                                  +{friend.favorite_mechanics.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Shared Games or Last Played Info */}
+                      {sharedGamesCount > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-gaming-blue bg-gaming-blue/10 px-2 py-1 rounded-md mb-4">
+                          <Users className="h-3 w-3" />
+                          <span className="font-medium">{sharedGamesCount} shared game{sharedGamesCount !== 1 ? 's' : ''}</span>
+                        </div>
                       )}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
-                        {friend.location && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {friend.location}
-                          </div>
-                        )}
-                        {friend.gaming_experience && (
-                          <div className="flex items-center gap-1">
-                            <Trophy className="h-3 w-3" />
-                            {friend.gaming_experience}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Favorite Games - Subtle Typography */}
-                  {friend.favorite_games && friend.favorite_games.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-xs font-semibold mb-1 text-muted-foreground/80">Favorite Games</p>
-                      <div className="flex flex-wrap gap-1">
-                        {friend.favorite_games.slice(0, 2).map((game) => (
-                          <Badge key={game} variant="outline" className="text-xs font-medium">
-                            {game}
-                          </Badge>
-                        ))}
-                        {friend.favorite_games.length > 2 && (
-                          <Badge variant="outline" className="text-xs font-medium">
-                            +{friend.favorite_games.length - 2}
-                          </Badge>
-                        )}
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 relative"
+                            onClick={() => {
+                              toast({
+                                title: "Coming Soon!",
+                                description: "Direct messaging feature is being developed.",
+                              });
+                            }}
+                          >
+                            <MessageCircle className="h-3 w-3 mr-2" />
+                            Message
+                            {/* Mock notification dot */}
+                            {friend.status === "online" && (
+                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
+                            )}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => handleFriendClick(friend)}
+                          >
+                            <User className="h-3 w-3 mr-2" />
+                            Profile
+                          </Button>
+                        </div>
+                        
+                        {/* Invite to Game Night Button */}
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          className="w-full bg-gradient-gaming hover:shadow-glow"
+                          onClick={() => {
+                            toast({
+                              title: "Coming Soon!",
+                              description: "Game night invitations will be available soon.",
+                            });
+                          }}
+                        >
+                          <CalendarPlus className="h-3 w-3 mr-2" />
+                          Invite to Game Night
+                        </Button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => {
-                        toast({
-                          title: "Coming Soon!",
-                          description: "Direct messaging feature is being developed.",
-                        });
-                      }}
-                    >
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      Message
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleFriendClick(friend)}
-                    >
-                      <User className="h-3 w-3 mr-1" />
-                      Profile
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </TooltipProvider>
       <CreateProfileDialog 
         open={showCreateProfile} 
         onOpenChange={setShowCreateProfile} 
