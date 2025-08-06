@@ -54,20 +54,31 @@ export default function PlayReports() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Play Reports</h1>
-          <p className="text-muted-foreground mt-2">
-            Track your game sessions, scores, and memories
-          </p>
+      {/* Header with standardized template */}
+      <div className="mb-8">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+          <div className="relative bg-card/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
+                  Play Reports
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Track your game sessions, scores, and memories
+                </p>
+              </div>
+              <div className="flex gap-3 mt-6 md:mt-0">
+                <CreatePlayReportDialog>
+                  <button className="px-6 py-3 bg-gradient-gaming text-white border-0 rounded-lg hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg">
+                    <Plus className="h-4 w-4 mr-2 inline" />
+                    New Report
+                  </button>
+                </CreatePlayReportDialog>
+              </div>
+            </div>
+          </div>
         </div>
-        <CreatePlayReportDialog>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Report
-          </Button>
-        </CreatePlayReportDialog>
       </div>
 
       {/* Stats Cards */}
