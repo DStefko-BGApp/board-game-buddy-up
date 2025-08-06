@@ -27,6 +27,7 @@ const Navigation = () => {
     { to: "/", icon: Crown, label: "Home" },
     { to: "/library", icon: BookOpen, label: "My Games" },
     { to: "/friends", icon: Users, label: "Friends" },
+    { to: "/groups", icon: Users, label: "Groups" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
     { to: "/play-reports", icon: FileText, label: "Play Stats" },
     { to: "/randomizer", icon: Shuffle, label: "Randomizers" },
