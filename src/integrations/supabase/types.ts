@@ -940,6 +940,10 @@ export type Database = {
         Args: { report_id: string; user_id: string }
         Returns: boolean
       }
+      user_is_group_member: {
+        Args: { group_id: string; user_id: string }
+        Returns: boolean
+      }
       user_is_report_owner: {
         Args: { report_id: string; user_id: string }
         Returns: boolean
