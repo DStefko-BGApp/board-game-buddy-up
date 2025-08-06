@@ -254,44 +254,14 @@ const Friends = () => {
                   {getStatusText(profile.status)}
                 </Badge>
                 
-                {/* Profile Completion Badge */}
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    variant={profileCompletion >= 80 ? "default" : profileCompletion >= 50 ? "secondary" : "outline"}
-                    className="text-xs"
-                  >
-                    {profileCompletion}% Complete
-                  </Badge>
-                  {profileCompletion < 80 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowEditProfile(true)}
-                      className="text-xs px-2 py-1 h-auto"
-                    >
-                      Complete Profile
-                    </Button>
-                  )}
-                </div>
-              </div>
-              
-              {/* Profile Completion Progress */}
-              {profileCompletion < 100 && (
-                <div className="mb-2">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                    <span>Profile Completion</span>
-                    <span>{profileCompletion}%</span>
+                {/* Subtle Profile Completion Indicator */}
+                {profileCompletion < 100 && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
+                    <span className="text-xs text-muted-foreground/60">{profileCompletion}%</span>
                   </div>
-                  <Progress value={profileCompletion} className="h-1" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {profileCompletion < 50 
-                      ? "Complete your profile to connect better with other gamers"
-                      : profileCompletion < 80 
-                      ? "Almost done! Add a few more details"
-                      : "Just a few more fields to complete"}
-                  </p>
-                </div>
-              )}
+                )}
+              </div>
               
               {profile.bio && (
                 <p className="text-muted-foreground text-sm font-medium italic">{profile.bio}</p>
