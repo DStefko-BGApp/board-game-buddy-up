@@ -42,6 +42,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
   const [bggUsername, setBggUsername] = useState(profile.bgg_username || "");
   const [discordHandle, setDiscordHandle] = useState(profile.discord_handle || "");
   const [libraryPublic, setLibraryPublic] = useState(profile.library_public);
+  const [showCompletionTracker, setShowCompletionTracker] = useState(profile.show_completion_tracker ?? true);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -97,7 +98,8 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
         availability: availability.trim() || null,
         bgg_username: bggUsername.trim() || null,
         discord_handle: discordHandle.trim() || null,
-        library_public: libraryPublic
+        library_public: libraryPublic,
+        show_completion_tracker: showCompletionTracker
       });
       onOpenChange(false);
     } catch (error) {
@@ -123,6 +125,7 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
       setBggUsername(profile.bgg_username || "");
       setDiscordHandle(profile.discord_handle || "");
       setLibraryPublic(profile.library_public);
+      setShowCompletionTracker(profile.show_completion_tracker ?? true);
       setAvatarUrl(profile.avatar_url || "");
     }
     onOpenChange(open);
@@ -239,6 +242,20 @@ export const EditProfileDialog = ({ open, onOpenChange, profile }: EditProfileDi
               <Switch
                 checked={libraryPublic}
                 onCheckedChange={setLibraryPublic}
+              />
+            </div>
+
+            {/* Profile Completion Tracker */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Show Profile Completion</Label>
+                <p className="text-sm text-muted-foreground">
+                  Display completion tracker in your profile
+                </p>
+              </div>
+              <Switch
+                checked={showCompletionTracker}
+                onCheckedChange={setShowCompletionTracker}
               />
             </div>
 

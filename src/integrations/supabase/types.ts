@@ -767,6 +767,7 @@ export type Database = {
           library_public: boolean | null
           location: string | null
           preferred_player_count: string | null
+          show_completion_tracker: boolean | null
           status: string | null
           updated_at: string
           user_id: string
@@ -787,6 +788,7 @@ export type Database = {
           library_public?: boolean | null
           location?: string | null
           preferred_player_count?: string | null
+          show_completion_tracker?: boolean | null
           status?: string | null
           updated_at?: string
           user_id: string
@@ -807,6 +809,7 @@ export type Database = {
           library_public?: boolean | null
           location?: string | null
           preferred_player_count?: string | null
+          show_completion_tracker?: boolean | null
           status?: string | null
           updated_at?: string
           user_id?: string

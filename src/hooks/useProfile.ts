@@ -19,6 +19,7 @@ export interface Profile {
   bgg_username?: string;
   discord_handle?: string;
   library_public: boolean;
+  show_completion_tracker?: boolean;
   created_at: string;
   updated_at: string;
 }
