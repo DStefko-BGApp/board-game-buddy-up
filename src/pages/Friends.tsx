@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFriends } from "@/hooks/useFriends";
 import { useProfile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
+import { useUserPresence } from "@/hooks/useUserPresence";
 import { CreateProfileDialog } from "@/components/CreateProfileDialog";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AddFriendDialog } from "@/components/AddFriendDialog";
@@ -23,6 +24,7 @@ const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest, refetch } = useFriends();
   const { profile } = useProfile();
   const { userGames } = useUserGames();
+  const { getUserStatus, isUserOnline } = useUserPresence();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -259,7 +261,7 @@ const Friends = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-3xl font-bold text-green-600">
-              {friends.filter(f => f.status === "online").length}
+              {friends.filter(f => isUserOnline(f.user_id)).length}
             </div>
             <div className="text-xs text-muted-foreground/70 font-medium">Online</div>
           </CardContent>
@@ -351,6 +353,9 @@ const Friends = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFriends.map((friend) => {
                 const sharedGamesCount = getSharedGamesCount(friend);
+                // Use real-time presence status instead of static profile status
+                const realTimeStatus = getUserStatus(friend.user_id);
+                const isOnline = isUserOnline(friend.user_id);
                 return (
                   <Card key={friend.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                     <CardContent className="p-5">
@@ -362,10 +367,10 @@ const Friends = () => {
                             avatarUrl={friend.avatar_url}
                             size="lg"
                           />
-                          {/* Online Status Indicator */}
-                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${getStatusColor(friend.status)} border-2 border-white rounded-full`} />
-                          {/* Notification Dot - Mock for now */}
-                          {friend.status === "online" && (
+                          {/* Online Status Indicator - Using real-time status */}
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${getStatusColor(realTimeStatus)} border-2 border-white rounded-full`} />
+                          {/* Notification Dot - Only show for online users */}
+                          {isOnline && (
                             <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary border-2 border-white rounded-full animate-pulse" />
                           )}
                         </div>
@@ -374,18 +379,16 @@ const Friends = () => {
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="text-xl font-bold text-foreground truncate">{friend.display_name}</h4>
                             <Badge 
-                              variant={friend.status === "online" ? "default" : "outline"}
+                              variant={realTimeStatus === "online" ? "default" : "outline"}
                               className={`text-xs font-medium px-2 py-1 ${
-                                friend.status === "online" 
+                                realTimeStatus === "online" 
                                   ? "bg-green-100 text-green-800 border-green-200" 
-                                  : friend.status === "away"
+                                  : realTimeStatus === "away"
                                   ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                                  : friend.status === "busy"
-                                  ? "bg-red-100 text-red-800 border-red-200"
                                   : "bg-gray-100 text-gray-600 border-gray-200"
                               }`}
                             >
-                              {getStatusText(friend.status)}
+                              {getStatusText(realTimeStatus)}
                             </Badge>
                           </div>
                           
@@ -498,8 +501,8 @@ const Friends = () => {
                           >
                             <MessageCircle className="h-3 w-3 mr-2" />
                             Message
-                            {/* Mock notification dot */}
-                            {friend.status === "online" && (
+                            {/* Notification dot only for online users */}
+                            {isOnline && (
                               <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
                             )}
                           </Button>
