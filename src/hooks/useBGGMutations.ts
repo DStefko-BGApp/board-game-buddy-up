@@ -3,6 +3,36 @@ import BGGService, { type UserGame } from "@/services/BGGService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
+// Batching system for notifications
+let updateCount = 0;
+let batchTimer: NodeJS.Timeout | null = null;
+
+const createBatchedToast = (toast: any) => {
+  updateCount++;
+  
+  if (batchTimer) {
+    clearTimeout(batchTimer);
+  }
+  
+  batchTimer = setTimeout(() => {
+    if (updateCount === 1) {
+      toast({
+        title: "Game updated ✨",
+        description: "Your changes have been saved successfully!",
+        duration: 4000,
+      });
+    } else {
+      toast({
+        title: `${updateCount} updates completed ✨`,
+        description: "All your changes have been saved successfully!",
+        duration: 4000,
+      });
+    }
+    updateCount = 0;
+    batchTimer = null;
+  }, 800);
+};
+
 export const useAddGameToLibrary = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -67,11 +97,7 @@ export const useUpdateUserGame = () => {
       updates: Partial<Pick<UserGame, 'personal_rating' | 'notes' | 'is_owned' | 'is_wishlist'>>
     }) => BGGService.updateUserGame(userGameId, updates),
     onSuccess: () => {
-      toast({
-        title: "Game updated ✨",
-        description: "Your tweaks have been saved. The game approves!",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
@@ -96,11 +122,7 @@ export const useUpdateGameExpansionRelationship = () => {
       baseGameBggId?: string;
     }) => BGGService.updateGameExpansionRelationship(gameId, isExpansion, baseGameBggId),
     onSuccess: () => {
-      toast({
-        title: "Expansion relationship updated 🔗",
-        description: "The games are now properly connected. Family reunion complete!",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
@@ -124,11 +146,7 @@ export const useUpdateGameMechanics = () => {
       coreMechanic: string | null;
     }) => BGGService.updateGameCoreMechanic(gameId, coreMechanic),
     onSuccess: () => {
-      toast({
-        title: "Core mechanic updated ⚙️",
-        description: "The engine of fun has been fine-tuned!",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
@@ -147,11 +165,7 @@ export const useUpdateGameMechanics = () => {
       additionalMechanic1: string | null;
     }) => BGGService.updateGameAdditionalMechanic1(gameId, additionalMechanic1),
     onSuccess: () => {
-      toast({
-        title: "Additional mechanic updated 🔧",
-        description: "More complexity added! Your brain will thank you later.",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
@@ -170,11 +184,7 @@ export const useUpdateGameMechanics = () => {
       additionalMechanic2: string | null;
     }) => BGGService.updateGameAdditionalMechanic2(gameId, additionalMechanic2),
     onSuccess: () => {
-      toast({
-        title: "Additional mechanic updated 🛠️",
-        description: "Even more gears in the machine! Complexity level: Expert.",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
@@ -204,11 +214,7 @@ export const useUpdateGameCustomTitle = () => {
       customTitle: string | null;
     }) => BGGService.updateGameCustomTitle(gameId, customTitle),
     onSuccess: () => {
-      toast({
-        title: "Game title updated 📝",
-        description: "A rose by any other name would still take up shelf space.",
-        duration: 4000,
-      });
+      createBatchedToast(toast);
       queryClient.invalidateQueries({ queryKey: ['user-library'] });
     },
     onError: (error: Error) => {
