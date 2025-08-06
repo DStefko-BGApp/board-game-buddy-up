@@ -18,6 +18,7 @@ import { AddFriendDialog } from "@/components/AddFriendDialog";
 import { AvatarImage } from "@/components/ui/avatar";
 import { FriendProfileDialog } from "@/components/FriendProfileDialog";
 import { FindSimilarUsersDialog } from "@/components/FindSimilarUsersDialog";
+import { SharedGamesPopover } from "@/components/SharedGamesPopover";
 import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { supabase } from "@/integrations/supabase/client";
@@ -715,10 +716,17 @@ const Friends = () => {
 
                       {/* Shared Games or Last Played Info */}
                       {sharedGamesCount > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-gaming-blue bg-gaming-blue/10 px-2 py-1 rounded-md mb-4">
-                          <Users className="h-3 w-3" />
-                          <span className="font-medium">{sharedGamesCount} shared game{sharedGamesCount !== 1 ? 's' : ''}</span>
-                        </div>
+                        <SharedGamesPopover
+                          friendUserId={friend.user_id}
+                          friendName={friend.display_name}
+                          sharedCount={sharedGamesCount}
+                          isLibraryPublic={friend.library_public}
+                        >
+                          <div className="flex items-center gap-1 text-xs text-gaming-blue bg-gaming-blue/10 px-2 py-1 rounded-md mb-4 hover:bg-gaming-blue/20 transition-colors">
+                            <Users className="h-3 w-3" />
+                            <span className="font-medium">{sharedGamesCount} shared game{sharedGamesCount !== 1 ? 's' : ''}</span>
+                          </div>
+                        </SharedGamesPopover>
                       )}
 
                       {/* Action Buttons */}
