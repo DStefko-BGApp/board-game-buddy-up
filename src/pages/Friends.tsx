@@ -289,7 +289,7 @@ const Friends = () => {
                 <div>
                   <p className="text-sm font-semibold mb-2 text-foreground">Favorite Games</p>
                   <div className="flex flex-wrap gap-1">
-                    {profile.favorite_games.slice(0, 3).map((game) => (
+                    {profile.favorite_games.slice(0, profile.favorite_games.length <= 5 ? profile.favorite_games.length : 3).map((game) => (
                       <Badge 
                         key={game} 
                         variant="outline" 
@@ -299,7 +299,7 @@ const Friends = () => {
                         {game}
                       </Badge>
                     ))}
-                    {profile.favorite_games.length > 3 && (
+                    {profile.favorite_games.length > 5 && (
                       <Badge variant="outline" className="text-xs font-medium">
                         +{profile.favorite_games.length - 3}
                       </Badge>
@@ -315,7 +315,7 @@ const Friends = () => {
                 <div>
                   <p className="text-sm font-semibold mb-2 text-foreground">Favorite Mechanics</p>
                   <div className="flex flex-wrap gap-1">
-                    {profile.favorite_mechanics.slice(0, 3).map((mechanic) => (
+                    {profile.favorite_mechanics.slice(0, profile.favorite_mechanics.length <= 3 ? profile.favorite_mechanics.length : 3).map((mechanic) => (
                       <Badge 
                         key={mechanic} 
                         variant="outline" 
@@ -622,7 +622,7 @@ const Friends = () => {
                           <div>
                             <p className="text-xs font-semibold mb-2 text-gaming-green">🎲 Favorite Games</p>
                             <div className="flex flex-wrap gap-1">
-                              {friend.favorite_games.slice(0, 3).map((game) => (
+                              {friend.favorite_games.slice(0, friend.favorite_games.length <= 5 ? friend.favorite_games.length : 3).map((game) => (
                                 <Badge 
                                   key={game} 
                                   variant="outline" 
@@ -632,7 +632,7 @@ const Friends = () => {
                                   {game}
                                 </Badge>
                               ))}
-                              {friend.favorite_games.length > 3 && (
+                              {friend.favorite_games.length > 5 && (
                                 <Badge variant="outline" className="text-xs font-medium">
                                   +{friend.favorite_games.length - 3}
                                 </Badge>
@@ -645,7 +645,7 @@ const Friends = () => {
                           <div>
                             <p className="text-xs font-semibold mb-2 text-gaming-purple">⚙️ Favorite Mechanics</p>
                             <div className="flex flex-wrap gap-1">
-                              {friend.favorite_mechanics.slice(0, 2).map((mechanic) => (
+                              {friend.favorite_mechanics.slice(0, friend.favorite_mechanics.length <= 3 ? friend.favorite_mechanics.length : 2).map((mechanic) => (
                                 <Badge 
                                   key={mechanic} 
                                   variant="outline" 
@@ -654,7 +654,7 @@ const Friends = () => {
                                   {mechanic}
                                 </Badge>
                               ))}
-                              {friend.favorite_mechanics.length > 2 && (
+                              {friend.favorite_mechanics.length > 3 && (
                                 <Badge variant="outline" className="text-xs font-medium">
                                   +{friend.favorite_mechanics.length - 2}
                                 </Badge>
