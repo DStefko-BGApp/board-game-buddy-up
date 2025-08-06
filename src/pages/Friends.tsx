@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -20,6 +20,7 @@ import { FriendProfileDialog } from "@/components/FriendProfileDialog";
 import { FindSimilarUsersDialog } from "@/components/FindSimilarUsersDialog";
 import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "@/components/common/UserAvatar";
+import { supabase } from "@/integrations/supabase/client";
 import friendsMeeples from "@/assets/friends-meeples.png";
 
 const Friends = () => {
@@ -37,6 +38,7 @@ const Friends = () => {
   const [showFriendProfile, setShowFriendProfile] = useState(false);
   const [showSimilarUsers, setShowSimilarUsers] = useState(false);
   const [similarUsersSearch, setSimilarUsersSearch] = useState({ term: "", type: 'game' as 'game' | 'mechanic' });
+  const [sharedGamesCounts, setSharedGamesCounts] = useState<Map<string, number>>(new Map());
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,11 +87,58 @@ const Friends = () => {
     }
   };
 
+  // Calculate shared games counts for all friends
+  useEffect(() => {
+    const calculateSharedGames = async () => {
+      if (!userGames || friends.length === 0) return;
+
+      const counts = new Map<string, number>();
+      
+      for (const friend of friends) {
+        if (!friend.library_public) {
+          counts.set(friend.user_id, 0);
+          continue;
+        }
+
+        try {
+          const { data: friendGames, error } = await supabase
+            .from('user_games')
+            .select('games:game_id(name)')
+            .eq('user_id', friend.user_id)
+            .eq('is_owned', true);
+
+          if (error || !friendGames) {
+            counts.set(friend.user_id, 0);
+            continue;
+          }
+
+          const friendGameNames = friendGames
+            .map(ug => ug.games?.name?.toLowerCase())
+            .filter(Boolean);
+          
+          const userGameNames = userGames
+            .map(ug => ug.name?.toLowerCase())
+            .filter(Boolean);
+
+          const sharedCount = friendGameNames.filter(gameName => 
+            userGameNames.includes(gameName)
+          ).length;
+
+          counts.set(friend.user_id, sharedCount);
+        } catch (error) {
+          console.error('Error calculating shared games for', friend.display_name, error);
+          counts.set(friend.user_id, 0);
+        }
+      }
+
+      setSharedGamesCounts(counts);
+    };
+
+    calculateSharedGames();
+  }, [userGames, friends]);
+
   const getSharedGamesCount = (friend: any) => {
-    if (!userGames || !friend.favorite_games) return 0;
-    return friend.favorite_games.filter((game: string) => 
-      userGames.some(userGame => userGame.name?.toLowerCase() === game.toLowerCase())
-    ).length;
+    return sharedGamesCounts.get(friend.user_id) || 0;
   };
 
   const handleGameTagClick = (gameName: string) => {
@@ -255,14 +304,7 @@ const Friends = () => {
                 </Badge>
                 
                 {/* Subtle Profile Completion Indicator */}
-                {(() => {
-                  console.log('Profile completion debug:', {
-                    profileCompletion,
-                    show_completion_tracker: profile.show_completion_tracker,
-                    condition: profileCompletion < 100 && (profile.show_completion_tracker ?? true)
-                  });
-                  return profileCompletion < 100 && (profile.show_completion_tracker ?? true);
-                })() && (
+                {profileCompletion < 100 && (profile.show_completion_tracker ?? true) && (
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 rounded-full bg-muted-foreground/30"></div>
                     <span className="text-xs text-muted-foreground/60">{profileCompletion}%</span>

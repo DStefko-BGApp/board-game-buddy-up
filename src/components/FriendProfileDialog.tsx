@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Profile } from "@/hooks/useProfile";
 import { useUserGames } from "@/hooks/useUserGames";
+import { useUserPresence } from "@/hooks/useUserPresence";
 import { useNavigate } from "react-router-dom";
 import { FriendLibraryDialog } from "./FriendLibraryDialog";
 
@@ -32,11 +33,16 @@ interface FriendProfileDialogProps {
 
 export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfileDialogProps) => {
   const { userGames } = useUserGames();
+  const { getUserStatus, isUserOnline } = useUserPresence();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showLibraryDialog, setShowLibraryDialog] = useState(false);
 
   if (!friend) return null;
+
+  // Use real-time status instead of static profile status
+  const realTimeStatus = getUserStatus(friend.user_id);
+  const isOnline = isUserOnline(friend.user_id);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -103,9 +109,8 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
               {/* Large Avatar with Status Ring */}
               <div className="relative">
                 <div className={`absolute -inset-1 rounded-full ${
-                  friend.status === "online" ? "bg-gaming-green/30 animate-pulse" : 
-                  friend.status === "away" ? "bg-gaming-yellow/30" : 
-                  friend.status === "busy" ? "bg-gaming-red/30" : "bg-muted/30"
+                  realTimeStatus === "online" ? "bg-gaming-green/30 animate-pulse" : 
+                  realTimeStatus === "away" ? "bg-gaming-yellow/30" : "bg-muted/30"
                 }`}></div>
                 <Avatar className="h-24 w-24 border-4 border-white/40 relative">
                   {friend.avatar_url ? (
@@ -118,7 +123,7 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                 </Avatar>
                 {/* Status Indicator */}
                 <div className="absolute -bottom-1 -right-1 text-2xl">
-                  {getStatusIcon(friend.status)}
+                  {getStatusIcon(realTimeStatus)}
                 </div>
               </div>
               
@@ -128,8 +133,8 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                   <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
                     {friend.display_name}
                   </h1>
-                  <Badge className={`text-base font-semibold px-4 py-2 ${getStatusColor(friend.status)}`}>
-                    {getStatusText(friend.status)}
+                  <Badge className={`text-base font-semibold px-4 py-2 ${getStatusColor(realTimeStatus)}`}>
+                    {getStatusText(realTimeStatus)}
                   </Badge>
                   {friend.library_public && (
                     <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/30 font-medium">
