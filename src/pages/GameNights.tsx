@@ -290,7 +290,7 @@ const GameNights = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="attendees">Attendees (comma-separated)</Label>
+                    <Label htmlFor="attendees">Invitees (comma-separated)</Label>
                     <Textarea
                       id="attendees"
                       value={formData.attendees}
@@ -397,7 +397,7 @@ const GameNights = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-attendees">Attendees (comma-separated)</Label>
+                    <Label htmlFor="edit-attendees">Invitees (comma-separated)</Label>
                     <Textarea
                       id="edit-attendees"
                       value={formData.attendees}
@@ -592,7 +592,7 @@ const GameNights = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
+                    <p className="text-sm font-medium mb-2">Invitees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
                       {event.attendees.map((attendee) => (
                         <AttendeeLink 
@@ -670,7 +670,7 @@ const GameNights = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium mb-2">Attendees ({event.attendees.length})</p>
+                    <p className="text-sm font-medium mb-2">Invitees ({event.attendees.length})</p>
                     <div className="flex flex-wrap gap-2">
                       {event.attendees.map((attendee) => (
                         <AttendeeLink 
