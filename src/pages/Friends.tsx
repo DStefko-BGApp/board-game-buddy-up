@@ -17,6 +17,7 @@ import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AddFriendDialog } from "@/components/AddFriendDialog";
 import { AvatarImage } from "@/components/ui/avatar";
 import { FriendProfileDialog } from "@/components/FriendProfileDialog";
+import { FindSimilarUsersDialog } from "@/components/FindSimilarUsersDialog";
 import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import friendsMeeples from "@/assets/friends-meeples.png";
@@ -34,6 +35,8 @@ const Friends = () => {
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<any>(null);
   const [showFriendProfile, setShowFriendProfile] = useState(false);
+  const [showSimilarUsers, setShowSimilarUsers] = useState(false);
+  const [similarUsersSearch, setSimilarUsersSearch] = useState({ term: "", type: 'game' as 'game' | 'mechanic' });
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -130,6 +133,36 @@ const Friends = () => {
 
   const { current: currentMilestone, next: nextMilestone } = getCurrentMilestone();
 
+  // Profile completion calculation
+  const getProfileCompletion = () => {
+    if (!profile) return 0;
+    
+    const fields = [
+      profile.display_name,
+      profile.bio,
+      profile.avatar_url,
+      profile.location,
+      profile.gaming_experience,
+      profile.gaming_style,
+      profile.preferred_player_count,
+      profile.availability,
+      profile.favorite_games?.length > 0,
+      profile.favorite_mechanics?.length > 0,
+      profile.bgg_username,
+      profile.discord_handle
+    ];
+    
+    const completedFields = fields.filter(Boolean).length;
+    return Math.round((completedFields / fields.length) * 100);
+  };
+
+  const profileCompletion = getProfileCompletion();
+
+  const handleInterestClick = (interest: string, type: 'game' | 'mechanic') => {
+    setSimilarUsersSearch({ term: interest, type });
+    setShowSimilarUsers(true);
+  };
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -205,7 +238,7 @@ const Friends = () => {
         </div>
       </div>
 
-      {/* Your Profile Card - Enhanced Typography */}
+      {/* Your Profile Card with Completion Tracker */}
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-4">
@@ -220,7 +253,46 @@ const Friends = () => {
                 <Badge variant={profile.status === "online" ? "default" : "outline"} className="text-xs">
                   {getStatusText(profile.status)}
                 </Badge>
+                
+                {/* Profile Completion Badge */}
+                <div className="flex items-center gap-2">
+                  <Badge 
+                    variant={profileCompletion >= 80 ? "default" : profileCompletion >= 50 ? "secondary" : "outline"}
+                    className="text-xs"
+                  >
+                    {profileCompletion}% Complete
+                  </Badge>
+                  {profileCompletion < 80 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowEditProfile(true)}
+                      className="text-xs px-2 py-1 h-auto"
+                    >
+                      Complete Profile
+                    </Button>
+                  )}
+                </div>
               </div>
+              
+              {/* Profile Completion Progress */}
+              {profileCompletion < 100 && (
+                <div className="mb-2">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                    <span>Profile Completion</span>
+                    <span>{profileCompletion}%</span>
+                  </div>
+                  <Progress value={profileCompletion} className="h-1" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {profileCompletion < 50 
+                      ? "Complete your profile to connect better with other gamers"
+                      : profileCompletion < 80 
+                      ? "Almost done! Add a few more details"
+                      : "Just a few more fields to complete"}
+                  </p>
+                </div>
+              )}
+              
               {profile.bio && (
                 <p className="text-muted-foreground text-sm font-medium italic">{profile.bio}</p>
               )}
@@ -248,7 +320,12 @@ const Friends = () => {
                   <p className="text-sm font-semibold mb-2 text-foreground">Favorite Games</p>
                   <div className="flex flex-wrap gap-1">
                     {profile.favorite_games.slice(0, 3).map((game) => (
-                      <Badge key={game} variant="outline" className="text-xs font-medium">
+                      <Badge 
+                        key={game} 
+                        variant="outline" 
+                        className="text-xs font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                        onClick={() => handleInterestClick(game, 'game')}
+                      >
                         {game}
                       </Badge>
                     ))}
@@ -258,6 +335,9 @@ const Friends = () => {
                       </Badge>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Click to find users with similar games
+                  </p>
                 </div>
               )}
               
@@ -266,7 +346,12 @@ const Friends = () => {
                   <p className="text-sm font-semibold mb-2 text-foreground">Favorite Mechanics</p>
                   <div className="flex flex-wrap gap-1">
                     {profile.favorite_mechanics.slice(0, 3).map((mechanic) => (
-                      <Badge key={mechanic} variant="outline" className="text-xs font-medium">
+                      <Badge 
+                        key={mechanic} 
+                        variant="outline" 
+                        className="text-xs font-medium cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                        onClick={() => handleInterestClick(mechanic, 'mechanic')}
+                      >
                         {mechanic}
                       </Badge>
                     ))}
@@ -276,6 +361,9 @@ const Friends = () => {
                       </Badge>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Click to find users with similar mechanics
+                  </p>
                 </div>
               )}
             </div>
@@ -690,6 +778,12 @@ const Friends = () => {
             friend={selectedFriend}
             open={showFriendProfile}
             onOpenChange={setShowFriendProfile}
+          />
+          <FindSimilarUsersDialog 
+            open={showSimilarUsers}
+            onOpenChange={setShowSimilarUsers}
+            searchTerm={similarUsersSearch.term}
+            searchType={similarUsersSearch.type}
           />
         </>
       )}
