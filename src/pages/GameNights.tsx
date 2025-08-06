@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { generateICalFile, generateGoogleCalendarUrl } from "@/utils/calendarUtils";
 import { AttendeeLink } from "@/components/gamenight/AttendeeLink";
 import { RsvpSection } from "@/components/gamenight/RsvpSection";
+import { LocationFilter } from "@/components/gamenight/LocationFilter";
+import { calculateDistance, geocodeLocation } from "@/utils/locationUtils";
 
 const GameNights = () => {
   const { user } = useAuth();
@@ -35,6 +37,12 @@ const GameNights = () => {
     is_public: false,
   });
   const [viewFilter, setViewFilter] = useState<'my' | 'public'>('my');
+  const [locationFilter, setLocationFilter] = useState<{
+    enabled: boolean;
+    radius: number;
+    userCoords: { lat: number; lng: number } | null;
+  }>({ enabled: false, radius: 25, userCoords: null });
+  const [filteredGameNights, setFilteredGameNights] = useState<any[]>([]);
 
   // Load game nights from database
   useEffect(() => {
@@ -60,6 +68,7 @@ const GameNights = () => {
 
       if (error) throw error;
       setGameNights(data || []);
+      setFilteredGameNights(data || []);
     } catch (error) {
       console.error('Error loading game nights:', error);
       toast({
@@ -74,12 +83,46 @@ const GameNights = () => {
 
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   
-  const upcomingEvents = gameNights
+  const upcomingEvents = filteredGameNights
     .filter(event => event.date >= today)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const pastEvents = gameNights
+  const pastEvents = filteredGameNights
     .filter(event => event.date < today)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Most recent first
+
+  // Apply location filter when gameNights or locationFilter changes
+  useEffect(() => {
+    const applyLocationFilter = async () => {
+      if (!locationFilter.enabled || !locationFilter.userCoords || viewFilter !== 'public') {
+        setFilteredGameNights(gameNights);
+        return;
+      }
+
+      const filtered = [];
+      for (const event of gameNights) {
+        if (!event.location || event.location === "TBD") {
+          continue; // Skip events without specific locations
+        }
+
+        const eventCoords = await geocodeLocation(event.location);
+        if (eventCoords) {
+          const distance = calculateDistance(
+            locationFilter.userCoords.lat,
+            locationFilter.userCoords.lng,
+            eventCoords.lat,
+            eventCoords.lng
+          );
+          
+          if (distance <= locationFilter.radius) {
+            filtered.push(event);
+          }
+        }
+      }
+      setFilteredGameNights(filtered);
+    };
+
+    applyLocationFilter();
+  }, [gameNights, locationFilter, viewFilter]);
 
   // Reload when view filter changes
   useEffect(() => {
@@ -142,7 +185,9 @@ const GameNights = () => {
 
       if (error) throw error;
 
-      setGameNights([...gameNights, data]);
+      const updatedGameNights = [...gameNights, data];
+      setGameNights(updatedGameNights);
+      setFilteredGameNights(updatedGameNights);
       setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
       setIsCreateDialogOpen(false);
       
@@ -197,7 +242,9 @@ const GameNights = () => {
 
       if (error) throw error;
 
-      setGameNights(gameNights.map(gn => gn.id === editingGameNight.id ? data : gn));
+      const updatedGameNights = gameNights.map(gn => gn.id === editingGameNight.id ? data : gn);
+      setGameNights(updatedGameNights);
+      setFilteredGameNights(updatedGameNights);
       setFormData({ title: "", date: "", time: "", location: "", attendees: "", games: "", notes: "", is_public: false });
       setEditingGameNight(null);
       setIsEditDialogOpen(false);
@@ -475,6 +522,13 @@ const GameNights = () => {
               Public Events
             </TabsTrigger>
           </TabsList>
+          
+          {/* Location Filter - only show for public events */}
+          {viewFilter === 'public' && (
+            <div className="mt-4 max-w-md">
+              <LocationFilter onFilterChange={setLocationFilter} />
+            </div>
+          )}
         </Tabs>
       </div>
 
