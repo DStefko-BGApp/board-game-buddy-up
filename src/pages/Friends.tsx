@@ -110,33 +110,39 @@ const Friends = () => {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* Header with Gaming Illustration */}
-      <div className="text-center mb-8">
-        <h1 className="text-5xl font-extrabold mb-3 bg-gradient-to-r from-primary via-gaming-purple to-gaming-blue bg-clip-text text-transparent">
-          Friends
-        </h1>
-        <p className="text-muted-foreground text-base mb-6 max-w-md mx-auto">
-          Connect with fellow board game enthusiasts
-        </p>
-        <div className="flex justify-center mb-6">
-          <img 
-            src={friendsMeeples} 
-            alt="Gaming friends illustration" 
-            className="w-32 h-32 object-contain opacity-80"
-          />
+      {/* Header with Library page template */}
+      <div className="mb-8">
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-gaming opacity-10 rounded-2xl blur-3xl"></div>
+          <div className="relative bg-card/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-bold bg-gradient-gaming bg-clip-text text-transparent">
+                  Friends
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Connect with fellow board game enthusiasts
+                </p>
+              </div>
+              <div className="flex gap-3 mt-6 md:mt-0">
+                <button
+                  onClick={() => setShowEditProfile(true)}
+                  className="px-6 py-3 bg-white/20 text-foreground border-2 border-white/40 rounded-lg hover:bg-white/30 backdrop-blur-sm font-semibold shadow-lg hover-scale transition-all duration-300"
+                >
+                  <Settings className="h-4 w-4 mr-2 inline" />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => setShowAddFriend(true)}
+                  className="px-6 py-3 bg-gradient-gaming text-white border-0 rounded-lg hover:shadow-glow transition-all duration-300 font-semibold hover-scale shadow-lg"
+                >
+                  <UserPlus className="h-4 w-4 mr-2 inline" />
+                  Add Friend
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-center gap-3 mb-8">
-        <Button variant="outline" onClick={() => setShowEditProfile(true)}>
-          <Settings className="h-4 w-4 mr-2" />
-          <span className="text-sm">Edit Profile</span>
-        </Button>
-        <Button onClick={() => setShowAddFriend(true)} className="font-medium">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Friend
-        </Button>
       </div>
 
       {/* Your Profile Card - Enhanced Typography */}
