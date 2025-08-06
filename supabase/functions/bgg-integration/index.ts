@@ -220,10 +220,13 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
     const designers = extractLinks(xmlText, 'boardgamedesigner')
     const publishers = extractLinks(xmlText, 'boardgamepublisher')
     
-    // Extract expansion relationships
+    // Extract expansion relationships - be more conservative for single game additions
     const expansionLinks = extractExpansionLinks(xmlText)
-    const isExpansion = expansionLinks.expands.length > 0
-    const baseGameBggId = isExpansion ? expansionLinks.expands[0] : undefined
+    
+    // For single game additions (not bulk sync), default to NOT expansion unless very clear
+    // This prevents BGG API quirks from incorrectly marking standalone games as expansions
+    const isExpansion = false // Conservative default for manual additions
+    const baseGameBggId = undefined // Don't auto-assign base games for manual additions
     const expandsGames = expansionLinks.expandedBy.length > 0 ? expansionLinks.expandedBy : undefined
     
     if (!nameMatch) {
