@@ -13,6 +13,7 @@ import {
   CheckSquare,
   Square,
   ChevronDown,
+  ChevronRight,
   ExternalLink
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -31,6 +32,9 @@ interface GameCardProps {
   getDisplayTitle: (game: any) => string;
   isRemoving: boolean;
   onGroupGames?: (draggedGameId: string, targetGameId: string) => void;
+  hasExpansions?: boolean;
+  isExpanded?: boolean;
+  onToggleExpansion?: () => void;
 }
 
 export const GameCard = ({
@@ -44,7 +48,10 @@ export const GameCard = ({
   onStatusChange,
   getDisplayTitle,
   isRemoving,
-  onGroupGames
+  onGroupGames,
+  hasExpansions = false,
+  isExpanded = false,
+  onToggleExpansion
 }: GameCardProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const formatPlayerCount = (min?: number, max?: number) => {
@@ -243,46 +250,67 @@ export const GameCard = ({
             )}
           </div>
           
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(userGame);
-              }}
-              className="h-7 px-2 text-xs"
-            >
-              <Edit className="h-3 w-3 mr-1" />
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              asChild
-              className="h-7 px-2 text-xs"
-            >
-              <a 
-                href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
-                target="_blank"
-                rel="noopener noreferrer"
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(userGame);
+                }}
+                className="h-7 px-2 text-xs"
               >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                BGG
-              </a>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(userGame.id);
-              }}
-              disabled={isRemoving}
-              className="text-destructive hover:text-destructive h-7 px-2"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+                <Edit className="h-3 w-3 mr-1" />
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                asChild
+                className="h-7 px-2 text-xs"
+              >
+                <a 
+                  href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  BGG
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(userGame.id);
+                }}
+                disabled={isRemoving}
+                className="text-destructive hover:text-destructive h-7 px-2"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+            
+            {/* Expansion toggle button in bottom right */}
+            {hasExpansions && onToggleExpansion && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleExpansion();
+                }}
+                className="h-7 w-7 p-0"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>

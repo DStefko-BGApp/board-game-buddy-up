@@ -86,39 +86,23 @@ export const GamesList = ({
     <div className="space-y-4">
       {sortedFilteredLibrary.map((group) => (
         <div key={group.baseGame.id} className="space-y-2">
-          {/* Base game with expansion toggle */}
-          <div className="flex items-start gap-2">
-            {group.expansions.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
-                className="flex-shrink-0 mt-4 h-8 w-8 p-0 touch-manipulation"
-              >
-                {expandedGroups.has(group.baseGame.game.bgg_id) ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
-            )}
-            
-            <div className="flex-1 min-w-0">
-              <GameCard
-                userGame={group.baseGame}
-                isExpansion={false}
-                isSelectionMode={isSelectionMode}
-                isSelected={selectedGames.has(group.baseGame.id)}
-                onEdit={onEditGame}
-                onRemove={onRemoveGame}
-                onSelect={onSelectGame}
-                onStatusChange={onStatusChange}
-                getDisplayTitle={getDisplayTitle}
-                isRemoving={isRemoving}
-                onGroupGames={onGroupGames}
-              />
-            </div>
-          </div>
+          {/* Base game */}
+          <GameCard
+            userGame={group.baseGame}
+            isExpansion={false}
+            isSelectionMode={isSelectionMode}
+            isSelected={selectedGames.has(group.baseGame.id)}
+            onEdit={onEditGame}
+            onRemove={onRemoveGame}
+            onSelect={onSelectGame}
+            onStatusChange={onStatusChange}
+            getDisplayTitle={getDisplayTitle}
+            isRemoving={isRemoving}
+            onGroupGames={onGroupGames}
+            hasExpansions={group.expansions.length > 0}
+            isExpanded={expandedGroups.has(group.baseGame.game.bgg_id)}
+            onToggleExpansion={() => toggleGroupExpansion(group.baseGame.game.bgg_id)}
+          />
 
           {expandedGroups.has(group.baseGame.game.bgg_id) && group.expansions.length > 0 && (
             <div className="ml-10 space-y-2">
