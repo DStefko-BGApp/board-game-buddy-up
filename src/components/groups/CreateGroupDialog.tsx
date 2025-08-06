@@ -29,21 +29,24 @@ const CreateGroupDialog = ({ open, onOpenChange }: CreateGroupDialogProps) => {
 
     setLoading(true);
     try {
-      await createGroup({
+      const result = await createGroup({
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
         is_private: formData.is_private,
         max_members: formData.max_members > 0 ? formData.max_members : undefined
       });
       
-      // Reset form and close dialog
-      setFormData({
-        name: '',
-        description: '',
-        is_private: false,
-        max_members: 20
-      });
-      onOpenChange(false);
+      // Only reset and close if creation was successful
+      if (result) {
+        // Reset form and close dialog
+        setFormData({
+          name: '',
+          description: '',
+          is_private: false,
+          max_members: 20
+        });
+        onOpenChange(false);
+      }
     } catch (error) {
       console.error('Error creating group:', error);
     } finally {

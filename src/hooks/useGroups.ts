@@ -178,7 +178,11 @@ export const useGroups = () => {
         description: `"${groupData.name}" has been created successfully`,
       });
 
-      loadGroups();
+      // Add a small delay to ensure the trigger has completed
+      setTimeout(() => {
+        loadGroups();
+      }, 100);
+      
       return group;
     } catch (error) {
       console.error('Error creating group:', error);
