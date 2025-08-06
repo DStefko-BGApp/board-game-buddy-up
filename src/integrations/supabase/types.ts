@@ -485,6 +485,7 @@ export type Database = {
       gaming_groups: {
         Row: {
           created_at: string
+          created_by: string
           description: string | null
           id: string
           is_private: boolean
@@ -495,6 +496,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by: string
           description?: string | null
           id?: string
           is_private?: boolean
@@ -505,6 +507,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string
           description?: string | null
           id?: string
           is_private?: boolean
@@ -514,6 +517,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "gaming_groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "gaming_groups_owner_id_fkey"
             columns: ["owner_id"]

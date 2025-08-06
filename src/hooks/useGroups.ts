@@ -9,7 +9,7 @@ export interface Group {
   description: string | null;
   is_private: boolean;
   max_members: number | null;
-  owner_id: string;
+  created_by: string;
   created_at: string;
   updated_at: string;
   members?: GroupMember[];
@@ -77,7 +77,7 @@ export const useGroups = () => {
             description,
             is_private,
             max_members,
-            owner_id,
+            created_by,
             created_at,
             updated_at
           )
@@ -162,23 +162,16 @@ export const useGroups = () => {
         .from('gaming_groups')
         .insert({
           ...groupData,
-          owner_id: user.id
-        })
+          created_by: user.id,
+          owner_id: user.id  // Temporarily include both until types are updated
+        } as any)
         .select()
         .single();
 
       if (groupError) throw groupError;
 
-      // Add creator as admin member
-      const { error: memberError } = await supabase
-        .from('gaming_group_members')
-        .insert({
-          group_id: group.id,
-          user_id: user.id,
-          role: 'admin'
-        });
-
-      if (memberError) throw memberError;
+      // Note: The trigger automatically adds creator as admin member
+      // No need to manually insert into gaming_group_members
 
       toast({
         title: "Group Created",

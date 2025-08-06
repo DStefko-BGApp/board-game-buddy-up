@@ -276,7 +276,7 @@ const GroupDetailsDialog = ({ open, onOpenChange, group }: GroupDetailsDialogPro
                         </div>
                       </div>
                       
-                      {canManageGroup && member.user_id !== group.owner_id && (
+                      {canManageGroup && member.user_id !== group.created_by && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
