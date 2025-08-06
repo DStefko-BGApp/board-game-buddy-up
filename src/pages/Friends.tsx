@@ -98,6 +98,38 @@ const Friends = () => {
     setShowFriendProfile(true);
   };
 
+  const friendMilestones = [
+    { count: 1, title: "First Friend", description: "Welcome to the community!", icon: "🎯" },
+    { count: 5, title: "Small Circle", description: "Building connections", icon: "👥" },
+    { count: 10, title: "Gaming Group", description: "Ready for game nights", icon: "🎲" },
+    { count: 25, title: "Popular Gamer", description: "Well-connected player", icon: "⭐" },
+    { count: 50, title: "Community Leader", description: "Influential member", icon: "🏆" },
+    { count: 100, title: "Board Game Ambassador", description: "Community champion", icon: "👑" }
+  ];
+
+  const getCurrentMilestone = () => {
+    const currentCount = friends.length;
+    let current = null;
+    let next = friendMilestones[0];
+    
+    for (const milestone of friendMilestones) {
+      if (currentCount >= milestone.count) {
+        current = milestone;
+      } else {
+        next = milestone;
+        break;
+      }
+    }
+    
+    if (currentCount >= friendMilestones[friendMilestones.length - 1].count) {
+      next = null; // Max milestone reached
+    }
+    
+    return { current, next };
+  };
+
+  const { current: currentMilestone, next: nextMilestone } = getCurrentMilestone();
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -265,15 +297,28 @@ const Friends = () => {
               
               {/* Friend Milestone Progress */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Progress to next milestone</span>
-                  <span>{friends.length}/10</span>
-                </div>
-                <Progress value={(friends.length / 10) * 100} className="h-1" />
-                {friends.length >= 10 && (
+                {nextMilestone ? (
+                  <>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Next: {nextMilestone.title}</span>
+                      <span>{friends.length}/{nextMilestone.count}</span>
+                    </div>
+                    <Progress value={(friends.length / nextMilestone.count) * 100} className="h-1" />
+                    <div className="text-xs text-muted-foreground/70">
+                      {nextMilestone.description}
+                    </div>
+                  </>
+                ) : (
                   <div className="flex items-center justify-center text-xs text-primary font-medium">
                     <Award className="h-3 w-3 mr-1" />
-                    Milestone achieved!
+                    Max milestone achieved! 👑
+                  </div>
+                )}
+                
+                {currentMilestone && (
+                  <div className="flex items-center justify-center text-xs text-primary font-medium pt-1">
+                    <Trophy className="h-3 w-3 mr-1" />
+                    {currentMilestone.icon} {currentMilestone.title}
                   </div>
                 )}
               </div>
