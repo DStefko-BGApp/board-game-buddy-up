@@ -29,7 +29,7 @@ const Navigation = () => {
     { to: "/friends", icon: Users, label: "Friends" },
     { to: "/groups", icon: Users, label: "Groups" },
     { to: "/game-nights", icon: Calendar, label: "Game Nights" },
-    { to: "/play-reports", icon: FileText, label: "Play Stats" },
+    { to: "/play-reports", icon: FileText, label: "Stats" },
     { to: "/randomizer", icon: Shuffle, label: "Randomizers" },
     { to: "/faq", icon: HelpCircle, label: "FAQ" },
   ];
