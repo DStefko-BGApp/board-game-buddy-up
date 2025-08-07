@@ -1,5 +1,6 @@
 name: SQL Linting
-
+- name: Debug – List root files
+  run: ls -la
 on:
   push:
     paths:
