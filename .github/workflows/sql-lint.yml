@@ -1,0 +1,30 @@
+name: Lint SQL
+
+on:
+  pull_request:
+    paths:
+      - '**/*.sql'
+  push:
+    branches: [main]
+
+jobs:
+  sqlfluff-lint:
+    runs-on: ubuntu-latest
+    name: Run SQLFluff
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install SQLFluff
+        run: pip install sqlfluff
+
+      - name: Debug — Show project files
+        run: ls -la
+
+      - name: Run SQLFluff linter
+        run: sqlfluff lint --dialect postgres .
