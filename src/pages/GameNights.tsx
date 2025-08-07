@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, Users, MapPin, Plus, Edit, Download, ExternalLink, Globe, Lock, Eye } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, Plus, Edit, Download, ExternalLink, Globe, Lock, Eye, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -258,6 +258,37 @@ const GameNights = () => {
       toast({
         title: "Error",
         description: "Failed to update game night",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteGameNight = async (gameNightId: string) => {
+    if (!confirm("Are you sure you want to delete this game night? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('game_nights')
+        .delete()
+        .eq('id', gameNightId);
+
+      if (error) throw error;
+
+      const updatedGameNights = gameNights.filter(gn => gn.id !== gameNightId);
+      setGameNights(updatedGameNights);
+      setFilteredGameNights(updatedGameNights);
+      
+      toast({
+        title: "Success",
+        description: "Game night deleted successfully!",
+      });
+    } catch (error) {
+      console.error('Error deleting game night:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete game night",
         variant: "destructive",
       });
     }
@@ -632,15 +663,29 @@ const GameNights = () => {
                     >
                       <ExternalLink className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => handleEditGameNight(event)}
-                      title="Edit Game Night"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
+                     {/* Only show edit and delete for user's own events */}
+                     {(viewFilter === 'my' || event.user_id === user?.id) && (
+                       <>
+                         <Button 
+                           variant="ghost" 
+                           size="icon"
+                           onClick={() => handleEditGameNight(event)}
+                           title="Edit Game Night"
+                         >
+                           <Edit className="h-4 w-4" />
+                         </Button>
+                         <Button 
+                           variant="ghost" 
+                           size="icon"
+                           onClick={() => handleDeleteGameNight(event.id)}
+                           title="Delete Game Night"
+                           className="text-destructive hover:text-destructive"
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </>
+                     )}
+                   </div>
                 </div>
               </CardHeader>
               <CardContent>
@@ -717,6 +762,18 @@ const GameNights = () => {
                          <Users className="h-3 w-3" />
                          by {event.profiles.display_name}
                        </Badge>
+                     )}
+                     {/* Only show delete for user's own events */}
+                     {(viewFilter === 'my' || event.user_id === user?.id) && (
+                       <Button 
+                         variant="ghost" 
+                         size="icon"
+                         onClick={() => handleDeleteGameNight(event.id)}
+                         title="Delete Game Night"
+                         className="text-destructive hover:text-destructive"
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
                      )}
                    </div>
                 </div>
