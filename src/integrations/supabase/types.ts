@@ -922,6 +922,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_admin_status: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
+      }
       create_notification: {
         Args: {
           p_user_id: string
@@ -945,6 +949,10 @@ export type Database = {
           p_photos?: string[]
         }
         Returns: string
+      }
+      debug_group_invitation: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: Json
       }
       user_can_view_play_report: {
         Args: { report_id: string; user_id: string }

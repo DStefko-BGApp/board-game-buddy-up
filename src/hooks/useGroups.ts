@@ -300,9 +300,52 @@ export const useGroups = () => {
   };
 
   const sendInvitation = async (groupId: string, userId: string) => {
-    if (!user) return;
+    if (!user) {
+      console.error('No authenticated user found');
+      toast({
+        title: "Error",
+        description: "You must be logged in to send invitations",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
+      console.log('Sending invitation with data:', {
+        group_id: groupId,
+        invited_by_user_id: user.id,
+        invited_user_id: userId,
+        status: 'pending'
+      });
+
+      // First, let's check if the user has admin permissions for this group
+      const { data: memberData, error: memberError } = await supabase
+        .from('gaming_group_members')
+        .select('role')
+        .eq('group_id', groupId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (memberError) {
+        console.error('Error checking membership:', memberError);
+        toast({
+          title: "Error",
+          description: "Could not verify group membership",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!memberData || memberData.role !== 'admin') {
+        console.error('User is not an admin of this group:', { memberData });
+        toast({
+          title: "Error",
+          description: "Only group admins can send invitations",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('group_invitations')
         .insert({
@@ -312,17 +355,20 @@ export const useGroups = () => {
           status: 'pending'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error creating invitation:', error);
+        throw error;
+      }
 
       toast({
         title: "Invitation Sent",
         description: "Group invitation has been sent",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending invitation:', error);
       toast({
         title: "Error",
-        description: "Failed to send invitation",
+        description: error?.message || "Failed to send invitation",
         variant: "destructive",
       });
     }

@@ -29,10 +29,13 @@ const GroupInviteDialog = ({ open, onOpenChange, group }: GroupInviteDialogProps
 
   const handleInvite = async (userId: string) => {
     try {
+      // Add more specific error handling
+      console.log('Attempting to send invitation:', { groupId: group.id, userId });
       await sendInvitation(group.id, userId);
       setInvitedUsers(prev => new Set([...prev, userId]));
     } catch (error) {
       console.error('Error sending invitation:', error);
+      // The error toast is already handled in the sendInvitation function
     }
   };
 
