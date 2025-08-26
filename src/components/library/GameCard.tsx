@@ -266,34 +266,12 @@ export const GameCard = ({
                 <Edit className="h-3 w-3 mr-1" />
                 Edit
               </Button>
-              {/* Only show BGG link for real BGG IDs (not manually added games) */}
-              {userGame.game.bgg_id < 500000 && (
-                <div className="flex gap-1">
-                  <a 
-                    href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-6 px-1.5"
-                    title="View on BoardGameGeek"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    BGG
-                  </a>
-                  <a 
-                    href={`https://www.google.com/search?q=${encodeURIComponent(userGame.game.name + ' board game')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-6 px-1.5"
-                    title="Search on Google"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    Google
-                  </a>
-                </div>
-              )}
-              {userGame.game.bgg_id >= 500000 && (
+              {/* Show game source indicator */}
+              {userGame.game.bgg_id < 500000 ? (
+                <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                  BGG Game
+                </span>
+              ) : (
                 <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-muted text-muted-foreground">
                   Manual Entry
                 </span>
