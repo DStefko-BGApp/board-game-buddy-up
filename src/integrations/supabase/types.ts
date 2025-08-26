@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -928,25 +928,25 @@ export type Database = {
       }
       create_notification: {
         Args: {
-          p_user_id: string
-          p_type: string
-          p_title: string
-          p_message: string
           p_data?: Json
+          p_message: string
+          p_title: string
+          p_type: string
+          p_user_id: string
         }
         Returns: string
       }
       create_play_report_secure: {
         Args: {
-          p_game_id: string
-          p_reporter_id: string
-          p_title: string
           p_date_played: string
-          p_summary?: string
+          p_duration_minutes?: number
+          p_game_id: string
           p_location?: string
           p_notes?: string
-          p_duration_minutes?: number
           p_photos?: string[]
+          p_reporter_id: string
+          p_summary?: string
+          p_title: string
         }
         Returns: string
       }
