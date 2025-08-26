@@ -276,6 +276,7 @@ export const GameCard = ({
                   href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <ExternalLink className="h-3 w-3 mr-1" />
                   See game details
