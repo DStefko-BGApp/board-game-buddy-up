@@ -2,6 +2,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin, Trophy, Star, MoreHorizontal, Edit, Trash2, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 import {
   Card,
@@ -103,7 +104,7 @@ export function PlayReportCard({ playReport, onEdit, onDelete }: PlayReportCardP
                 to="/library" 
                 className="text-base font-medium text-primary hover:underline flex items-center gap-1"
               >
-                {playReport.game.custom_title || playReport.game.name}
+                {decodeHtmlEntities(playReport.game.custom_title || playReport.game.name)}
                 <ExternalLink className="h-3 w-3" />
               </Link>
             </div>

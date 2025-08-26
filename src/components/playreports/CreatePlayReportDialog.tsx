@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CalendarIcon, Plus, Trash2, Camera } from "lucide-react";
 import { format } from "date-fns";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 import {
   Dialog,
@@ -182,7 +183,7 @@ export function CreatePlayReportDialog({ children }: CreatePlayReportDialogProps
                       <SelectContent>
                         {library?.map((group) => (
                           <SelectItem key={group.baseGame.game.id} value={group.baseGame.game.id}>
-                            {group.baseGame.game.custom_title || group.baseGame.game.name}
+                            {decodeHtmlEntities(group.baseGame.game.custom_title || group.baseGame.game.name)}
                           </SelectItem>
                         ))}
                       </SelectContent>

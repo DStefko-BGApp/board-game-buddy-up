@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 import {
   Dialog,
@@ -151,7 +152,7 @@ export function EditPlayReportDialog({ playReport, open, onOpenChange }: EditPla
         <DialogHeader>
           <DialogTitle>Edit Play Report</DialogTitle>
           <DialogDescription>
-            Update the details of your play report for {playReport.game.custom_title || playReport.game.name}
+            Update the details of your play report for {decodeHtmlEntities(playReport.game.custom_title || playReport.game.name)}
           </DialogDescription>
         </DialogHeader>
 

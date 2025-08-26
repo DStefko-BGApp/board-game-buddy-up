@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Users, BookOpen, ExternalLink, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserGames } from "@/hooks/useUserGames";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 interface SharedGame {
   name: string;
@@ -128,7 +129,7 @@ export const SharedGamesPopover = ({
                         {game.thumbnail_url || game.image_url ? (
                           <img 
                             src={game.thumbnail_url || game.image_url} 
-                            alt={game.name}
+                            alt={decodeHtmlEntities(game.name)}
                             className="w-full h-full object-cover rounded"
                           />
                         ) : (
@@ -140,7 +141,7 @@ export const SharedGamesPopover = ({
                       
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm leading-tight truncate">
-                          {game.name}
+                          {decodeHtmlEntities(game.name)}
                         </h4>
                         <div className="flex items-center justify-between mt-2">
                           <Badge variant="secondary" className="text-xs bg-gaming-green/10 text-gaming-green">
