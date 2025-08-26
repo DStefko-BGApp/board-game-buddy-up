@@ -51,63 +51,52 @@ export interface UserGame {
 }
 
 class BGGService {
-  private static baseUrl = 'https://bcuknlhpfqlidbjfegra.supabase.co/functions/v1/bgg-integration';
-
   static async searchGames(searchTerm: string): Promise<BGGSearchResult[]> {
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ searchTerm }),
+    const { data, error } = await supabase.functions.invoke('bgg-integration', {
+      body: { searchTerm }
     });
 
-    const result = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Failed to search games');
+    }
     
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to search games');
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to search games');
     }
 
-    return result.data;
+    return data.data;
   }
 
   static async addGameToLibrary(bggId: number, userId: string, status: string = 'owned'): Promise<Game> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({ bggId, userId, status }),
+    const { data, error } = await supabase.functions.invoke('bgg-integration', {
+      body: { bggId, userId, status }
     });
 
-    const result = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Failed to add game to library');
+    }
     
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to add game to library');
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to add game to library');
     }
 
-    return result.data;
+    return data.data;
   }
 
   static async getGameDetails(bggId: number): Promise<Game> {
-    const response = await fetch(this.baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ bggId }),
+    const { data, error } = await supabase.functions.invoke('bgg-integration', {
+      body: { bggId }
     });
 
-    const result = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Failed to get game details');
+    }
     
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to get game details');
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to get game details');
     }
 
-    return result.data;
+    return data.data;
   }
 
   static async getUserLibrary(userId: string): Promise<UserGame[]> {
@@ -161,25 +150,20 @@ class BGGService {
   }
 
   static async updateGameExpansionRelationship(gameId: number, isExpansion: boolean, baseGameBggId?: string): Promise<void> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const response = await fetch('https://bcuknlhpfqlidbjfegra.supabase.co/functions/v1/update-game-expansion', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({ 
+    const { data, error } = await supabase.functions.invoke('update-game-expansion', {
+      body: { 
         gameId, 
         isExpansion, 
         baseGameBggId: baseGameBggId || null 
-      }),
+      }
     });
 
-    const result = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Failed to update game expansion relationship');
+    }
     
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to update game expansion relationship');
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to update game expansion relationship');
     }
   }
 
@@ -217,24 +201,19 @@ class BGGService {
   }
 
   static async syncBGGCollection(bggUsername: string, userId: string): Promise<any> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    const response = await fetch(`${this.baseUrl}/sync-collection`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({ bggUsername, userId }),
+    const { data, error } = await supabase.functions.invoke('bgg-integration', {
+      body: { bggUsername, userId, action: 'sync-collection' }
     });
 
-    const result = await response.json();
+    if (error) {
+      throw new Error(error.message || 'Failed to sync BGG collection');
+    }
     
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to sync BGG collection');
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to sync BGG collection');
     }
 
-    return result.data;
+    return data.data;
   }
 }
 
