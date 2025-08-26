@@ -5,6 +5,145 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Rate limiting and caching globals
+const requestCache = new Map()
+const lastRequestTime = new Map()
+const failedRequests = new Map()
+const circuitBreakerState = {
+  isOpen: false,
+  failureCount: 0,
+  lastFailureTime: 0,
+  threshold: 5,
+  timeout: 300000 // 5 minutes
+}
+
+// Enhanced headers for BGG API requests
+function getBGGHeaders(referer?: string) {
+  return {
+    'User-Agent': 'BoardGameLibrary/1.0 (+https://lovable.dev; bgg-integration) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Accept': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,*/*;q=0.5',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Referer': referer || 'https://lovable.dev',
+    'DNT': '1',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'cross-site',
+    'Cache-Control': 'max-age=300'
+  }
+}
+
+// Rate limiting with jittered backoff
+async function rateLimitedRequest(url: string, options: RequestInit = {}, retryCount = 0): Promise<Response> {
+  const maxRetries = 3
+  const baseDelay = 1000
+  const maxDelay = 8000
+  
+  // Check circuit breaker
+  if (circuitBreakerState.isOpen) {
+    if (Date.now() - circuitBreakerState.lastFailureTime > circuitBreakerState.timeout) {
+      circuitBreakerState.isOpen = false
+      circuitBreakerState.failureCount = 0
+      console.log('Circuit breaker reset')
+    } else {
+      throw new Error('Circuit breaker is open - BGG API temporarily unavailable')
+    }
+  }
+  
+  // Check cache first
+  const cacheKey = `${url}:${JSON.stringify(options)}`
+  const cached = requestCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < 300000) { // 5 min cache
+    console.log(`Cache hit for ${url}`)
+    return new Response(cached.data, { status: 200 })
+  }
+  
+  // Implement rate limiting
+  const now = Date.now()
+  const lastRequest = lastRequestTime.get('bgg') || 0
+  const timeSinceLastRequest = now - lastRequest
+  const minDelay = 1500 + Math.random() * 1000 // 1.5-2.5s jitter
+  
+  if (timeSinceLastRequest < minDelay) {
+    const waitTime = minDelay - timeSinceLastRequest
+    console.log(`Rate limiting: waiting ${waitTime}ms`)
+    await new Promise(resolve => setTimeout(resolve, waitTime))
+  }
+  
+  lastRequestTime.set('bgg', Date.now())
+  
+  try {
+    console.log(`BGG API Request: ${url}`)
+    console.log(`Headers:`, options.headers)
+    
+    const response = await fetch(url, options)
+    
+    // Log response details for debugging
+    console.log(`BGG Response Status: ${response.status} ${response.statusText}`)
+    console.log(`BGG Response Headers:`, Object.fromEntries(response.headers.entries()))
+    
+    if (!response.ok) {
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after')
+        const delay = retryAfter ? parseInt(retryAfter) * 1000 : baseDelay * Math.pow(2, retryCount)
+        
+        if (retryCount < maxRetries) {
+          console.log(`Rate limited, retrying in ${delay}ms (attempt ${retryCount + 1})`)
+          await new Promise(resolve => setTimeout(resolve, delay))
+          return rateLimitedRequest(url, options, retryCount + 1)
+        }
+      }
+      
+      if (response.status === 403) {
+        circuitBreakerState.failureCount++
+        if (circuitBreakerState.failureCount >= circuitBreakerState.threshold) {
+          circuitBreakerState.isOpen = true
+          circuitBreakerState.lastFailureTime = Date.now()
+          console.log('Circuit breaker opened due to 403 errors')
+        }
+        throw new Error(`BGG API access forbidden (403). This may be due to IP blocking or rate limiting.`)
+      }
+      
+      if ([301, 302, 307, 308].includes(response.status)) {
+        const location = response.headers.get('location')
+        console.log(`BGG API redirect ${response.status} to: ${location}`)
+        if (location && retryCount < maxRetries) {
+          return rateLimitedRequest(location, options, retryCount + 1)
+        }
+      }
+      
+      throw new Error(`BGG API responded with status ${response.status}: ${response.statusText}`)
+    }
+    
+    const text = await response.text()
+    
+    // Cache successful responses
+    requestCache.set(cacheKey, {
+      data: text,
+      timestamp: Date.now()
+    })
+    
+    // Reset circuit breaker on success
+    circuitBreakerState.failureCount = 0
+    
+    return new Response(text, { status: 200 })
+    
+  } catch (error) {
+    console.error(`BGG API Error (attempt ${retryCount + 1}):`, error)
+    
+    if (retryCount < maxRetries) {
+      const delay = Math.min(baseDelay * Math.pow(2, retryCount) + Math.random() * 1000, maxDelay)
+      console.log(`Retrying in ${delay}ms`)
+      await new Promise(resolve => setTimeout(resolve, delay))
+      return rateLimitedRequest(url, options, retryCount + 1)
+    }
+    
+    throw error
+  }
+}
+
 interface BGGGameData {
   bgg_id: number;
   name: string;
@@ -119,19 +258,9 @@ async function searchBGG(searchTerm: string) {
     const searchUrl = `https://boardgamegeek.com/xmlapi2/search?query=${encodeURIComponent(searchTerm)}&type=boardgame&exact=0`
     console.log(`Calling BGG search API: ${searchUrl}`)
     
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
+    const response = await rateLimitedRequest(searchUrl, {
+      headers: getBGGHeaders('https://boardgamegeek.com')
     })
-    
-    if (!response.ok) {
-      throw new Error(`BGG API responded with status ${response.status}`)
-    }
     
     const xmlText = await response.text()
     
@@ -180,19 +309,9 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
     const detailUrl = `https://boardgamegeek.com/xmlapi2/thing?id=${bggId}&stats=1&versions=1`
     console.log(`Calling BGG details API: ${detailUrl}`)
     
-    const response = await fetch(detailUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
+    const response = await rateLimitedRequest(detailUrl, {
+      headers: getBGGHeaders(`https://boardgamegeek.com/boardgame/${bggId}`)
     })
-    
-    if (!response.ok) {
-      throw new Error(`BGG API responded with status ${response.status}`)
-    }
     
     const xmlText = await response.text()
     
@@ -437,10 +556,8 @@ async function syncBGGCollection(supabase: any, bggUsername: string, userId: str
     // Enhanced collection URL with better parameters
     const collectionUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${encodeURIComponent(bggUsername)}&own=1&stats=1&excludesubtype=boardgameexpansion`
     
-    const response = await fetch(collectionUrl, {
-      headers: {
-        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
-      }
+    const response = await rateLimitedRequest(collectionUrl, {
+      headers: getBGGHeaders(`https://boardgamegeek.com/user/${bggUsername}`)
     })
     
     if (!response.ok) {
