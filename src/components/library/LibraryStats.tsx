@@ -3,9 +3,10 @@ import { BookOpen, Puzzle, Home } from "lucide-react";
 
 interface LibraryStatsProps {
   userLibrary: any[] | undefined;
+  onFilterChange: (filter: 'all' | 'base_games' | 'expansions') => void;
 }
 
-export const LibraryStats = ({ userLibrary }: LibraryStatsProps) => {
+export const LibraryStats = ({ userLibrary, onFilterChange }: LibraryStatsProps) => {
   const totalOwnedGames = userLibrary?.filter(g => g.is_owned).length || 0;
   const totalExpansions = userLibrary?.filter(g => g.is_owned && g.game?.is_expansion).length || 0;
   const totalBaseGames = userLibrary?.filter(g => g.is_owned && !g.game?.is_expansion).length || 0;
@@ -13,7 +14,10 @@ export const LibraryStats = ({ userLibrary }: LibraryStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 relative z-30">
       {/* Total Owned Games Card */}
-      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+      <Card 
+        className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300 cursor-pointer"
+        onClick={() => onFilterChange('all')}
+      >
         <CardContent className="p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-primary opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
           <div className="relative flex items-center justify-between">
@@ -31,7 +35,10 @@ export const LibraryStats = ({ userLibrary }: LibraryStatsProps) => {
       </Card>
       
       {/* Total Expansions Card */}
-      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+      <Card 
+        className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300 cursor-pointer"
+        onClick={() => onFilterChange('expansions')}
+      >
         <CardContent className="p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-accent opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
           <div className="relative flex items-center justify-between">
@@ -49,7 +56,10 @@ export const LibraryStats = ({ userLibrary }: LibraryStatsProps) => {
       </Card>
       
       {/* Total Base Games Card */}
-      <Card className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300">
+      <Card 
+        className="group hover-scale bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border-white/20 shadow-card hover:shadow-gaming transition-all duration-300 cursor-pointer"
+        onClick={() => onFilterChange('base_games')}
+      >
         <CardContent className="p-8 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-score opacity-5 group-hover:opacity-10 transition-opacity duration-300"></div>
           <div className="relative flex items-center justify-between">

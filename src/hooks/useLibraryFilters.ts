@@ -3,6 +3,7 @@ import { decodeHtmlEntities } from "@/lib/utils";
 import { type GameStatus } from "@/components/library/GameStatusSelector";
 
 type SortOption = 'name_asc' | 'name_desc' | 'date_added' | 'bgg_rating' | 'personal_rating' | 'min_players' | 'max_players' | 'core_mechanic' | 'playing_time' | 'status';
+type GameTypeFilter = 'all' | 'base_games' | 'expansions';
 
 export const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'name_asc', label: 'A-Z' },
@@ -21,6 +22,7 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>('name_asc');
   const [statusFilter, setStatusFilter] = useState<GameStatus | 'all'>('all');
+  const [gameTypeFilter, setGameTypeFilter] = useState<GameTypeFilter>('all');
 
   const getDisplayTitle = (game: any) => {
     return game.custom_title || decodeHtmlEntities(game.name);
@@ -47,15 +49,23 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
         const searchTerm = searchQuery.toLowerCase();
         const titleMatches = title.includes(searchTerm);
         
+        // Apply game type filter
+        let typeMatches = true;
+        if (gameTypeFilter === 'base_games') {
+          typeMatches = !group.baseGame.game.is_expansion;
+        } else if (gameTypeFilter === 'expansions') {
+          typeMatches = group.baseGame.game.is_expansion || group.expansions.length > 0;
+        }
+        
         if (statusFilter === 'all') {
-          return titleMatches;
+          return titleMatches && typeMatches;
         }
         
         // Filter by status - check both base game and expansions
         const hasMatchingStatus = group.baseGame.status === statusFilter || 
           group.expansions.some((expansion: any) => expansion.status === statusFilter);
         
-        return titleMatches && hasMatchingStatus;
+        return titleMatches && typeMatches && hasMatchingStatus;
       })
       .sort((a, b) => {
         const gameA = a.baseGame;
@@ -92,7 +102,7 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
             return 0;
         }
       });
-  }, [groupedLibrary, searchQuery, sortBy, statusFilter]);
+  }, [groupedLibrary, searchQuery, sortBy, statusFilter, gameTypeFilter]);
 
   return {
     searchQuery,
@@ -101,6 +111,8 @@ export const useLibraryFilters = (groupedLibrary: any[] | undefined) => {
     setSortBy,
     statusFilter,
     setStatusFilter,
+    gameTypeFilter,
+    setGameTypeFilter,
     sortedFilteredLibrary,
     getDisplayTitle
   };

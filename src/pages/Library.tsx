@@ -57,6 +57,8 @@ const Library = () => {
     setSortBy,
     statusFilter,
     setStatusFilter,
+    gameTypeFilter,
+    setGameTypeFilter,
     sortedFilteredLibrary,
     getDisplayTitle
   } = useLibraryFilters(groupedLibrary);
@@ -233,6 +235,10 @@ const Library = () => {
     }
   };
 
+  const handleFilterChange = (filter: 'all' | 'base_games' | 'expansions') => {
+    setGameTypeFilter(filter);
+  };
+
   if (!user) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -260,7 +266,7 @@ const Library = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 -mt-8">
         {/* Stats Section with enhanced visual appeal */}
         <div className="animate-fade-in">
-          <LibraryStats userLibrary={userLibrary} />
+          <LibraryStats userLibrary={userLibrary} onFilterChange={handleFilterChange} />
         </div>
 
         {/* Filters and Controls in a sticky section */}
