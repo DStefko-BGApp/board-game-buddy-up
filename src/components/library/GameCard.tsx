@@ -268,9 +268,17 @@ export const GameCard = ({
               </Button>
               {/* Show game source indicator */}
               {userGame.game.bgg_id < 500000 ? (
-                <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700">
+                <a 
+                  href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                  title="View on BoardGameGeek"
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" />
                   BGG Game
-                </span>
+                </a>
               ) : (
                 <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-muted text-muted-foreground">
                   Manual Entry
