@@ -266,22 +266,16 @@ export const GameCard = ({
                 <Edit className="h-3 w-3 mr-1" />
                 Edit
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-                className="h-6 px-1.5 text-xs"
+              <a 
+                href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-6 px-1.5"
               >
-                <a 
-                  href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  See game details
-                </a>
-              </Button>
+                <ExternalLink className="h-3 w-3 mr-1" />
+                See game details
+              </a>
             </div>
             
             <Button
