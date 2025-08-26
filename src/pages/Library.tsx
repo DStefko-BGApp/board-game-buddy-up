@@ -237,6 +237,10 @@ const Library = () => {
 
   const handleFilterChange = (filter: 'all' | 'base_games' | 'expansions') => {
     setGameTypeFilter(filter);
+    // Reset status filter when showing all games
+    if (filter === 'all') {
+      setStatusFilter('all');
+    }
   };
 
   if (!user) {
