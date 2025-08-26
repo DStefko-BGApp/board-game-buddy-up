@@ -77,13 +77,10 @@ const Library = () => {
       
       try {
         const { data } = await supabase
-          .from('user_games')
-          .select(`
-            *,
-            game:games!inner(*)
-          `)
-          .eq('user_id', user.id)
-          .eq('games.is_expansion', false);
+          .from('games')
+          .select('*')
+          .eq('is_expansion', false)
+          .order('name');
         
         setAllBaseGames(data || []);
       } catch (error) {
