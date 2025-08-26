@@ -268,17 +268,27 @@ export const GameCard = ({
               </Button>
               {/* Show game source indicator */}
               {userGame.game.bgg_id < 500000 ? (
-                <a 
-                  href={`https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-                  title="View on BoardGameGeek"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const bggUrl = `https://boardgamegeek.com/boardgame/${userGame.game.bgg_id}`;
+                    // Try to open in new tab, if blocked, copy to clipboard
+                    const newWindow = window.open(bggUrl, '_blank');
+                    if (!newWindow) {
+                      navigator.clipboard.writeText(bggUrl).then(() => {
+                        // You could add a toast notification here
+                        console.log('BGG URL copied to clipboard:', bggUrl);
+                      });
+                    }
+                  }}
+                  className="h-6 px-1.5 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-800"
+                  title="View on BoardGameGeek (or copy link if blocked)"
                 >
                   <ExternalLink className="h-3 w-3 mr-1" />
                   BGG Game
-                </a>
+                </Button>
               ) : (
                 <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xs font-medium h-6 px-1.5 bg-muted text-muted-foreground">
                   Manual Entry
