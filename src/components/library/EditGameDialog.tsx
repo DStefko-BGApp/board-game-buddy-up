@@ -130,8 +130,8 @@ export const EditGameDialog = ({
                   </SelectTrigger>
                   <SelectContent>
                     {allBaseGames.map((baseGame) => (
-                      <SelectItem key={baseGame.game.bgg_id} value={baseGame.game.bgg_id.toString()}>
-                        {getDisplayTitle(baseGame.game)}
+                      <SelectItem key={baseGame.bgg_id} value={baseGame.bgg_id.toString()}>
+                        {getDisplayTitle(baseGame)}
                       </SelectItem>
                     ))}
                   </SelectContent>
