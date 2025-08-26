@@ -40,10 +40,22 @@ const Friends = () => {
   const [showSimilarUsers, setShowSimilarUsers] = useState(false);
   const [similarUsersSearch, setSimilarUsersSearch] = useState({ term: "", type: 'game' as 'game' | 'mechanic' });
   const [sharedGamesCounts, setSharedGamesCounts] = useState<Map<string, number>>(new Map());
+  const [sortByOnlineStatus, setSortByOnlineStatus] = useState(false);
 
   const filteredFriends = friends.filter(friend =>
     friend.display_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Sort friends by online status if enabled
+  const sortedFriends = sortByOnlineStatus 
+    ? [...filteredFriends].sort((a, b) => {
+        const aOnline = isUserOnline(a.user_id);
+        const bOnline = isUserOnline(b.user_id);
+        if (aOnline && !bOnline) return -1;
+        if (!aOnline && bOnline) return 1;
+        return 0;
+      })
+    : filteredFriends;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -434,7 +446,10 @@ const Friends = () => {
           </Card>
 
           {/* Online Friends */}
-          <Card className="hover:shadow-lg transition-all duration-300">
+          <Card 
+            className="hover:shadow-lg transition-all duration-300 cursor-pointer" 
+            onClick={() => setSortByOnlineStatus(!sortByOnlineStatus)}
+          >
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center mb-2">
                 <div className="relative">
@@ -445,12 +460,14 @@ const Friends = () => {
                   {friends.filter(f => isUserOnline(f.user_id)).length}
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground/70 font-medium mb-2">Online Now</div>
+              <div className="text-xs text-muted-foreground/70 font-medium mb-2">
+                {sortByOnlineStatus ? "Sorting by Status" : "Online Now"}
+              </div>
               
               {/* Activity Indicator */}
               <div className="flex items-center justify-center text-xs text-green-600 font-medium">
                 <TrendingUp className="h-3 w-3 mr-1" />
-                Active community
+                {sortByOnlineStatus ? "Click to reset" : "Click to sort"}
               </div>
             </CardContent>
           </Card>
@@ -588,7 +605,7 @@ const Friends = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredFriends.map((friend) => {
+              {sortedFriends.map((friend) => {
                 const sharedGamesCount = getSharedGamesCount(friend);
                 // Use real-time presence status instead of static profile status
                 const realTimeStatus = getUserStatus(friend.user_id);
