@@ -121,7 +121,11 @@ async function searchBGG(searchTerm: string) {
     
     const response = await fetch(searchUrl, {
       headers: {
-        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       }
     })
     
@@ -178,7 +182,11 @@ async function getGameDetails(bggId: number): Promise<BGGGameData | null> {
     
     const response = await fetch(detailUrl, {
       headers: {
-        'User-Agent': 'BoardGameLibrary/1.0 (Lovable Project)'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       }
     })
     
