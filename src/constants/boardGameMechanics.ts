@@ -15,6 +15,7 @@ export const BOARD_GAME_MECHANICS = [
   "Hand Management",
   "Network Building",
   "Press Your Luck",
+  "Resource Management",
   "Set Collection",
   "Tableau Building",
   "Tile Placement",
