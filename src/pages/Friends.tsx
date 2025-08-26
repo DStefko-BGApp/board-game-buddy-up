@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { supabase } from "@/integrations/supabase/client";
 import friendsMeeples from "@/assets/friends-meeples.png";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 const Friends = () => {
   const { friends, friendRequests, loading, acceptFriendRequest, rejectFriendRequest, refetch } = useFriends();
@@ -696,7 +697,7 @@ const Friends = () => {
                                   className="text-xs font-medium cursor-pointer hover:bg-gaming-green/10 hover:border-gaming-green/30 transition-colors"
                                   onClick={() => handleGameTagClick(game)}
                                 >
-                                  {game}
+                                  {decodeHtmlEntities(game)}
                                 </Badge>
                               ))}
                               {friend.favorite_games.length > 5 && (

@@ -24,6 +24,7 @@ import { useUserGames } from "@/hooks/useUserGames";
 import { useUserPresence } from "@/hooks/useUserPresence";
 import { useNavigate } from "react-router-dom";
 import { FriendLibraryDialog } from "./FriendLibraryDialog";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 interface FriendProfileDialogProps {
   friend: Profile | null;
@@ -277,7 +278,7 @@ export const FriendProfileDialog = ({ friend, open, onOpenChange }: FriendProfil
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2">
                           {gameInLibrary && <Zap className="h-4 w-4 text-gaming-green" />}
-                          <p className="font-semibold text-foreground text-sm">{game}</p>
+                          <p className="font-semibold text-foreground text-sm">{decodeHtmlEntities(game)}</p>
                         </div>
                         {gameInLibrary && (
                           <p className="text-xs text-gaming-green font-medium mt-1">In your library!</p>
