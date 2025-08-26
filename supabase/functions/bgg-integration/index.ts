@@ -53,14 +53,11 @@ Deno.serve(async (req) => {
 
     // Parse request body once
     const requestBody = await req.json()
-    const { searchTerm, bggId, userId, bggUsername, status } = requestBody
+    const { searchTerm, bggId, userId, bggUsername, status, action } = requestBody
 
     switch (req.method) {
       case 'POST':
-        // Check URL path to determine operation
-        const url = new URL(req.url)
-        
-        if (url.pathname.includes('sync-collection')) {
+        if (action === 'sync-collection') {
           // Sync user's BGG collection
           console.log(`Syncing BGG collection for user: ${bggUsername}`)
           
