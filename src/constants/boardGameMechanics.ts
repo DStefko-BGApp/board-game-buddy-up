@@ -17,6 +17,7 @@ export const BOARD_GAME_MECHANICS = [
   "Press Your Luck",
   "Real-Time",
   "Resource Management",
+  "Roll-&-Write",
   "Set Collection",
   "Tableau Building",
   "Tile Placement",
